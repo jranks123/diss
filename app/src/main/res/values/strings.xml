@@ -10,4 +10,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_search">Search</string>
     <string name="close">4. Close</string>
+    <string name="print"><![CDATA[<b>print </b>]]></string>
+    <string name="string"><![CDATA[<b>String </b>]]></string>
+    <string name="integer"><![CDATA[<b>int </b>]]></string>
+
+
 </resources>
