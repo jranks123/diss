@@ -265,14 +265,18 @@ public class Main extends Activity {
                 code.append(" ;\n");
              //   if( tree.parent.parent.nodeType == Node.Type.DEC ){
                 if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)){
-                //    if(tree.parent.nodeType == Node.Type.VAR) {
-                        Variable v = tree.returnAssignVar(tree);
-                        type = v.varNodeType;
-                        if (!checkVarExists(v.name, v.varNodeType)) {
+                    Variable v;// = new Variable(null, null, null, null);
+                        try {
+                             v = tree.returnAssignVar(tree);
+                        }catch (NullPointerException e){
+                            //for case when there is a declaration without an assignment
+                                v = tree.returnDecVar(tree);
+                        }
+                    type = v.varNodeType;
+                    if (!checkVarExists(v.name, v.varNodeType)) {
                             Variable var = new Variable(null, type, v.name, null);
                             variables.add(var);
                         }
-                   // }
                 }
 
         }
@@ -409,7 +413,7 @@ public class Main extends Activity {
             leftChild = true;
             Log.d("Going left", tree.left.nodeType.toString());
             if(tree.left.nodeType.equals(Node.Type.VAR)){
-                Log.d("type is" , ((Variable)tree.left).varNodeType.toString());
+                Log.d("type is", ((Variable) tree.left).varNodeType.toString());
             }
             if (tree.left.isCurrentNode){
                 Log.e("And IS", "CURRENT " + tree.left.nodeType.toString());

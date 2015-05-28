@@ -143,6 +143,10 @@ public class Node {
         return ((Variable)node.parent);
     }
 
+    public Variable returnDecVar(Node node){
+        return ((Variable)node.left);
+    }
+
     public Boolean isXbeforeY(Node node, Node.Type x, Node.Type y){
       //  Node node = findCurNode(tree);
         while(node.nodeType != x || node.nodeType != y){
