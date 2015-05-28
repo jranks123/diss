@@ -75,10 +75,9 @@ public class Main extends Activity {
     ArrayList<Variable> variables;
     ArrayList<Boolean> openLoops;
     String tempString1;
-    Boolean wait;
     String s;
 
-
+    String kkkl;
 
 
     protected void onCreate(Bundle savedInstanceState) {
