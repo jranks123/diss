@@ -11,7 +11,8 @@ public class Dec extends Node {
     public enum Type{
         STRING,
         INT,
-        BOOL
+        BOOL,
+        NONE
     }
 
     public Dec(Node parent, Type type)

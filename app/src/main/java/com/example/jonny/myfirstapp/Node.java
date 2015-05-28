@@ -52,74 +52,57 @@ public class Node {
             return tree;
         }
         if (tree.left != null) {
-          //  Log.e("ABOUT TO LOOK AT NODE",  tree.left.nodeType.toString());
             newTree = findCurNode(tree.left);
 
         }
         if (tree.right != null) {
-        //    Log.e("ABOUT TO LOOK AT NODE",  tree.right.nodeType.toString());
             newTree = findCurNode(tree.right);
         }
         return newTree;
     }
 
 
-    public Node addNode(Node tree, Type type, String direction, String value){
+    public Node addNode(Node tree, Type type, String direction, String value) {
         Node node = findCurNode(tree);
-        if (direction == "left"){
-            if(type == Type.STRING){
-                node.left = new Str(node, value);
-            }else if (type == Type.VAR){
-                if(value == "String") {
-                    node.left = new Variable(node, Variable.Type.STRING, null, null);
+        Node newNode = new Node(Node.Type.NONE, node);
+            if (type == Type.STRING) {
+                newNode = new Str(node, value);
+            }
+            else if (type == Type.VAR) {
+                if (value == "String") {
+                    newNode = new Variable(node, Variable.Type.STRING, null, null);
                 }
-                if(value == "Int") {
-                    node.left = new Variable(node, Variable.Type.INT, null, null);
-                }
-            }else if (type == Type.DEC){
-                if(value == "String")
-                    node.left = new Dec(node, Dec.Type.STRING);
-                if(value == "Int")
-                    node.left = new Dec(node, Dec.Type.INT);
-            }else if (type == Type.VARVAL){
-                node.left = new VarVal(node, VarVal.Type.STRING, value);
-               // (((Variable)node.parent.parent).value) = value;
-            }else if(type == Type.FORLOOP){
-                if(value == "For"){
-                    node.left = new Loops(node, Loops.Type.FOR);
+                if (value == "Int") {
+                    newNode = new Variable(node, Variable.Type.INT, null, null);
                 }
             }
-            else{
-                node.left = new Node(type, node);
+            else if (type == Type.DEC) {
+                newNode = new Dec(node, Dec.Type.NONE);
             }
-            node.isCurrentNode = false;
-        }
-
-        else if (direction == "right"){
-            if(type == Type.STRING){
-                node.right = new Str(node, value);
-            }else if (type == Type.VAR){
-                if(value == "String") {
-                    node.right = new Variable(node, Variable.Type.STRING, value, null);
+            else if (type == Type.VARVAL) {
+                newNode = new VarVal(node, VarVal.Type.STRING, value);
+            }
+            else if (type == Type.FORLOOP) {
+                if (value == "For") {
+                    newNode = new Loops(node, Loops.Type.FOR);
                 }
-            }else if (type == Type.DEC){
-                if(value == "String") {
-                    node.right = new Dec(node, Dec.Type.STRING);
-                }
-            }else if (type == Type.VARVAL){
-                node.right = new VarVal(node, VarVal.Type.STRING, value);
-              //  (((Variable)node.parent).value) = value;
-            }else if (type == Type.OP) {
+            }
+            else if (type == Type.OP) {
                 node.right = new Operator(node, null);
-            }else{
-                node.right = new Node(type, node);
+            }
+            else {
+                newNode = new Node(type, node);
+            }
+            if(direction == "left"){
+                node.left = newNode;
+            }else if(direction == "right"){
+                node.right = newNode;
             }
             node.isCurrentNode = false;
-        }
-       // node = findCurNode(tree);
-       // Log.d("DEBUG", node.nodeType.toString());
-        return tree;
+            return tree;
     }
+
+
 
     public Node updateOp(Node tree, Operator.Type type ){
         Node node = findCurNode(tree);
@@ -127,21 +110,9 @@ public class Node {
         return tree;
     }
 
-
-    public Node addPrintStringNode(Node tree, Type type, String direction){
+    public Node updateDec(Node tree, Dec.Type type){
         Node node = findCurNode(tree);
-        Log.d("ADDNODES", node.nodeType.toString());
-        if (direction == "left"){
-            Log.d("ADDNODES", "Adding " + type.toString() + " to left");
-            node.left = new Node(type, node);
-            node.isCurrentNode = false;
-        }else if (direction == "right"){
-            Log.d("ADDNODES", "Adding " + type.toString() + " to right");
-            node.right = new Node(type, node);
-            node.isCurrentNode = false;
-        }
-        // node = findCurNode(tree);
-        // Log.d("DEBUG", node.nodeType.toString());
+        ((Dec)node).varNodeType = type;
         return tree;
     }
 
@@ -158,7 +129,6 @@ public class Node {
     }
 
     public Variable returnAssignVar(Node node){
-      //  Node node = tree.findCurNode(tree);
         while(node.nodeType != Node.Type.ASSIGN){
             node = node.parent;
         }
