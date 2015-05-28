@@ -12,14 +12,17 @@ public class Node {
         NONE,
         ROOT,
         SEQ,
+        EVAL,
         STRING,
         PRINT,
         VAR,
         DEC,
         VARVAL,
         ASSIGN,
-        LOOP,
-        SMCLN;
+        FORLOOP,
+        SMCLN,
+        OP,
+        END;
     }
 
 
@@ -70,6 +73,9 @@ public class Node {
                 if(value == "String") {
                     node.left = new Variable(node, Variable.Type.STRING, null, null);
                 }
+                if(value == "Int") {
+                    node.left = new Variable(node, Variable.Type.INT, null, null);
+                }
             }else if (type == Type.DEC){
                 if(value == "String")
                     node.left = new Dec(node, Dec.Type.STRING);
@@ -78,7 +84,7 @@ public class Node {
             }else if (type == Type.VARVAL){
                 node.left = new VarVal(node, VarVal.Type.STRING, value);
                // (((Variable)node.parent.parent).value) = value;
-            }else if(type == Type.LOOP){
+            }else if(type == Type.FORLOOP){
                 if(value == "For"){
                     node.left = new Loops(node, Loops.Type.FOR);
                 }
@@ -103,6 +109,8 @@ public class Node {
             }else if (type == Type.VARVAL){
                 node.right = new VarVal(node, VarVal.Type.STRING, value);
               //  (((Variable)node.parent).value) = value;
+            }else if (type == Type.OP) {
+                node.right = new Operator(node, null);
             }else{
                 node.right = new Node(type, node);
             }
@@ -112,6 +120,13 @@ public class Node {
        // Log.d("DEBUG", node.nodeType.toString());
         return tree;
     }
+
+    public Node updateOp(Node tree, Operator.Type type ){
+        Node node = findCurNode(tree);
+        ((Operator)node).opNodeType = type;
+        return tree;
+    }
+
 
     public Node addPrintStringNode(Node tree, Type type, String direction){
         Node node = findCurNode(tree);
@@ -142,7 +157,13 @@ public class Node {
         return tree;
     }
 
-
+    public Variable returnAssignVar(Node node){
+      //  Node node = tree.findCurNode(tree);
+        while(node.nodeType != Node.Type.ASSIGN){
+            node = node.parent;
+        }
+        return ((Variable)node.parent);
+    }
 
     public Node moveUpTreeLimit(Node tree, String limit){
         Log.e("ADDNODE", "moving up tree");
@@ -167,10 +188,45 @@ public class Node {
             node.parent.isCurrentNode = true;
             Log.d("DEBUG", "Current node = " + node.parent.nodeType.toString());
         }
-
         return tree;
 
     }
+
+    public Node moveDownOneStep(Node tree, String direction){
+        Node node;
+        node = findCurNode(tree);
+        node.isCurrentNode = false;
+        if(direction.equals("left")){
+            node.left.isCurrentNode = true;
+        }else if(direction.equals("right")){
+            node.right.isCurrentNode = true;
+        }else{
+            Log.d("THERE", "IS A PROBLEM");
+        }
+        return tree;
+        }
+
+    public Node moveUpOneStep(Node tree){
+        Node node;
+        node = findCurNode(tree);
+        node.isCurrentNode = false;
+        node.parent.isCurrentNode = true;
+        return tree;
+    }
+
+
+
+    public Node moveUpToStartOfForLoop(Node tree){
+        Node node;
+        while(findCurNode(tree).nodeType != Type.FORLOOP){
+            node = findCurNode(tree);
+
+            node.isCurrentNode = false;
+            node.parent.isCurrentNode = true;
+        }
+        return tree;
+    }
+
 
 
 

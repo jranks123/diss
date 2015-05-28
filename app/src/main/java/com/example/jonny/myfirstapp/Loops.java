@@ -7,13 +7,16 @@ public class Loops extends Node {
     Type varNodeType;
     Integer lowerLim;
     Integer upperLim;
+    String limiter;
+    String operator;
+    String plusOrMinus;
 
     public enum Type {
         FOR
     }
 
     public Loops(Node parent, Type type){
-        super(Node.Type.LOOP, parent);
+        super(Node.Type.FORLOOP, parent);
         this.isCurrentNode = true;
         this.varNodeType = type;
     }

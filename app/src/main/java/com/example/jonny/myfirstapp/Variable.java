@@ -7,8 +7,8 @@ public class Variable extends Node {
 
 
     Type varNodeType;
-    String name;
-    String value;
+    public String name;
+    public String value;
 
     public enum Type{
         STRING,
