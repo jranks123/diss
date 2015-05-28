@@ -89,7 +89,7 @@ public class Node {
                 }
             }
             else if (type == Type.OP) {
-                node.right = new Operator(node, null);
+                newNode = new Operator(node, null);
             }
             else {
                 newNode = new Node(type, node);
@@ -110,6 +110,13 @@ public class Node {
         ((Operator)node).opNodeType = type;
         return tree;
     }
+
+    public Node updateVarVal(Node tree, String value){
+        Node node = findCurNode(tree);
+        ((VarVal)node).value = value;
+        return tree;
+    }
+
 
     public Node updateDec(Node tree, Dec.Type type){
         Node node = findCurNode(tree);
@@ -135,6 +142,20 @@ public class Node {
         }
         return ((Variable)node.parent);
     }
+
+    public Boolean isXbeforeY(Node node, Node.Type x, Node.Type y){
+      //  Node node = findCurNode(tree);
+        while(node.nodeType != x || node.nodeType != y){
+            node = node.parent;
+            if(node.nodeType == x){
+                return true;
+            }else if (node.nodeType == y){
+                return false;
+            }
+        }
+        return null;
+    }
+
 
     public Node moveUpTreeLimit(Node tree, String limit){
         Log.e("ADDNODE", "moving up tree");

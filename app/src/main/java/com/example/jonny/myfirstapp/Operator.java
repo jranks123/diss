@@ -11,7 +11,8 @@ public class Operator extends Node {
         ADD,
         SUB,
         MULTI,
-        DIV
+        DIV,
+        NONE
     }
 
     public Operator(Node parent, Type type){

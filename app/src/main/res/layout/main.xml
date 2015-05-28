@@ -323,6 +323,22 @@
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
+        <!-- Eval menu -->
+        <Button
+            android:id="@+id/btnExistingVar"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Existing Variable"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnTypeInput"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Type Input"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
 
         <!-- Loops menu -->
 

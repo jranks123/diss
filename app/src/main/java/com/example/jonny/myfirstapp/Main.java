@@ -65,6 +65,11 @@ public class Main extends Activity {
     Button btnEnterText;
     Button btnEquals;
 
+
+    Button btnExistingVar;
+
+    Button btnTypeInput;
+
     Variable newVar;
     Button btnEnterString;
     TextView code;
@@ -109,6 +114,9 @@ public class Main extends Activity {
 
         btnEnterText = (Button) findViewById(R.id.btnEnterText);
         btnEquals = (Button) findViewById(R.id.btnEquals);
+
+        btnExistingVar = (Button) findViewById(R.id.btnExistingVar);
+        btnTypeInput = (Button) findViewById(R.id.btnTypeInput);
 
         btnForNewVar = (Button) findViewById(R.id.btnForNewVar);
         btnForNewVarEnter = (Button) findViewById(R.id.btnForNewVarEnter);
@@ -235,31 +243,36 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.VARVAL){
             //(((Variable)node.parent.parent).value) = value;
             Variable.Type type = null;
-            if (tree.returnAssignVar(tree).varNodeType  == Variable.Type.STRING) {
-                type = Variable.Type.STRING;
-                code.append("\"");
-                code.append(((VarVal) tree).value);
-                code.append("\"");
-            }else if (tree.returnAssignVar(tree).varNodeType == Variable.Type.INT) {
-                type = Variable.Type.INT;
-                code.append(((VarVal) tree).value);
-            }
-            Variable v = (tree.returnAssignVar(tree));
-            if(!checkVarExists(v.name, v.varNodeType)){
-                Variable var = new Variable(null, type, v.name, null);
-                variables.add(var);
+            if(((VarVal)tree).value != null) {
+                if (tree.returnAssignVar(tree).varNodeType == Variable.Type.STRING) {
+                    type = Variable.Type.STRING;
+                    code.append("\"");
+                    code.append(((VarVal) tree).value);
+                    code.append("\"");
+                } else if (tree.returnAssignVar(tree).varNodeType == Variable.Type.INT) {
+                    type = Variable.Type.INT;
+                    code.append(((VarVal) tree).value);
+                }
+                Variable v = (tree.returnAssignVar(tree));
+                if (!checkVarExists(v.name, v.varNodeType)) {
+                    Variable var = new Variable(null, type, v.name, null);
+                    variables.add(var);
+                }
             }
         }
         else if (nodeType == Node.Type.SMCLN){
                 Variable.Type type = null;
                 code.append(" ;\n");
-                if( tree.parent.parent.nodeType == Node.Type.DEC ){
-                    Variable v = ((Variable)tree.parent);
-                    type = v.varNodeType;
-                    if(!checkVarExists(v.name, v.varNodeType)){
-                        Variable var = new Variable(null, type, v.name, null);
-                        variables.add(var);
-                    }
+             //   if( tree.parent.parent.nodeType == Node.Type.DEC ){
+                if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)){
+                //    if(tree.parent.nodeType == Node.Type.VAR) {
+                        Variable v = tree.returnAssignVar(tree);
+                        type = v.varNodeType;
+                        if (!checkVarExists(v.name, v.varNodeType)) {
+                            Variable var = new Variable(null, type, v.name, null);
+                            variables.add(var);
+                        }
+                   // }
                 }
 
         }
@@ -319,7 +332,19 @@ public class Main extends Activity {
             code.append(" = ");
         }
         else if(nodeType == Node.Type.OP && ((Operator)tree).opNodeType != null){
-            code.append(((Operator) tree).opNodeType.toString());
+            String op = ((Operator) tree).opNodeType.toString();
+            if(op.equals("ADD")){
+                code.append(" + ");
+            }
+            else if(op.equals("SUB")){
+                code.append(" - ");
+            }
+            else if(op.equals("MULTI")){
+                code.append(" * ");
+            }
+            else if(op.equals("DIV")){
+                code.append(" / ");
+            }
         }
 
     }
@@ -380,7 +405,6 @@ public class Main extends Activity {
 
         Boolean leftChild = false;
         Boolean rightChild = false;
-        //visitNode(tree);
         if (tree.left != null){
             leftChild = true;
             Log.d("Going left", tree.left.nodeType.toString());
@@ -478,7 +502,9 @@ public class Main extends Activity {
         varButtons.clear();
         Node.Type nodeType = tree.findCurNode(tree).nodeType;
         if(nodeType != Node.Type.PRINT && nodeType != Node.Type.OP){
-            btnNewVar.setVisibility(View.VISIBLE);
+            if(!tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)) {
+                btnNewVar.setVisibility(View.VISIBLE);
+            }
         }
         LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
         for(int i = 0; i < variables.size(); i++) {
@@ -505,6 +531,9 @@ public class Main extends Activity {
                         tree.setVarName(tree, b.getText().toString());
                         btnNewVar.setVisibility(View.GONE);
                         //  b.setVisibility(View.GONE);
+                        if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
+                            btnOperator.setVisibility(View.VISIBLE);
+                        }
                         if (tree.findCurNode(tree).parent.parent.nodeType == Node.Type.SEQ) {
                             btnEquals.setVisibility(View.VISIBLE);
                         } else {
@@ -683,6 +712,12 @@ public class Main extends Activity {
                 if(tree.findCurNode(tree).nodeType == Node.Type.SEQ || tree.findCurNode(tree).nodeType == Node.Type.ROOT){
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
+                }else if(tree.findCurNode(tree).nodeType == Node.Type.EVAL || tree.findCurNode(tree).nodeType == Node.Type.OP){
+                    if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.STRING) {
+                        tree.addNode(tree, Node.Type.VAR, "left", "String");
+                    }else if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.INT) {
+                        tree.addNode(tree, Node.Type.VAR, "left", "Int");
+                    }
                 }
                 showVarButtons(null);
                 break;
@@ -719,6 +754,9 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
                 break;
 
+            case R.id.btnTypeInput:
+                tree = tree.addNode(tree, Node.Type.VARVAL, "right", null);
+                break;
 
 
             case R.id.btnEnterVarValue:
@@ -727,11 +765,9 @@ public class Main extends Activity {
 
 
             case R.id.btnEnterTextString:
-                tree = tree.addNode(tree, Node.Type.STRING, "right", edtEnterString.getText().toString().trim());
+                tree = tree.updateVarVal(tree, edtEnterString.getText().toString().trim());
                 clearButtons();
                 break;
-
-
 
             case R.id.btnOperator:
                 tree = tree.addNode(tree, Node.Type.OP, "right", null);
@@ -783,21 +819,27 @@ public class Main extends Activity {
                 btnRun.setVisibility(View.GONE);
             }
             if(currentNodeType == Node.Type.OP && ((Operator) tree.findCurNode(tree)).opNodeType == null){
-                if(tree.findCurNode(tree).returnAssignVar(tree).varNodeType == Variable.Type.INT){
+                clearButtons();
+                if(tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.INT){
                     btnOperatorAdd.setVisibility(View.VISIBLE);
                     btnOperatorSub.setVisibility(View.VISIBLE);
                     btnOperatorMulti.setVisibility(View.VISIBLE);
                     btnOperatorDiv.setVisibility(View.VISIBLE);
-                }else if (tree.findCurNode(tree).returnAssignVar(tree).varNodeType == Variable.Type.STRING){
+                }else if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.STRING){
                     btnOperatorAdd.setVisibility(View.VISIBLE);
                 }
             }else if(currentNodeType == Node.Type.OP && ((Operator) tree.findCurNode(tree)).opNodeType != null){
-                Variable.Type varType = tree.returnAssignVar(tree).varNodeType;
+                clearButtons();
+                btnTypeInput.setVisibility(View.VISIBLE);
+                if(variables.size() > 0) {
+                    btnVar.setVisibility(View.VISIBLE);
+                }
+               /* Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
                 if(varType == Variable.Type.STRING) {
                     showVarButtons(null);
                 }else if (varType == Variable.Type.INT){
                     showVarButtons(varType);
-                }
+                }*/
             }
             else if(currentNodeType == Node.Type.DEC){
                 clearButtons();
@@ -812,12 +854,21 @@ public class Main extends Activity {
             }
             else if(currentNodeType == Node.Type.VAR){
                 clearButtons();
-                Node node = tree.findCurNode(tree);
-                edtEnterString.setText("");
-                btnEquals.setVisibility(View.VISIBLE);
-                btnSemicolon.setVisibility(View.VISIBLE);
-
+                //Node node = tree.findCurNode(tree);
+                if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
+                Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
+                if(varType == Variable.Type.STRING) {
+                    showVarButtons(null);
+                }else if (varType == Variable.Type.INT){
+                    showVarButtons(varType);
+                }
+                }else {
+                    edtEnterString.setText("");
+                    btnEquals.setVisibility(View.VISIBLE);
+                    btnSemicolon.setVisibility(View.VISIBLE);
+                }
             }
+
             else if(currentNodeType == Node.Type.PRINT){
                 btnPrintBack.setVisibility(View.VISIBLE);
                 btnSemicolon.setVisibility(View.VISIBLE);
@@ -825,21 +876,33 @@ public class Main extends Activity {
             }
             else if(currentNodeType == Node.Type.VARVAL){
                 clearButtons();
-                btnSemicolon.setVisibility(View.VISIBLE);
-                btnOperator.setVisibility(View.VISIBLE);
+                if(((VarVal)tree.findCurNode(tree)).value == null){
+                    edtEnterString.setVisibility(View.VISIBLE);
+                    btnEnterVarValue.setVisibility(View.VISIBLE);
+                }else {
+                    btnSemicolon.setVisibility(View.VISIBLE);
+                    btnOperator.setVisibility(View.VISIBLE);
+                }
             }
             else if(currentNodeType == Node.Type.STRING){
                 clearButtons();
                 btnSemicolon.setVisibility(View.VISIBLE);
                 btnOperator.setVisibility(View.VISIBLE);
             }
-            if (currentNodeType != Node.Type.VARVAL && currentNodeType != Node.Type.STRING ){
+            if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.VAR) ){
                 btnOperator.setVisibility(View.GONE);
             }
             if(currentNodeType != Node.Type.ROOT){
+                //IF CURRENT NODE IS EVAL BASICALLY
                 if(tree.findCurNode(tree).parent.nodeType == Node.Type.ASSIGN){
-                    edtEnterString.setVisibility(View.VISIBLE);
-                    btnEnterVarValue.setVisibility(View.VISIBLE);
+                    clearButtons();
+                    btnTypeInput.setVisibility(View.VISIBLE);
+                   // TODO fix this so that it checks that there are ints
+                    if(variables.size() > 0) {
+                        btnVar.setVisibility(View.VISIBLE);
+                    }
+                  //  edtEnterString.setVisibility(View.VISIBLE);
+                  //  btnEnterVarValue.setVisibility(View.VISIBLE);
                 }
             }
         }
