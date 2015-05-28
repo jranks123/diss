@@ -266,12 +266,11 @@ public class Main extends Activity {
              //   if( tree.parent.parent.nodeType == Node.Type.DEC ){
                 if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)){
                     Variable v;// = new Variable(null, null, null, null);
-                        try {
-                             v = tree.returnAssignVar(tree);
-                        }catch (NullPointerException e){
-                            //for case when there is a declaration without an assignment
-                                v = tree.returnDecVar(tree);
-                        }
+                    if(tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)) {
+                        v = tree.returnAssignVar(tree);
+                    }else{
+                        v = tree.returnDecVar(tree);
+                    }
                     type = v.varNodeType;
                     if (!checkVarExists(v.name, v.varNodeType)) {
                             Variable var = new Variable(null, type, v.name, null);
@@ -690,7 +689,7 @@ public class Main extends Activity {
             case R.id.clear:
                 tree = new Node(Node.Type.ROOT, null);
                 clearButtons();
-                forLoopIsOpen = false;
+                openLoops.clear();
                 output.setText("");
                 variables.clear();
                 showButtons(homeMenu);
@@ -716,8 +715,11 @@ public class Main extends Activity {
                 if(tree.findCurNode(tree).nodeType == Node.Type.SEQ || tree.findCurNode(tree).nodeType == Node.Type.ROOT){
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
-                }else if(tree.findCurNode(tree).nodeType == Node.Type.EVAL || tree.findCurNode(tree).nodeType == Node.Type.OP){
-                    if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.STRING) {
+                }else if((tree.findCurNode(tree).nodeType == Node.Type.EVAL)|| tree.findCurNode(tree).nodeType == Node.Type.OP){
+                    if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ)){
+                        tree.addNode(tree, Node.Type.VAR, "left", null);
+                    }
+                    else if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.STRING) {
                         tree.addNode(tree, Node.Type.VAR, "left", "String");
                     }else if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.INT) {
                         tree.addNode(tree, Node.Type.VAR, "left", "Int");
@@ -860,7 +862,7 @@ public class Main extends Activity {
                 clearButtons();
                 //Node node = tree.findCurNode(tree);
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
-                Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
+                    Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
                 if(varType == Variable.Type.STRING) {
                     showVarButtons(null);
                 }else if (varType == Variable.Type.INT){
@@ -916,3 +918,7 @@ public class Main extends Activity {
 
 
 }
+
+
+//TODO: Fix printing in general
+//TODO: int dec doesnt work in loop
