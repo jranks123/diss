@@ -22,6 +22,7 @@ public class Node {
         FORLOOP,
         SMCLN,
         OP,
+        NEWLINE,
         END;
     }
 

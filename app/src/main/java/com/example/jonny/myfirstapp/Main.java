@@ -184,55 +184,7 @@ public class Main extends Activity {
 
 
 
-    public void showVarButtons(Variable.Type varType){
-        varButtons.clear();
-        Node.Type nodeType = tree.findCurNode(tree).nodeType;
-        if(nodeType != Node.Type.PRINT && nodeType != Node.Type.OP){
-            btnNewVar.setVisibility(View.VISIBLE);
-        }
-        LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
-        for(int i = 0; i < variables.size(); i++) {
-            if (varType == null || variables.get(i).varNodeType == varType){
-                final Button b = new Button(this);
-                s = "<b><i>" + variables.get(i).name + "</i></b>";
-                b.setText(Html.fromHtml(s));
-                b.setId(i);
-                b.setContentDescription(variables.get(i).varNodeType.toString());
-                if (variables.get(i).varNodeType == Variable.Type.INT) {
-                    b.setBackgroundColor(0xFFFF0000);
-                }
-                b.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View view) {
-                        if(tree.findCurNode(tree).nodeType == Node.Type.SEQ){
-                            tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
-                        }
-                        if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
-                            tree = tree.addNode(tree, Node.Type.VAR, "left", "String");
-                        }
-                        if (b.getContentDescription().equals(Variable.Type.INT.toString())) {
-                            tree = tree.addNode(tree, Node.Type.VAR, "left", "Int");
-                        }
-                        tree.setVarName(tree, b.getText().toString());
-                        btnNewVar.setVisibility(View.GONE);
-                        //  b.setVisibility(View.GONE);
-                        if (tree.findCurNode(tree).parent.parent.nodeType == Node.Type.SEQ) {
-                            btnEquals.setVisibility(View.VISIBLE);
-                        } else {
-                            btnSemicolon.setVisibility(View.VISIBLE);
-                        }
-                        code.setText("");
-                        if (tree != null) {
-                            printTree(tree);
-                        }
-                        varButtons.add(b);
-                        hideVarButtons();
 
-                    }
-                });
-                ll.addView(b);
-            }
-        }
-    }
 
    public void hideVarButtons(){
         for(int i = 0; i < varButtons.size(); i++){
@@ -522,6 +474,56 @@ public class Main extends Activity {
         }
     }
 
+    public void showVarButtons(Variable.Type varType){
+        varButtons.clear();
+        Node.Type nodeType = tree.findCurNode(tree).nodeType;
+        if(nodeType != Node.Type.PRINT && nodeType != Node.Type.OP){
+            btnNewVar.setVisibility(View.VISIBLE);
+        }
+        LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
+        for(int i = 0; i < variables.size(); i++) {
+            if (varType == null || variables.get(i).varNodeType == varType){
+                final Button b = new Button(this);
+                s = "<b><i>" + variables.get(i).name + "</i></b>";
+                b.setText(Html.fromHtml(s));
+                b.setId(i);
+                b.setContentDescription(variables.get(i).varNodeType.toString());
+                if (variables.get(i).varNodeType == Variable.Type.INT) {
+                    b.setBackgroundColor(0xFFFF0000);
+                }
+                b.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View view) {
+                       /* if(tree.findCurNode(tree).nodeType == Node.Type.SEQ){
+                            tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                        }*/
+                        if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
+                            tree = tree.addNode(tree, Node.Type.VAR, "left", "String");
+                        }
+                        if (b.getContentDescription().equals(Variable.Type.INT.toString())) {
+                            tree = tree.addNode(tree, Node.Type.VAR, "left", "Int");
+                        }
+                        tree.setVarName(tree, b.getText().toString());
+                        btnNewVar.setVisibility(View.GONE);
+                        //  b.setVisibility(View.GONE);
+                        if (tree.findCurNode(tree).parent.parent.nodeType == Node.Type.SEQ) {
+                            btnEquals.setVisibility(View.VISIBLE);
+                        } else {
+                            btnSemicolon.setVisibility(View.VISIBLE);
+                        }
+                        code.setText("");
+                        if (tree != null) {
+                            printTree(tree);
+                        }
+                        varButtons.add(b);
+                        hideVarButtons();
+
+                    }
+                });
+                ll.addView(b);
+            }
+        }
+    }
+
 
     public void onBtnClicked(View v){
 
@@ -533,6 +535,7 @@ public class Main extends Activity {
             case R.id.print:
                 Log.d("DEBUG", "PRESS PRINT");
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
                 tree = tree.addNode(tree, Node.Type.PRINT, "left", null);
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
 
@@ -570,6 +573,8 @@ public class Main extends Activity {
 
             case R.id.loops:
                 clearButtons();
+                tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
                 btnFor.setVisibility(View.VISIBLE);
                 break;
 
@@ -577,7 +582,6 @@ public class Main extends Activity {
                 forLoopIsOpen = true;
                 openLoops.add(true);
                 clearButtons();
-                tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                 tree = tree.addNode(tree, Node.Type.FORLOOP, "left", "For");
                 //DisplayTree(tree);
                 btnForNewVar.setVisibility(View.VISIBLE);
@@ -644,7 +648,8 @@ public class Main extends Activity {
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpToStartOfForLoop(tree);
                 tree = tree.moveUpOneStep(tree);
-              //  btnRun.setVisibility(View.VISIBLE);
+                tree = tree.moveUpOneStep(tree);
+                //  btnRun.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
                 break;
 
@@ -675,12 +680,15 @@ public class Main extends Activity {
 
             case R.id.var:
                 clearButtons();
+                if(tree.findCurNode(tree).nodeType == Node.Type.SEQ || tree.findCurNode(tree).nodeType == Node.Type.ROOT){
+                    tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
+                    tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
+                }
                 showVarButtons(null);
                 break;
 
             case R.id.varNew:
                 clearButtons();
-                tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                 tree = tree.addNode(tree, Node.Type.DEC, "left", "none");
                 break;
 
@@ -758,8 +766,14 @@ public class Main extends Activity {
                 btnForEndLoop.setVisibility(View.GONE);
             }
           //  if((v.getId() == R.id.semicolon) || (v.getId() == R.id.btnForPlus)  || (v.getId() == R.id.btnForMinus || (v.getId() == R.id.run) || (v.getId() == R.id.clear))){
-           if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT){
-                btnLoops.setVisibility(View.VISIBLE);
+           if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.FORLOOP )){
+               if((currentNodeType == Node.Type.FORLOOP )){
+                   if(((Loops) tree.findCurNode(tree)).plusOrMinus != null ){
+                       btnLoops.setVisibility(View.VISIBLE);
+                   }
+               }else {
+                   btnLoops.setVisibility(View.VISIBLE);
+               }
             }else{
                 btnLoops.setVisibility(View.GONE);
             }
