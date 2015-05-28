@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/background"
+        android:gravity="right"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/code"
+            android:gravity="left"
+            android:background="#B6F7BE">
+
+            <ScrollView
+                android:id="@+id/SCROLLER_ID"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                android:fillViewport="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text=""
+                android:id="@+id/codeText"
+                />
+            </ScrollView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:id="@+id/result"
+            android:gravity="left"
+            android:background="#C2F4EB">
+
+            <ScrollView
+                android:id="@+id/SCROLLER_ID"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                android:fillViewport="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text=""
+                android:id="@+id/runText"
+               />
+
+            </ScrollView>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.3"
+        android:id="@+id/bacdkgrund2"
+        android:gravity="right"
+        android:baselineAligned="false">
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.33"
+        android:id="@+id/buttons"
+        android:background="#1DDDBA"
+        android:gravity="center" >
+
+
+
+
+
+
+        <!--Home menu -->
+        <Button
+            android:id="@+id/print"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Print"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/loops"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Loops"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/var"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Var"
+            android:onClick="onBtnClicked"/>
+
+
+        <!--Print menu-->
+         <Button
+            android:id="@+id/btnPrintVar"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Print a variable"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnPrintText"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Print Text"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnPrintTextMenu"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Print Text"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+
+        <!--Var menu -->
+
+        <Button
+            android:id="@+id/varBack"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Back"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/varNew"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="NEW"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <!--New Var menu -->
+        <Button
+            android:id="@+id/varNewBack"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Back"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/varNewString"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="String"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/varNewInt"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Int"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/varNewBool"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Boolean"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <EditText
+            android:id="@+id/edtEnterTextString"
+            android:layout_width="500dp"
+            android:layout_height="60dp"
+            android:visibility="gone"
+            android:singleLine="true"
+            />
+
+        <Button
+            android:id="@+id/btnEnterTextString"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <Button
+            android:id="@+id/btnEnterVarStringName"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter name of variable"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnEnterVarValue"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter Value of variable"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnEnterVarIntName"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter name of variable"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <Button
+            android:id="@+id/btnEnterVarName"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter name of variable"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <!--<Button
+            android:id="@+id/btnEnterVarIntValue"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter Value of variable"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/> -->
+
+        <Button
+            android:id="@+id/btnStringVarEquals"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="="
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnIntVarEquals"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="="
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnEquals"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="="
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <!-- Operators -->
+        <Button
+            android:id="@+id/btnOperator"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Operator"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorAdd"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="+"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorSub"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="-"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorMulti"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="*"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorDiv"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="/"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <!-- Loops menu -->
+
+        <Button
+            android:id="@+id/btnFor"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="For"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <!--Print menu -->
+        <Button
+            android:id="@+id/printBack"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Back"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <Button
+            android:id="@+id/A"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="A"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/B"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="B"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/C"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="C"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/semicolon"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text=";"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <!--For Loop -->
+        <Button
+            android:id="@+id/btnForNewVar"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="New integer"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnForNewVarEnter"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter new integer name"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+        <Button
+            android:id="@+id/btnForNewVarValueEnter"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter lower for loop limit"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnForLess"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="@string/lessThan"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnForGreater"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="@string/moreThan"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnForNewVarValueUpperEnter"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter upper for loop limit"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnForPlus"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="++"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnForMinus"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="--"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnForEndLoop"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="END FOR LOOP"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+        <Button
+            android:id="@+id/btnEnterText"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter Text"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.33"
+            android:id="@+id/Runbutton"
+            android:background="#5882FA"
+            android:gravity="center" >
+
+
+
+
+            <Button
+                android:id="@+id/run"
+                android:layout_width="141dp"
+                android:layout_height="60dp"
+                android:text="Run"
+                android:visibility="gone"
+                android:textStyle="bold"
+                android:background="#81F7D8"
+                android:onClick="onBtnClicked"/>
+
+            <Button
+                android:id="@+id/clear"
+                android:layout_width="141dp"
+                android:layout_height="60dp"
+                android:text="Clear"
+                android:onClick="onBtnClicked"/>
+
+
+            <Button
+            android:id="@+id/printTree"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Logtree"
+            android:onClick="onBtnClicked"/>
+
+        </LinearLayout>
+
+       </LinearLayout>
+</LinearLayout>

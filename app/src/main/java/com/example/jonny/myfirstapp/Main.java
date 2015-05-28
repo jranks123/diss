@@ -77,7 +77,6 @@ public class Main extends Activity {
     String tempString1;
     String s;
 
-    String kkkl;
 
 
     protected void onCreate(Bundle savedInstanceState) {
