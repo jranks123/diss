@@ -32,16 +32,14 @@ public class Main extends Activity {
     Button btnPrintBack;
     Button btnPrintVar;
     Button btnPrintText;
-    Button btnPrintTree;
-   // Button btnEnterVarStringName;
+
+    Button btnUpdatePrintString;
+    Button btnUpdatePrintInt;
+
+    Button btnLogTree;
     Button btnEnterVarName;
     Button btnEnterVarValue;
-  //  Button btnEnterVarIntName;
-    //Button btnEnterVarIntValue;
-    Button btnStringVarEquals;
-    Button btnIntVarEquals;
     Button btnPrintTextMenu;
-    String tempVarName;
     EditText edtEnterString;
     Button btnRun;
     Button btnFor;
@@ -90,6 +88,10 @@ public class Main extends Activity {
         tree = new Node(Node.Type.ROOT, null);
         btnPrint =(Button)findViewById(R.id.print);
         btnPrintBack = (Button)findViewById(R.id.printBack);
+        btnUpdatePrintInt = (Button) findViewById(R.id.btnUpdatePrintInt);
+        btnUpdatePrintString = (Button) findViewById(R.id.btnUpdatePrintString);
+
+
         btnLoops = (Button)findViewById(R.id.loops);
         btnVar = (Button)findViewById(R.id.var);
         btnNewVar = (Button) findViewById(R.id.varNew);
@@ -103,14 +105,10 @@ public class Main extends Activity {
         btnSemicolon =(Button)findViewById(R.id.semicolon);
         btnEnterString = (Button)findViewById(R.id.btnEnterTextString);
         edtEnterString = (EditText) findViewById(R.id.edtEnterTextString);
-      //  btnEnterVarStringName = (Button) findViewById(R.id.btnEnterVarStringName);
         btnEnterVarValue = (Button) findViewById(R.id.btnEnterVarValue);
         btnEnterVarName = (Button) findViewById(R.id.btnEnterVarName);
 
-        // btnEnterVarIntName = (Button) findViewById(R.id.btnEnterVarIntName);
-     //   btnEnterVarIntValue = (Button) findViewById(R.id.btnEnterVarIntValue);
-        btnStringVarEquals = (Button) findViewById(R.id.btnStringVarEquals);
-        btnIntVarEquals = (Button) findViewById(R.id.btnIntVarEquals);
+
 
         btnEnterText = (Button) findViewById(R.id.btnEnterText);
         btnEquals = (Button) findViewById(R.id.btnEquals);
@@ -150,7 +148,7 @@ public class Main extends Activity {
         code.setMovementMethod(new ScrollingMovementMethod());
         output = (TextView) findViewById(R.id.runText);
         output.setMovementMethod(new ScrollingMovementMethod());
-        btnPrintTree = (Button)findViewById(R.id.printTree);
+        btnLogTree = (Button)findViewById(R.id.LogTree);
         tempString1 = "HELLOOO";
         btnFor = (Button) findViewById(R.id.btnFor);
 
@@ -240,24 +238,25 @@ public class Main extends Activity {
             code.append(((Str)tree).value);
             code.append("\"");
         }
-        else if(nodeType == Node.Type.VARVAL){
+        else if(nodeType == Node.Type.VARVAL) {
             //(((Variable)node.parent.parent).value) = value;
             Variable.Type type = null;
-            if(((VarVal)tree).value != null) {
-                if (tree.returnAssignVar(tree).varNodeType == Variable.Type.STRING) {
-                    type = Variable.Type.STRING;
-                    code.append("\"");
-                    code.append(((VarVal) tree).value);
-                    code.append("\"");
-                } else if (tree.returnAssignVar(tree).varNodeType == Variable.Type.INT) {
-                    type = Variable.Type.INT;
-                    code.append(((VarVal) tree).value);
+            if (((VarVal) tree).value != null) {
+                if (tree.isXbeforeY(tree, Node.Type.ASSIGN, Node.Type.SEQ)) {
+                    if (tree.returnAssignVar(tree).varNodeType == Variable.Type.STRING) {
+                        type = Variable.Type.STRING;
+                    } else if (tree.returnAssignVar(tree).varNodeType == Variable.Type.INT) {
+                        type = Variable.Type.INT;
+                    }
+                    Variable v = (tree.returnAssignVar(tree));
+                    if (!checkVarExists(v.name, v.varNodeType)) {
+                        Variable var = new Variable(null, type, v.name, null);
+                        variables.add(var);
+                    }
                 }
-                Variable v = (tree.returnAssignVar(tree));
-                if (!checkVarExists(v.name, v.varNodeType)) {
-                    Variable var = new Variable(null, type, v.name, null);
-                    variables.add(var);
-                }
+                code.append("\"");
+                code.append(((VarVal) tree).value);
+                code.append("\"");
             }
         }
         else if (nodeType == Node.Type.SMCLN){
@@ -404,7 +403,7 @@ public class Main extends Activity {
 
 
 
-    public void DisplayTree(Node tree){
+    public void LogTree(Node tree){
 
         Boolean leftChild = false;
         Boolean rightChild = false;
@@ -419,7 +418,7 @@ public class Main extends Activity {
             }else{
            //     Log.e("IS Not ", "CURRENT");
             }
-            DisplayTree(tree.left);
+            LogTree(tree.left);
 
         }
         if (tree.right != null){
@@ -433,7 +432,7 @@ public class Main extends Activity {
             }else{
              //   Log.e("IS Not ", "CURRENT");
             }
-            DisplayTree(tree.right);
+            LogTree(tree.right);
 
         }
         if(!leftChild) {
@@ -537,7 +536,8 @@ public class Main extends Activity {
                         if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
                             btnOperator.setVisibility(View.VISIBLE);
                         }
-                        if (tree.findCurNode(tree).parent.parent.nodeType == Node.Type.SEQ) {
+                      //  if (tree.findCurNode(tree).parent.parent.nodeType == Node.Type.SEQ) {
+                        if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.SEQ, Node.Type.EVAL )){
                             btnEquals.setVisibility(View.VISIBLE);
                         } else {
                             btnSemicolon.setVisibility(View.VISIBLE);
@@ -570,14 +570,35 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
                 tree = tree.addNode(tree, Node.Type.PRINT, "left", null);
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
+              /*  clearButtons();
+                if(variables.size() > 0) {
+                    btnVar.setVisibility(View.VISIBLE);
+                }
+                btnPrintTextMenu.setVisibility(View.VISIBLE);*/
+                break;
 
-                hideButtons(homeMenu);
+            case R.id.btnUpdatePrintInt:
+                tree = tree.updatePrint(tree, Print.Type.INT);
+                tree = tree.updateEval(tree, Eval.Type.INT);
+
                 clearButtons();
                 if(variables.size() > 0) {
                     btnVar.setVisibility(View.VISIBLE);
                 }
                 btnPrintTextMenu.setVisibility(View.VISIBLE);
                 break;
+
+            case R.id.btnUpdatePrintString:
+                tree = tree.updatePrint(tree, Print.Type.STRING);
+                tree = tree.updateEval(tree, Eval.Type.INT);
+                clearButtons();
+                if(variables.size() > 0) {
+                    btnVar.setVisibility(View.VISIBLE);
+                }
+                btnPrintTextMenu.setVisibility(View.VISIBLE);
+                break;
+
+
 
             case R.id.btnPrintTextMenu:
                 clearButtons();
@@ -615,7 +636,7 @@ public class Main extends Activity {
                 openLoops.add(true);
                 clearButtons();
                 tree = tree.addNode(tree, Node.Type.FORLOOP, "left", "For");
-                //DisplayTree(tree);
+                //LogTree(tree);
                 btnForNewVar.setVisibility(View.VISIBLE);
                 break;
 
@@ -695,8 +716,8 @@ public class Main extends Activity {
                 showButtons(homeMenu);
                 break;
 
-            case R.id.printTree:
-                DisplayTree(tree);
+            case R.id.LogTree:
+                LogTree(tree);
                 break;
 
 
@@ -712,7 +733,7 @@ public class Main extends Activity {
 
             case R.id.var:
                 clearButtons();
-                if(tree.findCurNode(tree).nodeType == Node.Type.SEQ || tree.findCurNode(tree).nodeType == Node.Type.ROOT){
+                if((tree.findCurNode(tree).nodeType == Node.Type.SEQ) || (tree.findCurNode(tree).nodeType == Node.Type.ROOT) || (tree.findCurNode(tree).nodeType == Node.Type.FORLOOP)){
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
                 }else if((tree.findCurNode(tree).nodeType == Node.Type.EVAL)|| tree.findCurNode(tree).nodeType == Node.Type.OP){
@@ -758,6 +779,12 @@ public class Main extends Activity {
                 clearButtons();
                 tree = tree.addNode(tree, Node.Type.ASSIGN, "right", null);
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
+                Variable.Type type = tree.getVarType(tree.findCurNode(tree));
+                if(type == Variable.Type.INT) {
+                    tree = tree.updateEval(tree, Eval.Type.INT);
+                }else if(type == Variable.Type.STRING){
+                    tree = tree.updateEval(tree, Eval.Type.STRING);
+                }
                 break;
 
             case R.id.btnTypeInput:
@@ -766,12 +793,17 @@ public class Main extends Activity {
 
 
             case R.id.btnEnterVarValue:
-                tree = tree.addNode(tree, Node.Type.VARVAL, "right", edtEnterString.getText().toString().trim());
+                tree = tree.updateVarVal(tree, edtEnterString.getText().toString().trim());
+             //   tree = tree.addNode(tree, Node.Type.VARVAL, "right", edtEnterString.getText().toString().trim()); //FIX FOR TWO VAR VALS
                 break;
 
 
             case R.id.btnEnterTextString:
-                tree = tree.updateVarVal(tree, edtEnterString.getText().toString().trim());
+                if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.VARVAL, Node.Type.SEQ)) {
+                    tree = tree.updateVarVal(tree, edtEnterString.getText().toString().trim());
+                }else{
+                    tree = tree.addNode(tree, Node.Type.VARVAL, "right", edtEnterString.getText().toString().trim());
+                }
                 clearButtons();
                 break;
 
@@ -898,27 +930,48 @@ public class Main extends Activity {
             if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.VAR) ){
                 btnOperator.setVisibility(View.GONE);
             }
-            if(currentNodeType != Node.Type.ROOT){
+          /*  if(currentNodeType != Node.Type.ROOT){
                 //IF CURRENT NODE IS EVAL BASICALLY
-                if(tree.findCurNode(tree).parent.nodeType == Node.Type.ASSIGN){
-                    clearButtons();
+                if(tree.findCurNode(tree).parent.nodeType == Node.Type.ASSIGN){*/
+            if(currentNodeType == Node.Type.EVAL) {
+                clearButtons();
+                if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ)) {
+                    if ((tree.returnPrintNode(tree.findCurNode(tree))).printNodeType == Print.Type.NONE) {
+                        btnUpdatePrintInt.setVisibility(View.VISIBLE);
+                        btnUpdatePrintString.setVisibility(View.VISIBLE);
+                    } else {
+                        btnTypeInput.setVisibility(View.VISIBLE);
+                        // TODO fix this so that it checks that there are ints
+                        if (variables.size() > 0) {
+                            btnVar.setVisibility(View.VISIBLE);
+                        }
+                    }
+                } else if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.ASSIGN, Node.Type.SEQ)) {
                     btnTypeInput.setVisibility(View.VISIBLE);
-                   // TODO fix this so that it checks that there are ints
-                    if(variables.size() > 0) {
+                    // TODO fix this so that it checks that there are ints
+                    if (variables.size() > 0) {
                         btnVar.setVisibility(View.VISIBLE);
                     }
-                  //  edtEnterString.setVisibility(View.VISIBLE);
-                  //  btnEnterVarValue.setVisibility(View.VISIBLE);
+                    //  edtEnterString.setVisibility(View.VISIBLE);
+                    //  btnEnterVarValue.setVisibility(View.VISIBLE);
                 }
             }
         }
     }
-
-
-
-
 }
 
 
-//TODO: Fix printing in general
-//TODO: int dec doesnt work in loop
+
+
+
+
+//TODO: put in SEQ after for loop agian --DONE
+//TODO: int dec doesnt work in loop -- DONE
+//TODO: Fix printing input text without op -- DONE
+//TODO: Make print type, then make it so you have to choose whether to print an int or string -- DONE
+//TODO: Print Text makes 2 varvals -- DONE
+//TODO: Change checkAssignVar to check Eval
+//TODO: Fix printing input text with op
+//TODO: vars stil appear when in loop, then declare int without val, then on new line try and assign val. only = should appear
+//TODO: make it so that when you press enter on input it enters/make number buttons
+//TODO: input validation on ints

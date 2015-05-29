@@ -77,11 +77,18 @@ public class Node {
                     newNode = new Variable(node, Variable.Type.INT, null, null);
                 }
             }
+            else if(type == Type.PRINT){
+                newNode = new Print(node, Print.Type.NONE);
+            }
             else if (type == Type.DEC) {
                 newNode = new Dec(node, Dec.Type.NONE);
             }
             else if (type == Type.VARVAL) {
+                //TODO: Possibly check that i don't need to make this account for ints
                 newNode = new VarVal(node, VarVal.Type.STRING, value);
+            }
+            else if(type == Type.EVAL){
+                newNode = new Eval(node, Eval.Type.NONE);
             }
             else if (type == Type.FORLOOP) {
                 if (value == "For") {
@@ -124,6 +131,29 @@ public class Node {
         return tree;
     }
 
+    public Print returnPrintNode(Node node){
+        while(node.nodeType != Node.Type.PRINT){
+            node = node.parent;
+        }
+        return ((Print)node);
+    }
+
+    public Node updatePrint(Node tree, Print.Type type){
+        Node node = findCurNode(tree);
+        node = returnPrintNode(node);
+        ((Print)node).printNodeType = type;
+        return tree;
+    }
+
+    public Node updateEval(Node tree, Eval.Type type){
+        Node node = findCurNode(tree);
+        ((Eval)node).evalNodeType = type;
+        return tree;
+    }
+
+
+
+
     public Node setVarName(Node tree, String value){
         Node node = findCurNode(tree);
         ((Variable)node).name = value;
@@ -136,12 +166,28 @@ public class Node {
         return tree;
     }
 
+    public Variable.Type getVarType(Node node){
+        while(node.nodeType != Node.Type.VAR){
+            node = node.parent;
+        }
+        return ((Variable)node).varNodeType;
+    }
+
+
     public Variable returnAssignVar(Node node){
         while(node.nodeType != Node.Type.ASSIGN){
             node = node.parent;
         }
         return ((Variable)node.parent);
     }
+
+    public Eval returnEvalVar(Node node){
+        while(node.nodeType != Node.Type.EVAL){
+            node = node.parent;
+        }
+        return ((Eval)node);
+    }
+
 
     public Variable returnDecVar(Node node){
 
@@ -163,7 +209,7 @@ public class Node {
             }
             node = node.parent;
         }
-        return null;
+        return false;
     }
 
 

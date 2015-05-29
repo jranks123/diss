@@ -216,13 +216,7 @@
             android:onClick="onBtnClicked"/>
 
 
-        <Button
-            android:id="@+id/btnEnterVarStringName"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="Enter name of variable"
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
+
 
         <Button
             android:id="@+id/btnEnterVarValue"
@@ -232,13 +226,6 @@
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
-        <Button
-            android:id="@+id/btnEnterVarIntName"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="Enter name of variable"
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
 
 
         <Button
@@ -249,29 +236,6 @@
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
-        <!--<Button
-            android:id="@+id/btnEnterVarIntValue"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="Enter Value of variable"
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/> -->
-
-        <Button
-            android:id="@+id/btnStringVarEquals"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="="
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
-
-        <Button
-            android:id="@+id/btnIntVarEquals"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="="
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
 
         <Button
             android:id="@+id/btnEquals"
@@ -360,28 +324,19 @@
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
-
         <Button
-            android:id="@+id/A"
+            android:id="@+id/btnUpdatePrintString"
             android:layout_width="141dp"
             android:layout_height="60dp"
-            android:text="A"
+            android:text="Print String"
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/B"
+            android:id="@+id/btnUpdatePrintInt"
             android:layout_width="141dp"
             android:layout_height="60dp"
-            android:text="B"
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
-
-        <Button
-            android:id="@+id/C"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="C"
+            android:text="Print Integer"
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
@@ -509,7 +464,7 @@
 
 
             <Button
-            android:id="@+id/printTree"
+            android:id="@+id/LogTree"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Logtree"
