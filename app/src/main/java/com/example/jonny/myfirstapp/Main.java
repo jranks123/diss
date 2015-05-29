@@ -526,6 +526,7 @@ public class Main extends Activity {
                        /* if(tree.findCurNode(tree).nodeType == Node.Type.SEQ){
                             tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                         }*/
+                        clearButtons();
                         if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
                             tree = tree.addNode(tree, Node.Type.VAR, "left", "String");
                         }
@@ -897,13 +898,12 @@ public class Main extends Activity {
                 //Node node = tree.findCurNode(tree);
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
                 //    Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
-                Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
-
+                    Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
                     if(varType == Variable.Type.STRING) {
-                    showVarButtons(null);
-                }else if (varType == Variable.Type.INT){
-                    showVarButtons(varType);
-                }
+                        showVarButtons(null);
+                    }else if (varType == Variable.Type.INT){
+                        showVarButtons(varType);
+                    }
                 }else {
                     edtEnterString.setText("");
                     btnEquals.setVisibility(View.VISIBLE);
@@ -960,6 +960,7 @@ public class Main extends Activity {
                     //  edtEnterString.setVisibility(View.VISIBLE);
                     //  btnEnterVarValue.setVisibility(View.VISIBLE);
                 }
+
             }
         }
     }
@@ -978,7 +979,9 @@ public class Main extends Activity {
 //TODO: Fix printing input text with op -- DONE
 //TODO: Remove printy things -- DONE
 //TODO: Change checkAssignVar to check Eval -- DONE
-//TODO: check out why int j = then press Var doesn't show j but does with string -- DONE(Wasn't an issue)
-//TODO: vars stil appear when in loop, then declare int without val, then on new line try and assign val. only = should appear
+//TODO: check out why int j = then press Var doesn't show j but does with string (Wasn't an issue) -- DONE
+//TODO: vars appear adfter varval eg j = x BUT PRESSING LOGTREE FIXES IT??? -- DONE
+//TODO: vars still appear when in loop, then declare int without val, then on new line try and assign val. only = should appear -- DONE
+//TODO: vars still appear when in loop, then NOT DEC int without val, then on new line try and assign val. only = should appear -- DONE
 //TODO: make it so that when you press enter on input it enters/make number buttons
 //TODO: input validation on ints
