@@ -243,9 +243,11 @@ public class Main extends Activity {
             Variable.Type type = null;
             if (((VarVal) tree).value != null) {
                 if (tree.isXbeforeY(tree, Node.Type.ASSIGN, Node.Type.SEQ)) {
-                    if (tree.returnAssignVar(tree).varNodeType == Variable.Type.STRING) {
+                   // if (tree.returnAssignVar(tree).varNodeType == Variable.Type.STRING) {
+                    if (tree.returnEvalVar(tree).evalNodeType == Eval.Type.STRING) {
                         type = Variable.Type.STRING;
-                    } else if (tree.returnAssignVar(tree).varNodeType == Variable.Type.INT) {
+                        //   } else if (tree.returnAssignVar(tree).varNodeType == Variable.Type.INT) {
+                    } else if (tree.returnEvalVar(tree).evalNodeType == Eval.Type.INT) {
                         type = Variable.Type.INT;
                     }
                     Variable v = (tree.returnAssignVar(tree));
@@ -578,7 +580,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnUpdatePrintInt:
-                tree = tree.updatePrint(tree, Print.Type.INT);
+            //    tree = tree.updatePrint(tree, Print.Type.INT);
                 tree = tree.updateEval(tree, Eval.Type.INT);
 
                 clearButtons();
@@ -589,8 +591,8 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnUpdatePrintString:
-                tree = tree.updatePrint(tree, Print.Type.STRING);
-                tree = tree.updateEval(tree, Eval.Type.INT);
+             //   tree = tree.updatePrint(tree, Print.Type.STRING);
+                tree = tree.updateEval(tree, Eval.Type.STRING);
                 clearButtons();
                 if(variables.size() > 0) {
                     btnVar.setVisibility(View.VISIBLE);
@@ -740,9 +742,9 @@ public class Main extends Activity {
                     if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ)){
                         tree.addNode(tree, Node.Type.VAR, "left", null);
                     }
-                    else if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.STRING) {
+                    else if (tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.STRING) {
                         tree.addNode(tree, Node.Type.VAR, "left", "String");
-                    }else if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.INT) {
+                    }else if (tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.INT) {
                         tree.addNode(tree, Node.Type.VAR, "left", "Int");
                     }
                 }
@@ -858,12 +860,12 @@ public class Main extends Activity {
             }
             if(currentNodeType == Node.Type.OP && ((Operator) tree.findCurNode(tree)).opNodeType == null){
                 clearButtons();
-                if(tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.INT){
+                if(tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.INT){
                     btnOperatorAdd.setVisibility(View.VISIBLE);
                     btnOperatorSub.setVisibility(View.VISIBLE);
                     btnOperatorMulti.setVisibility(View.VISIBLE);
                     btnOperatorDiv.setVisibility(View.VISIBLE);
-                }else if (tree.returnAssignVar(tree.findCurNode(tree)).varNodeType == Variable.Type.STRING){
+                }else if (tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.STRING){
                     btnOperatorAdd.setVisibility(View.VISIBLE);
                 }
             }else if(currentNodeType == Node.Type.OP && ((Operator) tree.findCurNode(tree)).opNodeType != null){
@@ -894,8 +896,10 @@ public class Main extends Activity {
                 clearButtons();
                 //Node node = tree.findCurNode(tree);
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
-                    Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
-                if(varType == Variable.Type.STRING) {
+                //    Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
+                Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
+
+                    if(varType == Variable.Type.STRING) {
                     showVarButtons(null);
                 }else if (varType == Variable.Type.INT){
                     showVarButtons(varType);
@@ -936,7 +940,8 @@ public class Main extends Activity {
             if(currentNodeType == Node.Type.EVAL) {
                 clearButtons();
                 if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ)) {
-                    if ((tree.returnPrintNode(tree.findCurNode(tree))).printNodeType == Print.Type.NONE) {
+                   // if ((tree.returnPrintNode(tree.findCurNode(tree))).printNodeType == Print.Type.NONE) {
+                    if ((tree.returnEvalNode(tree.findCurNode(tree))).evalNodeType == Eval.Type.NONE) {
                         btnUpdatePrintInt.setVisibility(View.VISIBLE);
                         btnUpdatePrintString.setVisibility(View.VISIBLE);
                     } else {
@@ -970,8 +975,10 @@ public class Main extends Activity {
 //TODO: Fix printing input text without op -- DONE
 //TODO: Make print type, then make it so you have to choose whether to print an int or string -- DONE
 //TODO: Print Text makes 2 varvals -- DONE
-//TODO: Change checkAssignVar to check Eval
-//TODO: Fix printing input text with op
+//TODO: Fix printing input text with op -- DONE
+//TODO: Remove printy things -- DONE
+//TODO: Change checkAssignVar to check Eval -- DONE
+//TODO: check out why int j = then press Var doesn't show j but does with string -- DONE(Wasn't an issue)
 //TODO: vars stil appear when in loop, then declare int without val, then on new line try and assign val. only = should appear
 //TODO: make it so that when you press enter on input it enters/make number buttons
 //TODO: input validation on ints

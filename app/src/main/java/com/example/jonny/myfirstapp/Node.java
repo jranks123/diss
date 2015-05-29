@@ -138,6 +138,13 @@ public class Node {
         return ((Print)node);
     }
 
+    public Eval returnEvalNode(Node node){
+        while(node.nodeType != Node.Type.EVAL){
+            node = node.parent;
+        }
+        return ((Eval)node);
+    }
+
     public Node updatePrint(Node tree, Print.Type type){
         Node node = findCurNode(tree);
         node = returnPrintNode(node);
