@@ -73,8 +73,11 @@ public class Node {
                 if (value == "String") {
                     newNode = new Variable(node, Variable.Type.STRING, null, null);
                 }
-                if (value == "Int") {
+                else if (value == "Int") {
                     newNode = new Variable(node, Variable.Type.INT, null, null);
+                }
+                else if (value == null){
+                    newNode = new Variable(node, null, null, null);
                 }
             }
             else if(type == Type.PRINT){
@@ -145,6 +148,14 @@ public class Node {
         return ((Eval)node);
     }
 
+    public Eval returnEvalVar(Node node){
+        while(node.nodeType != Node.Type.EVAL){
+            node = node.parent;
+        }
+        return ((Eval)node);
+    }
+
+
     public Node updatePrint(Node tree, Print.Type type){
         Node node = findCurNode(tree);
         node = returnPrintNode(node);
@@ -155,6 +166,12 @@ public class Node {
     public Node updateEval(Node tree, Eval.Type type){
         Node node = findCurNode(tree);
         ((Eval)node).evalNodeType = type;
+        return tree;
+    }
+
+    public Node updateVarType(Node tree, Variable.Type type){
+        Node node = findCurNode(tree);
+        ((Variable)node).varNodeType = type;
         return tree;
     }
 
@@ -188,12 +205,6 @@ public class Node {
         return ((Variable)node.parent);
     }
 
-    public Eval returnEvalVar(Node node){
-        while(node.nodeType != Node.Type.EVAL){
-            node = node.parent;
-        }
-        return ((Eval)node);
-    }
 
 
     public Variable returnDecVar(Node node){
