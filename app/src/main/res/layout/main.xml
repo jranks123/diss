@@ -352,7 +352,7 @@
             android:id="@+id/btnUpdatePrintBool"
             android:layout_width="141dp"
             android:layout_height="60dp"
-            android:text="Print Integer"
+            android:text="Print Bool"
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 

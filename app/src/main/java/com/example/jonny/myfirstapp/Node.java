@@ -47,6 +47,14 @@ public class Node {
 
     public Node findCurNode(Node tree){
         Log.e("LOOKING AT NODE",  tree.nodeType.toString());
+        if(tree.nodeType == Node.Type.VAR){
+            try {
+                Log.e("AND is type", ((Variable) tree).varNodeType.toString());
+            }catch (NullPointerException e ){
+
+            }
+
+        }
         Node newTree = new Node(Node.Type.ROOT, null);
         if (tree.isCurrentNode == true){
             Log.e("ADDNODE", "Current node findCurNode " + tree.nodeType.toString());

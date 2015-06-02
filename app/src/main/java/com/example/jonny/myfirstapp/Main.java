@@ -439,7 +439,7 @@ public class Main extends Activity {
     public String evaluate(Node tree){
 
         Node node = tree;
-        Eval.Type evalType = ((Eval)tree).evalNodeType;
+        Eval.Type evalType = ((Eval)node).evalNodeType;
         ArrayList<Node> array = new ArrayList<Node>();
         while(node.nodeType != Node.Type.SMCLN){
             if(node.left != null){
@@ -588,12 +588,16 @@ public class Main extends Activity {
         Boolean rightChild = false;
         if (tree.left != null){
             leftChild = true;
-            Log.d("Going left", tree.left.nodeType.toString());
-           /* if(tree.left.nodeType.equals(Node.Type.VAR)){
-                Log.d("type is", ((Variable) tree.left).varNodeType.toString());
-            }*/
+            Log.d("CdTc Going left", tree.left.nodeType.toString());
+            if(tree.left.nodeType.equals(Node.Type.VAR)){
+                try {
+                    Log.d("CdTc type is", ((Variable) tree.left).varNodeType.toString());
+                }catch (NullPointerException e){
+                    Log.d("CdTc type is", "null");
+                }
+            }
             if (tree.left.isCurrentNode){
-                Log.e("And IS", "CURRENT " + tree.left.nodeType.toString());
+                Log.d("CdTc And IS", "CURRENT " + tree.left.nodeType.toString());
             }else{
            //     Log.e("IS Not ", "CURRENT");
             }
@@ -602,12 +606,12 @@ public class Main extends Activity {
         }
         if (tree.right != null){
             rightChild = true;
-            Log.d("Going right", tree.right.nodeType.toString());
+            Log.d("CdTc Going right", tree.right.nodeType.toString());
             if(tree.right.nodeType.equals(Node.Type.VAR)){
-                Log.d("type is" , ((Variable)tree.right).varNodeType.toString());
+                Log.d("CdTc type is" , ((Variable)tree.right).varNodeType.toString());
             }
             if (tree.right.isCurrentNode){
-                Log.e("And IS", "CURRENT " + tree.right.nodeType.toString());
+                Log.d("CdTc And IS", "CURRENT " + tree.right.nodeType.toString());
             }else{
              //   Log.e("IS Not ", "CURRENT");
             }
@@ -615,10 +619,10 @@ public class Main extends Activity {
 
         }
         if(!leftChild) {
-            Log.d("no l children for ", tree.nodeType.toString());
+            Log.d("CdTc no l children for ", tree.nodeType.toString());
         }
         if(!rightChild){
-            Log.d("No r children for ", tree.nodeType.toString());
+            Log.d("CdTc No r children for ", tree.nodeType.toString());
 
         }
     }
@@ -673,45 +677,68 @@ public class Main extends Activity {
                 }
                 b.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
+                        Node curNode = tree.findCurNode(tree);
                        /* if(tree.findCurNode(tree).nodeType == Node.Type.SEQ){
                             tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                         }*/
                         clearButtons();
                         if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
-                            if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ) && tree.findCurNode(tree).nodeType == Node.Type.VAR){
+                            if(tree.isXbeforeY(curNode, Node.Type.PRINT, Node.Type.SEQ) && curNode.nodeType == Node.Type.VAR){
                                 tree.updateVarType(tree, Variable.Type.STRING);
+                                tree.setVarName(tree, b.getText().toString());
                             }else {
-                                if(tree.findCurNode(tree).nodeType != Node.Type.VAR) {
+                                if(curNode.nodeType != Node.Type.VAR) {
                                     tree = tree.addNode(tree, Node.Type.VAR, "left", "String");
+                                    tree.setVarName(tree, b.getText().toString());
+                                    curNode = tree.findCurNode(tree);
+                                }else {
+                                    tree.updateVarType(tree, Variable.Type.STRING);
+                                    tree.setVarName(tree, b.getText().toString());
                                 }
                             }
                         }
-                        if (b.getContentDescription().equals(Variable.Type.INT.toString())) {
-                            if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ) && tree.findCurNode(tree).nodeType == Node.Type.VAR){
+                        else if (b.getContentDescription().equals(Variable.Type.INT.toString())) {
+                            if(tree.isXbeforeY(curNode, Node.Type.PRINT, Node.Type.SEQ) && curNode.nodeType == Node.Type.VAR){
                                 tree.updateVarType(tree, Variable.Type.INT);
+                                tree.setVarName(tree, b.getText().toString());
                             }else {
-                                if(tree.findCurNode(tree).nodeType != Node.Type.VAR) {
+                                if(curNode.nodeType != Node.Type.VAR) {
                                     tree = tree.addNode(tree, Node.Type.VAR, "left", "Int");
-                                }                            }
+                                    tree.setVarName(tree, b.getText().toString());
+                                    curNode = tree.findCurNode(tree);
+                                } else {
+                                    tree.updateVarType(tree, Variable.Type.INT);
+                                    tree.setVarName(tree, b.getText().toString());
+                                }
+                            }
                         }
-                        if (b.getContentDescription().equals(Variable.Type.BOOL.toString())) {
-                            if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ) && tree.findCurNode(tree).nodeType == Node.Type.VAR){
+                        else if (b.getContentDescription().equals(Variable.Type.BOOL.toString())) {
+                            if (tree.isXbeforeY(curNode, Node.Type.PRINT, Node.Type.SEQ) && curNode.nodeType == Node.Type.VAR) {
                                 tree.updateVarType(tree, Variable.Type.BOOL);
-                            }else {
-                                if(tree.findCurNode(tree).nodeType != Node.Type.VAR) {
+                                tree.setVarName(tree, b.getText().toString());
+                            } else {
+                                if (curNode.nodeType != Node.Type.VAR) {
                                     tree = tree.addNode(tree, Node.Type.VAR, "left", "Bool");
-                                }                            }
+                                    tree.setVarName(tree, b.getText().toString());
+                                    curNode = tree.findCurNode(tree);
+                                } else {
+                                    tree.updateVarType(tree, Variable.Type.BOOL);
+                                    tree.setVarName(tree, b.getText().toString());
+                                }
+                            }
                         }
-                        if(tree.findCurNode(tree).nodeType == Node.Type.VAR) {
+                      /*  if(curNode.nodeType == Node.Type.VAR) {
+                            String name =  b.getText().toString();
+                            tree.updateVarType(tree, Variable.Type.BOOL);
                             tree.setVarName(tree, b.getText().toString());
-                        }
+                        }*/
                         btnNewVar.setVisibility(View.GONE);
                         //  b.setVisibility(View.GONE);
-                        if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
+                        if(tree.isXbeforeY(curNode, Node.Type.EVAL, Node.Type.SEQ)){
                             btnOperator.setVisibility(View.VISIBLE);
                         }
                       //  if (tree.findCurNode(tree).parent.parent.nodeType == Node.Type.SEQ) {
-                        if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.SEQ, Node.Type.EVAL )){
+                        if(tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.EVAL )){
                             btnEquals.setVisibility(View.VISIBLE);
                         } else {
                             btnSemicolon.setVisibility(View.VISIBLE);
@@ -892,21 +919,22 @@ public class Main extends Activity {
 
             case R.id.var:
                 clearButtons();
-                if((tree.findCurNode(tree).nodeType == Node.Type.SEQ) || (tree.findCurNode(tree).nodeType == Node.Type.ROOT) || (tree.findCurNode(tree).nodeType == Node.Type.FORLOOP)){
+                Node curNode = tree.findCurNode(tree);
+                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.FORLOOP)){
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
-                 //   tree.addNode(tree, Node.Type.VAR, "left", null);
-                }else if((tree.findCurNode(tree).nodeType == Node.Type.EVAL)|| tree.findCurNode(tree).nodeType == Node.Type.OP){
-                    if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PRINT, Node.Type.SEQ)){
+                    //   tree.addNode(tree, Node.Type.VAR, "left", null);
+                }else if((curNode.nodeType == Node.Type.EVAL)|| curNode.nodeType == Node.Type.OP){
+                //    if(tree.isXbeforeY(curNode, Node.Type.PRINT, Node.Type.SEQ)){
                         tree.addNode(tree, Node.Type.VAR, "left", null);
-                    }
-                    else if (tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.STRING) {
+                 //   }
+                /*    else if (tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.STRING) {
                         tree.addNode(tree, Node.Type.VAR, "left", "String");
                     }else if (tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.INT) {
                         tree.addNode(tree, Node.Type.VAR, "left", "Int");
                     }else if (tree.returnEvalVar(tree.findCurNode(tree)).evalNodeType == Eval.Type.BOOL) {
                         tree.addNode(tree, Node.Type.VAR, "left", "Bool");
-                    }
+                    }*/
                 }
                 showVarButtons(null);
                 break;
@@ -1158,18 +1186,16 @@ public class Main extends Activity {
 
 
 
+//Tuesday 2nd May
+//TODO: fix broken var before assign: doesn't show/work -- (was a problem with optimising curNode) -- DONE
+//TODO: check assigns in loops -- Need to implement scope -- DONE
 
-//MONDAY 1st JUNE
+//TODO: Concatenate ints in string dec doesn't work, nor does assigning int to string (Whether int is initialized or not)
+//TODO: Implement variable scope
 
-//TODO: make declarations without ops work on run -- DONE
-//TODO: make declarations with ops work on run -- DONE
-//TODO: make ops run with ints -- DONE
-//TODO: make ops run with strings -- DONE
-//TODO: implement BODMAS for run -- DONE
-//TODO: Make run work for assignments without dec -- DONE
-//TODO: Make run work for print -- DONE
 
-//TODO: Booleans -- doing, currently need to make assignment work
+
+//TODO: Booleans -- doing, currently need to make assignment work --
 
 
 //TODO: Conditionals
@@ -1214,3 +1240,14 @@ public class Main extends Activity {
 //TODO: make assignment work again with vars -- DONE
 //TODO: stop double var on assign -- DONE
 //TODO: make sure you can't use a var in it's declaration i.e. String i = k + "hi" + i. seems to happen after you input text -- DONE
+
+
+//MONDAY 1st JUNE
+
+//TODO: make declarations without ops work on run -- DONE
+//TODO: make declarations with ops work on run -- DONE
+//TODO: make ops run with ints -- DONE
+//TODO: make ops run with strings -- DONE
+//TODO: implement BODMAS for run -- DONE
+//TODO: Make run work for assignments without dec -- DONE
+//TODO: Make run work for print -- DONE
