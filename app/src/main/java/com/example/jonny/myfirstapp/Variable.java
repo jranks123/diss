@@ -13,7 +13,8 @@ public class Variable extends Node {
     public enum Type{
         STRING,
         INT,
-        BOOL
+        BOOL,
+        NONE
     }
 
     public Variable(Node parent, Type type, String name, String value)
@@ -24,6 +25,9 @@ public class Variable extends Node {
         this.name = name;
         this.value = value;
     }
+
+
+
 
     public String getName(Node tree){
         Node node = findCurNode(tree);

@@ -12,6 +12,7 @@ public class Operator extends Node {
         SUB,
         MULTI,
         DIV,
+        CONCAT,
         NONE
     }
 

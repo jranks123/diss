@@ -75,6 +75,8 @@ public class Node {
                 }
                 else if (value == "Int") {
                     newNode = new Variable(node, Variable.Type.INT, null, null);
+                }else if (value == "Bool") {
+                    newNode = new Variable(node, Variable.Type.BOOL, null, null);
                 }
                 else if (value == null){
                     newNode = new Variable(node, null, null, null);
@@ -156,6 +158,9 @@ public class Node {
     }
 
 
+
+
+
     public Node updatePrint(Node tree, Print.Type type){
         Node node = findCurNode(tree);
         node = returnPrintNode(node);
@@ -214,6 +219,8 @@ public class Node {
         }
         return ((Variable)node.left);
     }
+
+
 
     public Boolean isXbeforeY(Node node, Node.Type x, Node.Type y){
       //  Node node = findCurNode(tree);

@@ -13,6 +13,7 @@
     <string name="print"><![CDATA[<b>print </b>]]></string>
     <string name="string"><![CDATA[<b>String </b>]]></string>
     <string name="integer"><![CDATA[<b>int </b>]]></string>
+    <string name="bool"><![CDATA[<b>Boolean </b>]]></string>
     <string name="forLoop"><![CDATA[<b>for( int  </b>]]></string>
     <string name="lessThan"><![CDATA[<]]></string>
     <string name="moreThan"><![CDATA[>]]></string>

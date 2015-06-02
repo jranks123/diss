@@ -9,6 +9,7 @@ public class Eval extends Node{
     public enum Type{
         STRING,
         INT,
+        BOOL,
         NONE
     }
 

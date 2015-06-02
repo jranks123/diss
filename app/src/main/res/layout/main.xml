@@ -176,7 +176,7 @@
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/varNewString"
+            android:id="@+id/btnVarNewString"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="String"
@@ -184,7 +184,7 @@
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/varNewInt"
+            android:id="@+id/btnVarNewInt"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Int"
@@ -192,7 +192,7 @@
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/varNewBool"
+            android:id="@+id/btnVarNewBool"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Boolean"
@@ -257,6 +257,14 @@
 
         <Button
             android:id="@+id/btnOperatorAdd"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="+"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorConcat"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="+"
@@ -334,6 +342,14 @@
 
         <Button
             android:id="@+id/btnUpdatePrintInt"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Print Integer"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnUpdatePrintBool"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Print Integer"
