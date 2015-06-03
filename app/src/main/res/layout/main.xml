@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".Main">
 
+
+
+
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -15,6 +19,7 @@
         android:gravity="right"
         android:baselineAligned="false">
 
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="0dp"
@@ -23,6 +28,8 @@
             android:id="@+id/code"
             android:gravity="left"
             android:background="#B6F7BE">
+
+
 
             <ScrollView
                 android:id="@+id/SCROLLER_ID"
@@ -116,7 +123,14 @@
             android:id="@+id/var"
             android:layout_width="141dp"
             android:layout_height="60dp"
-            android:text="Var"
+            android:text="Variables"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnConditionals"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Conditionals"
             android:onClick="onBtnClicked"/>
 
 
@@ -295,6 +309,84 @@
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
+
+
+        <Button
+            android:id="@+id/btnOperatorBoolAnd"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="&amp;&amp;"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorBoolOr"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="\u007C\u007C"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorEquality"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="=="
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorLessThan"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text= "@string/lessThan"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorLessThanEqual"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="@string/lessThanEquals"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorMoreThan"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="@string/moreThan"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOperatorMoreThanEquals"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="@string/moreThanEquals"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <!--Conditionals Menu-->
+
+        <Button
+            android:id="@+id/btnConditionalIf"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="If"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnConditionalElse"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Else"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
+
         <!-- Eval menu -->
         <Button
             android:id="@+id/btnExistingVar"
@@ -309,6 +401,23 @@
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Type Input"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <!-- Boolean Menu -->
+        <Button
+            android:id="@+id/btnBoolTrue"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="True"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnBoolFalse"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="False"
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 

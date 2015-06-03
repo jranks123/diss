@@ -62,6 +62,18 @@ public class Main extends Activity {
     Button btnOperatorBoolAnd;
     Button btnOperatorBoolOr;
 
+    Button btnOperatorEquality;
+    Button btnOperatorLessThan;
+    Button btnOperatorLessThanEquals;
+    Button btnOperatorMoreThan;
+    Button btnOperatorMoreThanEquals;
+
+    Button btnConditionals;
+    Button btnConditionalIf;
+    Button btnConditionalElse;
+
+
+
     Button btnEnterText;
     Button btnEquals;
 
@@ -142,6 +154,20 @@ public class Main extends Activity {
         btnOperatorBoolAnd = (Button) findViewById(R.id.btnOperatorBoolAnd);
         btnOperatorBoolOr = (Button) findViewById(R.id.btnOperatorBoolOr);
 
+        btnOperatorEquality =(Button) findViewById(R.id.btnOperatorEquality);
+        btnOperatorLessThan = (Button) findViewById(R.id.btnOperatorLessThan);
+        btnOperatorLessThanEquals = (Button) findViewById(R.id.btnOperatorLessThanEqual);
+        btnOperatorMoreThan = (Button) findViewById(R.id.btnOperatorMoreThan);
+        btnOperatorMoreThanEquals = (Button) findViewById(R.id.btnOperatorMoreThanEquals);
+
+        btnConditionals = (Button) findViewById(R.id.btnConditionals);
+        btnConditionalElse = (Button) findViewById(R.id.btnConditionalElse);
+        btnConditionalIf = (Button) findViewById(R.id.btnConditionalIf);
+
+
+        Button btnConditionalIf;
+        Button btnConditionalElse;
+
 
         btnRun = (Button) findViewById(R.id.run);
         varButtons = new ArrayList<Button>();
@@ -150,6 +176,7 @@ public class Main extends Activity {
         homeMenu.add(btnPrint);
         homeMenu.add(btnLoops);
         homeMenu.add(btnVar);
+        homeMenu.add(btnConditionals);
         printMenu = new ArrayList<Button>();
         printMenu.add(btnPrintBack);
         printMenu.add(btnSemicolon);
@@ -260,16 +287,23 @@ public class Main extends Activity {
             dialog.show();
     }
 
+    public void addToCode(TextView view, String text, int htmlText, Boolean html){
+        if(html) {
+            view.append(text);
+        }else{
+            view.append(Html.fromHtml(getString(htmlText)));
+        }
+    }
 
     public void visitNode(Node tree){
         Node.Type nodeType = tree.nodeType;
+        String text;
         if (nodeType == Node.Type.PRINT){
-            code.append(Html.fromHtml(getString(R.string.print)));
+            addToCode(code, null, R.string.print, true);  //TODO
         }
         else if(nodeType == Node.Type.STRING){
-            code.append("\"");
-            code.append(((Str)tree).value);
-            code.append("\"");
+            text = "\"" + ((Str)tree).value + "\"";
+            addToCode(code, text, 0, false);
         }
         else if(nodeType == Node.Type.VARVAL) {
             Boolean isString = false;
@@ -876,6 +910,8 @@ public class Main extends Activity {
                 btnFor.setVisibility(View.VISIBLE);
                 break;
 
+
+
             case R.id.btnFor:
                 forLoopIsOpen = true;
                 openLoops.add(true);
@@ -985,7 +1021,6 @@ public class Main extends Activity {
                 tree = tree.moveUpTreeLimit(tree, "SEQ");
                 clearButtons();
                 showButtons(homeMenu);
-                edtEnterString.setVisibility(View.GONE);
                 break;
 
             case R.id.var:
@@ -1300,14 +1335,14 @@ public class Main extends Activity {
 //TODO: Bool make assingment work -- DONE
 //TODO: make print bool work -- DONE
 //TODO: Bool make bool operators -- DONE
+//TODO: Booleans -- DONEISH
 
 
-//TODO: Booleans
-
-//TODO: Bool make bool operators -- DONE
-
+//TODO: code indentation
 
 //TODO: Conditionals
+
+
 //TODO: Functions
 
 //TODO: check assigns in loops -- Need to implement scope

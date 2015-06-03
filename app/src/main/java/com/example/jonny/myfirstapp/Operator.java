@@ -13,6 +13,8 @@ public class Operator extends Node {
         MULTI,
         DIV,
         CONCAT,
+        AND,
+        OR,
         NONE
     }
 
