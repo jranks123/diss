@@ -134,6 +134,16 @@
             android:onClick="onBtnClicked"/>
 
 
+
+        <Button
+            android:id="@+id/btnBrackets"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Brackets"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
         <!--Print menu-->
          <Button
             android:id="@+id/btnPrintVar"
@@ -311,6 +321,8 @@
 
 
 
+
+
         <Button
             android:id="@+id/btnOperatorBoolAnd"
             android:layout_width="141dp"
@@ -465,13 +477,7 @@
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
-        <Button
-            android:id="@+id/semicolon"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text=";"
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
+
 
 
         <!--For Loop -->
@@ -552,6 +558,30 @@
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Enter Text"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnOpenBracket"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="( "
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnCloseBracket"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text=" )"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/semicolon"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text=";"
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
