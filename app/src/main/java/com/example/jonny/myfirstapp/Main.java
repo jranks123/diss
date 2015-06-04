@@ -93,6 +93,8 @@ public class Main extends Activity {
     ArrayList<Button> varButtons;
     ArrayList<Variable> variables;
     ArrayList<Boolean> openLoops;
+    ArrayList<Boolean> openLoopsIndent;
+
     String tempString1;
     String s;
 
@@ -119,6 +121,7 @@ public class Main extends Activity {
         btnPrintText =  (Button) findViewById(R.id.btnPrintText);
         variables = new ArrayList<Variable>();
         openLoops = new ArrayList<Boolean>();
+        openLoopsIndent = new ArrayList<Boolean>();
         btnSemicolon =(Button)findViewById(R.id.semicolon);
         btnEnterString = (Button)findViewById(R.id.btnEnterTextString);
         edtEnterString = (EditText) findViewById(R.id.edtEnterTextString);
@@ -295,15 +298,24 @@ public class Main extends Activity {
         }
     }
 
+    public void indent(){
+        for(int i = 0; i < openLoopsIndent.size(); i++){
+            code.append("\t\t\t");
+        }
+    }
+
+
     public void visitNode(Node tree){
         Node.Type nodeType = tree.nodeType;
         String text;
         if (nodeType == Node.Type.PRINT){
-            addToCode(code, null, R.string.print, true);  //TODO
+         //   addToCode(code, null, R.string.print, true);  //TODO
+            code.append(Html.fromHtml(getString(R.string.print)));
         }
         else if(nodeType == Node.Type.STRING){
             text = "\"" + ((Str)tree).value + "\"";
-            addToCode(code, text, 0, false);
+         //   addToCode(code, text, 0, false);
+            code.append("\"" + ((Str) tree).value + "\"");
         }
         else if(nodeType == Node.Type.VARVAL) {
             Boolean isString = false;
@@ -325,7 +337,7 @@ public class Main extends Activity {
         else if (nodeType == Node.Type.SMCLN){
                 Variable.Type type = null;
                 code.append(" ;\n");
-             //   if( tree.parent.parent.nodeType == Node.Type.DEC ){
+            //   if( tree.parent.parent.nodeType == Node.Type.DEC ){
                 if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)){
                     Variable v;// = new Variable(null, null, null, null);
                     if(tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)) {
@@ -359,7 +371,7 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.FORLOOP){
             switch(((Loops)tree).varNodeType){
                 case FOR:
-                    code.append("\n" + Html.fromHtml(getString(R.string.forLoop)));
+                    code.append(Html.fromHtml(getString(R.string.forLoop)));
                     if(((Loops) tree).limiter != null){
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
                         code.append(Html.fromHtml(s) + " = ");
@@ -387,8 +399,16 @@ public class Main extends Activity {
                     break;
             }
         }
+        else if(nodeType == Node.Type.NEWLINE){
+                indent();
+        }
+        else if(nodeType == Node.Type.STARTLOOP){
+            openLoopsIndent.add(true);
+        }
         else if(nodeType == Node.Type.END){
-            code.append("}\n\n");
+            openLoopsIndent.remove(openLoopsIndent.size() - 1);
+            indent();
+            code.append("}\n");
         }
         else if(nodeType == Node.Type.VAR){
             if (((Variable)tree).name != null){
@@ -654,7 +674,7 @@ public class Main extends Activity {
                     updateVariableValue(varValue, varName, Variable.Type.INT);
                 }
                 for (int i = 0; i < loopAmount; i++) {
-                    runCode(tree.left.right);
+                    runCode(tree.left.left.right); //TODO:clear this up
                     if(i != loopAmount-1) {
                         if (((Loops) tree.left).plusOrMinus == "--") {
                             String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
@@ -838,6 +858,7 @@ public class Main extends Activity {
                         }
                         code.setText("");
                         if (tree != null) {
+                            openLoopsIndent.clear();
                             printTree(tree);
                         }
                         varButtons.add(b);
@@ -978,12 +999,14 @@ public class Main extends Activity {
             case R.id.btnForPlus:
                 clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "++";
+                tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
                 showButtons(homeMenu);
                 break;
 
             case R.id.btnForMinus:
                 clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "--";
+                tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
                 showButtons(homeMenu);
                 break;
 
@@ -991,6 +1014,7 @@ public class Main extends Activity {
                 clearButtons();
                 forLoopIsOpen = false;
                 openLoops.remove(openLoops.size() - 1);
+               // tree.addNode(tree, Node.Type.NEWLINE, "right", null); TODO:Check this
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpToStartOfForLoop(tree);
                 tree = tree.moveUpOneStep(tree);
@@ -1026,7 +1050,7 @@ public class Main extends Activity {
             case R.id.var:
                 clearButtons();
                 Node curNode = tree.findCurNode(tree);
-                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.FORLOOP)){
+                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP)){
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
                     //   tree.addNode(tree, Node.Type.VAR, "left", null);
@@ -1166,25 +1190,27 @@ public class Main extends Activity {
         if(tree != null) {
             Node currentNode = tree.findCurNode(tree);
             Node.Type currentNodeType = currentNode.nodeType;
-
+            openLoopsIndent.clear();
             printTree(tree);
-            if(openLoops.size() > 0 && currentNodeType == Node.Type.SEQ){
-                btnForEndLoop.setVisibility(View.VISIBLE);
+            if(openLoops.size() > 0) {
+                if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.STARTLOOP) {
+                    btnForEndLoop.setVisibility(View.VISIBLE);
+                }
             }
             if(openLoops.size() == 0 ){
                 btnForEndLoop.setVisibility(View.GONE);
             }
           //  if((v.getId() == R.id.semicolon) || (v.getId() == R.id.btnForPlus)  || (v.getId() == R.id.btnForMinus || (v.getId() == R.id.run) || (v.getId() == R.id.clear))){
-           if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.FORLOOP )){
-               if((currentNodeType == Node.Type.FORLOOP )){
+           if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP )){
+               /*if((currentNodeType == Node.Type.FORLOOP )){
                    if(((Loops) currentNode).plusOrMinus != null ){
                        btnLoops.setVisibility(View.VISIBLE);
                    }
                }else {
                    btnLoops.setVisibility(View.VISIBLE);
                }
-            }else{
-                btnLoops.setVisibility(View.GONE);
+            }else{*/
+                btnLoops.setVisibility(View.VISIBLE);
             }
             if(currentNodeType == Node.Type.SEQ && openLoops.size() == 0){
                 btnRun.setVisibility(View.VISIBLE);
@@ -1338,7 +1364,7 @@ public class Main extends Activity {
 //TODO: Booleans -- DONEISH
 
 
-//TODO: code indentation
+//TODO: code indentation -- BASCIALLY atm i need to get loops button showing properly (maybe by sorting out showhomemenu) and also put in Newline before end of loop
 
 //TODO: Conditionals
 

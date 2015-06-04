@@ -23,6 +23,7 @@ public class Node {
         SMCLN,
         OP,
         NEWLINE,
+        STARTLOOP,
         END;
     }
 
@@ -110,6 +111,13 @@ public class Node {
             }
             else if (type == Type.OP) {
                 newNode = new Operator(node, null);
+            }
+            else if (type == Type.NEWLINE) {
+                if(value == "for") {
+                    newNode = new Newline(node, Newline.Type.FOR); //For indentation
+                }else{
+                    newNode = new Newline(node, null);
+                }
             }
             else {
                 newNode = new Node(type, node);
