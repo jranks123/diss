@@ -127,10 +127,10 @@
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/btnConditionals"
+            android:id="@+id/btnIf"
             android:layout_width="141dp"
             android:layout_height="60dp"
-            android:text="Conditionals"
+            android:text="If"
             android:onClick="onBtnClicked"/>
 
 
@@ -381,16 +381,9 @@
 
         <!--Conditionals Menu-->
 
-        <Button
-            android:id="@+id/btnConditionalIf"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="If"
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/btnConditionalElse"
+            android:id="@+id/btnElse"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Else"

@@ -71,9 +71,8 @@ public class Main extends Activity {
     Button btnOperatorMoreThan;
     Button btnOperatorMoreThanEquals;
 
-    Button btnConditionals;
-    Button btnConditionalIf;
-    Button btnConditionalElse;
+    Button btnIf;
+    Button btnElse;
 
 
 
@@ -170,9 +169,8 @@ public class Main extends Activity {
         btnOperatorMoreThan = (Button) findViewById(R.id.btnOperatorMoreThan);
         btnOperatorMoreThanEquals = (Button) findViewById(R.id.btnOperatorMoreThanEquals);
 
-        btnConditionals = (Button) findViewById(R.id.btnConditionals);
-        btnConditionalElse = (Button) findViewById(R.id.btnConditionalElse);
-        btnConditionalIf = (Button) findViewById(R.id.btnConditionalIf);
+        btnIf = (Button) findViewById(R.id.btnIf);
+        btnElse = (Button) findViewById(R.id.btnElse);
 
 
         Button btnConditionalIf;
@@ -186,7 +184,7 @@ public class Main extends Activity {
         homeMenu.add(btnPrint);
         homeMenu.add(btnLoops);
         homeMenu.add(btnVar);
-        homeMenu.add(btnConditionals);
+        homeMenu.add(btnIf);
         printMenu = new ArrayList<Button>();
         printMenu.add(btnPrintBack);
         printMenu.add(btnSemicolon);
@@ -551,8 +549,10 @@ public class Main extends Activity {
         while(i < array.size()) {
             node = array.get(i);
             if (node.nodeType == Node.Type.OP) {
+                if (((Operator) node).opNodeType == Operator.Type.CONCAT) {
                     value = getVarOrVarValValue(array.get(i - 1)) + getVarOrVarValValue(array.get(i + 1));
                     removeOpFromArrayList(array, i, value);
+                }
             }else{
                 i++;
             }
@@ -608,6 +608,7 @@ public class Main extends Activity {
                     array = evaluateBrackets(array, evalType);
                 }
             }else {
+
                 if (evalType == Eval.Type.INT) {
                     array = evalDivAndMul(array);
                     array = evalAddAndSub(array);
@@ -615,7 +616,9 @@ public class Main extends Activity {
                     array = evalString(array);
                 } else if (evalType == Eval.Type.BOOL) {
                     array = evalBool(array);
+
                 }
+              //  return array; TODO:check this
             }
             return array;
         }
@@ -878,6 +881,11 @@ public class Main extends Activity {
                     b.setBackgroundColor(0xFFFF0000);
                 }else if (variables.get(i).varNodeType == Variable.Type.BOOL) {
                     b.setBackgroundColor(0x9966FF0);
+                }
+                if(true){
+
+                }else{
+
                 }
                 b.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
@@ -1289,6 +1297,13 @@ public class Main extends Activity {
             case R.id.btnOperatorBoolOr:
                 tree = tree.updateOp(tree, Operator.Type.OR);
                 break;
+
+            case R.id.btnIf:
+                tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
+                tree = tree.addNode(tree, Node.Type.IF, "left", "none");
+                tree = tree.addNode(tree, Node.Type.CONDITION, "left", "none");
+
         }
         edtEnterString.setText("");
         code.setText("");
@@ -1435,6 +1450,13 @@ public class Main extends Activity {
                     showSemicolonButton();
                 }
             }
+          /*  else if(currentNodeType == Node.Type.CONDITION){
+                clearButtons();
+                showBracketButtons(currentNode);
+                btnTypeInput.setVisibility(View.VISIBLE);
+                showVarButtons(null);
+
+            }*/
             if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.VAR) && (currentNodeType != Node.Type.BRACKET) ){
                 btnOperator.setVisibility(View.GONE);
             }
@@ -1507,7 +1529,7 @@ public class Main extends Activity {
 
 
 
-
+//TODO: When writing up, justify why you have used binary tree and long branches
 
 
 

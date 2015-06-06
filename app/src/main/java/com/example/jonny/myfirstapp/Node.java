@@ -25,7 +25,9 @@ public class Node {
         BRACKET,
         NEWLINE,
         STARTLOOP,
-        END;
+        END,
+        IF,
+        CONDITION;
     }
 
 
