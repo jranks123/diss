@@ -138,6 +138,30 @@
             android:text="If"
             android:onClick="onBtnClicked"/>
 
+        <Button
+            android:id="@+id/btnStartIf"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Finish Condition"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnEndIfCondition"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Finish Condition"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnEndIf"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="End If"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
 
 
         <Button

@@ -27,6 +27,9 @@ public class Node {
         STARTLOOP,
         END,
         IF,
+        STARTIF,
+        ENDIF,
+        ENDIFCONDITION,
         CONDITION;
     }
 
@@ -146,6 +149,9 @@ public class Node {
     public Node updateOp(Node tree, Operator.Type type ){
         Node node = findCurNode(tree);
         ((Operator)node).opNodeType = type;
+        if((type == Operator.Type.MORETHAN) || (type == Operator.Type.LESSTHAN) || (type == Operator.Type.MORETHANEQUALS) || (type == Operator.Type.LESSTHANEQALS) || (type == Operator.Type.EQUALS)){
+            ((Operator)node).isConditional = true;
+        }
         return tree;
     }
 
@@ -263,6 +269,25 @@ public class Node {
         }
         return false;
     }
+
+    public Boolean hasConditionOperatorBeenUsed(Node node){
+        //  Node node = findCurNode(tree);
+        Boolean endWhile = false;
+        while(endWhile == false){
+            if(node.nodeType == Type.OP){
+                if(((Operator)node).isConditional == true) {
+                    return true;
+                }
+            }else if (node.nodeType == Type.SEQ){
+                return false;
+            }else if(node.nodeType == Type.ROOT){
+                return false;
+            }
+            node = node.parent;
+        }
+        return false;
+    }
+
 
 
     public Node moveUpTreeLimit(Node tree, String limit){

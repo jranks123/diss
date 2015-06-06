@@ -73,6 +73,9 @@ public class Main extends Activity {
 
     Button btnIf;
     Button btnElse;
+    Button btnStartIf;
+    Button btnEndIf;
+    Button btnEndIfCondition;
 
 
 
@@ -97,6 +100,8 @@ public class Main extends Activity {
     ArrayList<Boolean> openLoops;
     ArrayList<Boolean> openLoopsIndent;
     ArrayList<Boolean> openBrackets;
+    ArrayList<Boolean> openIfs;
+    ArrayList<Boolean> openIfsIndent;
 
     String tempString1;
     String s;
@@ -126,6 +131,8 @@ public class Main extends Activity {
         openLoops = new ArrayList<Boolean>();
         openLoopsIndent = new ArrayList<Boolean>();
         openBrackets = new ArrayList<Boolean>();
+        openIfs = new ArrayList<Boolean>();
+        openIfsIndent = new ArrayList<Boolean>();
         btnSemicolon =(Button)findViewById(R.id.semicolon);
         btnEnterString = (Button)findViewById(R.id.btnEnterTextString);
         edtEnterString = (EditText) findViewById(R.id.edtEnterTextString);
@@ -170,8 +177,10 @@ public class Main extends Activity {
         btnOperatorMoreThanEquals = (Button) findViewById(R.id.btnOperatorMoreThanEquals);
 
         btnIf = (Button) findViewById(R.id.btnIf);
+        btnStartIf = (Button) findViewById(R.id.btnStartIf);
+        btnEndIfCondition = (Button) findViewById(R.id.btnEndIfCondition);
         btnElse = (Button) findViewById(R.id.btnElse);
-
+        btnEndIf = (Button) findViewById(R.id.btnEndIf);
 
         Button btnConditionalIf;
         Button btnConditionalElse;
@@ -304,10 +313,14 @@ public class Main extends Activity {
     }
 
     public void indent(){
-        for(int i = 0; i < openLoopsIndent.size(); i++){
+        int loop = openLoopsIndent.size() + openIfsIndent.size();
+        for(int i = 0; i < loop; i++){
             code.append("\t\t\t");
         }
     }
+
+
+
 
 
     public void visitNode(Node tree){
@@ -450,10 +463,24 @@ public class Main extends Activity {
                 code.append(" && ");
             }else if(op.equals("OR")){
                 code.append(" || ");
+            }else if(op.equals("LESSTHAN")){
+                code.append(" < ");
+            }else if(op.equals("MORETHAN")){
+                code.append(" > ");
+            }else if(op.equals("LESSTHANEQUALS")){
+                code.append(" <= ");
+            }else if(op.equals("MORETHANEQUALS")){
+                code.append(" >= ");
+            }else if(op.equals("EQUALS")){
+                code.append(" == ");
             }
         }
         else if(nodeType == Node.Type.IF){
             code.append(Html.fromHtml(getString(R.string.ifString)));
+        }
+        else if(nodeType == Node.Type.ENDIFCONDITION){
+            code.append(Html.fromHtml(getString(R.string.endIfString)) + "\n");
+            openIfsIndent.add(true);
         }
 
     }
@@ -753,6 +780,16 @@ public class Main extends Activity {
     }
 
 
+
+    public void endIfCondition(Node node) {
+        if (openBrackets.size() == 0) {
+            if(tree.hasConditionOperatorBeenUsed(node)){
+                btnEndIfCondition.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+
     public void runCode(Node tree){
         visitNodeRun(tree);
         if (tree.left != null) {
@@ -918,6 +955,7 @@ public class Main extends Activity {
                         }
                         btnNewVar.setVisibility(View.GONE);
                         if(tree.isXbeforeY(curNode, Node.Type.EVAL, Node.Type.SEQ) || tree.isXbeforeY(curNode, Node.Type.IF, Node.Type.SEQ)){
+                            endIfCondition(curNode);
                             btnOperator.setVisibility(View.VISIBLE);
                             showBracketButtons(curNode);
                         }
@@ -929,6 +967,7 @@ public class Main extends Activity {
                         code.setText("");
                         if (tree != null) {
                             openLoopsIndent.clear();
+                            openIfsIndent.clear();
                             printTree(tree);
                         }
                         varButtons.add(b);
@@ -1267,30 +1306,89 @@ public class Main extends Activity {
                 tree = tree.updateOp(tree, Operator.Type.OR);
                 break;
 
+            case R.id.btnOperatorLessThan:
+                tree = tree.updateOp(tree, Operator.Type.LESSTHAN);
+              //  tree.addNode(tree, Node.Type.EVAL, "left", "none");
+
+                break;
+
+            case R.id.btnOperatorLessThanEqual:
+                tree = tree.updateOp(tree, Operator.Type.LESSTHANEQALS);
+               // tree.addNode(tree, Node.Type.EVAL, "left", "none");
+
+                break;
+
+            case R.id.btnOperatorMoreThan:
+                tree = tree.updateOp(tree, Operator.Type.MORETHAN);
+            //    tree.addNode(tree, Node.Type.EVAL, "left", "none");
+
+                break;
+
+            case R.id.btnOperatorMoreThanEquals:
+                tree = tree.updateOp(tree, Operator.Type.MORETHANEQUALS);
+            //    tree.addNode(tree, Node.Type.EVAL, "left", "none");
+                break;
+
+            case R.id.btnOperatorEquality:
+                tree = tree.updateOp(tree, Operator.Type.EQUALS);
+           //     tree.addNode(tree, Node.Type.EVAL, "left", "none");
+
+                break;
+
             case R.id.btnIf:
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
                 tree = tree.addNode(tree, Node.Type.IF, "left", "none");
                 tree = tree.addNode(tree, Node.Type.CONDITION, "left", "none");
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
+                break;
+
+            case R.id.btnEndIfCondition:
+                tree = tree.addNode(tree, Node.Type.ENDIFCONDITION, "left", "none");
+                Node node = tree.findCurNode(tree);
+                tree = tree.moveUpTreeLimit(tree, "CONDITION");
+                openIfs.add(true);
+                tree.addNode(tree, Node.Type.STARTIF, "right", "none");
+                break;
+
+            case R.id.btnEndIf:
+                openIfs.remove(openIfs.size() - 1);
+                tree = tree.moveUpTreeLimit(tree, "SEQ");
+                tree.addNode(tree, Node.Type.ENDIF, "right", null);
+                tree = tree.moveUpTreeLimit(tree, "IF");
+                break;
+            }
 
 
-        }
         edtEnterString.setText("");
         code.setText("");
         if(tree != null) {
             Node currentNode = tree.findCurNode(tree);
             Node.Type currentNodeType = currentNode.nodeType;
             openLoopsIndent.clear();
+            openIfsIndent.clear();
             printTree(tree);
-            if(openLoops.size() > 0) {
+            int openLoopsSize = openLoops.size();
+            int openIfsSize = openIfs.size();
+            if(openLoopsSize > 0) {
                 if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.STARTLOOP) {
                     btnForEndLoop.setVisibility(View.VISIBLE);
                 }
             }
-            if(openLoops.size() == 0 ){
+            if(openLoopsSize == 0){
                 btnForEndLoop.setVisibility(View.GONE);
             }
+
+            if(openIfsSize > 0){
+                if (currentNodeType == Node.Type.SEQ) {
+                    btnEndIf.setVisibility(View.VISIBLE);
+                }
+            }
+
+            if(openIfsSize == 0){
+                btnEndIf.setVisibility(View.GONE);
+            }
+
           //  if((v.getId() == R.id.semicolon) || (v.getId() == R.id.btnForPlus)  || (v.getId() == R.id.btnForMinus || (v.getId() == R.id.run) || (v.getId() == R.id.clear))){
            if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP )){
                /*if((currentNodeType == Node.Type.FORLOOP )){
@@ -1303,10 +1401,12 @@ public class Main extends Activity {
             }else{*/
                 btnLoops.setVisibility(View.VISIBLE);
             }
-            if(currentNodeType == Node.Type.SEQ && openLoops.size() == 0){
-                btnRun.setVisibility(View.VISIBLE);
-            }else{
-                btnRun.setVisibility(View.GONE);
+            if(currentNodeType == Node.Type.SEQ) {
+                if (openLoops.size() == 0) {
+                    btnRun.setVisibility(View.VISIBLE);
+                } else {
+                    btnRun.setVisibility(View.GONE);
+                }
             }
             if(currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType == null){
                 clearButtons();
@@ -1338,23 +1438,29 @@ public class Main extends Activity {
 
                 }
             }else if(currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType != null){
+                Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
                 clearButtons();
-                if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.STRING) {
+                if (evalType == Eval.Type.STRING) {
                     btnTypeInput.setVisibility(View.VISIBLE);
                     if (variables.size() > 0) {
                         btnVar.setVisibility(View.VISIBLE);
                     }
                 }
-                else if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.INT) {
+                else if (evalType == Eval.Type.INT) {
                     btnTypeInput.setVisibility(View.VISIBLE);
                     if(checkVarTypeExistence(Variable.Type.INT)){
                         btnVar.setVisibility(View.VISIBLE);
                     }
 
-                }else if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.BOOL) {
+                }else if (evalType == Eval.Type.BOOL) {
                     btnBoolTrue.setVisibility(View.VISIBLE);
                     btnBoolFalse.setVisibility(View.VISIBLE);
                     if(checkVarTypeExistence(Variable.Type.BOOL)){
+                        btnVar.setVisibility(View.VISIBLE);
+                    }
+                }else if(evalType == Eval.Type.NONE){
+                    btnTypeInput.setVisibility(View.VISIBLE);
+                    if(checkVarTypeExistence(Variable.Type.INT)){
                         btnVar.setVisibility(View.VISIBLE);
                     }
                 }
@@ -1391,6 +1497,8 @@ public class Main extends Activity {
                         showVarButtons(Variable.Type.INT);
                     }else if (type == Eval.Type.BOOL){
                         showVarButtons(Variable.Type.BOOL);
+                    }else if(type == Eval.Type.NONE){
+                        showVarButtons(Variable.Type.INT);
                     }
                 }else {
                     edtEnterString.setText("");
@@ -1436,11 +1544,20 @@ public class Main extends Activity {
                 }
             }
             else if(currentNodeType == Node.Type.CONDITION){
+               // clearButtons();
+               // btnEndIf.setVisibility(View.VISIBLE);
+               // showButtons(homeMenu);
+            }
+            else if(currentNodeType == Node.Type.STARTIF){
                 clearButtons();
-                showBracketButtons(currentNode);
-                btnTypeInput.setVisibility(View.VISIBLE);
-                showVarButtons(null);
-
+                btnEndIf.setVisibility(View.VISIBLE);
+                showButtons(homeMenu);
+            }
+            else if(currentNodeType == Node.Type.ENDIFCONDITION){
+           //     tree = tree.moveUpTreeLimit(currentNode, "CONDITION");
+            }
+            else if(currentNodeType == Node.Type.IF){
+                btnElse.setVisibility(View.VISIBLE);
             }
             else if(currentNodeType == Node.Type.EVAL) {
                 clearButtons();
@@ -1496,10 +1613,11 @@ public class Main extends Activity {
 
 //Saturday 6th June
 
-//TODO: for IF, when you press operators it crashes
-//TODO: add EVAL node when you press if,
-
 //TODO: Conditionals
+
+//TODO: get end of IFs working in the code view (at the moment it deletes the code in the brackets
+//TODO: add option to add condition when you have choice to end condition
+
 
 //TODO: Functions
 
