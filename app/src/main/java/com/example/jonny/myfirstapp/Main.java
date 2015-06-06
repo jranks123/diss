@@ -607,8 +607,8 @@ public class Main extends Activity {
                 while(areBracketsInArray(array)) {
                     array = evaluateBrackets(array, evalType);
                 }
+                array = evaluateArray(array, evalType);
             }else {
-
                 if (evalType == Eval.Type.INT) {
                     array = evalDivAndMul(array);
                     array = evalAddAndSub(array);
@@ -618,7 +618,6 @@ public class Main extends Activity {
                     array = evalBool(array);
 
                 }
-              //  return array; TODO:check this
             }
             return array;
         }
