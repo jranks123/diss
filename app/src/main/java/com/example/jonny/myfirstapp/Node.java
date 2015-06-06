@@ -22,6 +22,7 @@ public class Node {
         FORLOOP,
         SMCLN,
         OP,
+        BRACKET,
         NEWLINE,
         STARTLOOP,
         END;
@@ -119,6 +120,13 @@ public class Node {
                     newNode = new Newline(node, null);
                 }
             }
+            else if(type == Type.BRACKET){
+                if(value == "Open"){
+                    newNode =  new Bracket(node, Bracket.Type.OPEN);
+                }else if(value == "Close"){
+                    newNode =  new Bracket(node, Bracket.Type.CLOSE);
+                }
+            }
             else {
                 newNode = new Node(type, node);
             }
@@ -195,6 +203,7 @@ public class Node {
         ((Variable)node).varNodeType = type;
         return tree;
     }
+
 
 
 

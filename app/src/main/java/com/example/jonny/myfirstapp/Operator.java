@@ -15,6 +15,8 @@ public class Operator extends Node {
         CONCAT,
         AND,
         OR,
+        OPENBRACKET,
+        CLOSEBRACKET,
         NONE
     }
 
