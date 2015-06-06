@@ -24,7 +24,7 @@
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:id="@+id/code"
             android:gravity="left"
             android:background="#B6F7BE">
@@ -58,7 +58,7 @@
             android:background="#C2F4EB">
 
             <ScrollView
-                android:id="@+id/SCROLLER_ID"
+                android:id="@+id/SCROLLER_ID2"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:scrollbars="vertical"
@@ -89,12 +89,17 @@
         android:gravity="right"
         android:baselineAligned="false">
 
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.33"
+        android:fillViewport="true"
+        >
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/buttons"
         android:background="#1DDDBA"
         android:gravity="center" >
@@ -580,6 +585,7 @@
 
 
     </LinearLayout>
+    </HorizontalScrollView>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -619,6 +625,6 @@
             android:onClick="onBtnClicked"/>
 
         </LinearLayout>
-
        </LinearLayout>
+
 </LinearLayout>

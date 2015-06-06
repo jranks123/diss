@@ -17,6 +17,11 @@ public class Operator extends Node {
         OR,
         OPENBRACKET,
         CLOSEBRACKET,
+        MORETHAN,
+        LESSTHAN,
+        MORETHANEQUALS,
+        LESSTHANEQALS,
+        EQUALS,
         NONE
     }
 
