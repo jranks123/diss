@@ -16,8 +16,8 @@
     <string name="bool"><![CDATA[<b>Boolean </b>]]></string>
     <string name="forLoop"><![CDATA[<b>for( int  </b>]]></string>
     <string name="ifString"><![CDATA[<b>if( </b>]]></string>
-    <string name="endIfString"><![CDATA[<b> ) {</b>]]></string>
-
+    <string name="endIfConditionString"><![CDATA[<b> ) {</b>]]></string>
+    <string name="endIfString"><![CDATA[<b>}</b>]]></string>
     <string name="lessThan"><![CDATA[<]]></string>
     <string name="lessThanEquals"><![CDATA[<=]]></string>
     <string name="moreThan"><![CDATA[>]]></string>

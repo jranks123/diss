@@ -292,15 +292,17 @@ public class Node {
 
     public Node moveUpTreeLimit(Node tree, String limit){
         Log.e("ADDNODE", "moving up tree");
-        Node node;
-       do{
-           node = findCurNode(tree);
+        Node node = findCurNode(tree);
+
+        while (!node.nodeType.toString().equals(limit)){
            Log.d("DEBUG", "Current node before = " + node.nodeType.toString());
            node.isCurrentNode = false;
            node.parent.isCurrentNode = true;
-           Log.d("DEBUG", "Current node = " + node.parent.nodeType.toString());
+            node = node.parent;
 
-        }while (!node.parent.nodeType.toString().equals(limit));
+            Log.d("DEBUG", "Current node = " + node.parent.nodeType.toString());
+
+        }
         return tree;
     }
 

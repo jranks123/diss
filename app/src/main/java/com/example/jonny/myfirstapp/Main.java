@@ -479,8 +479,13 @@ public class Main extends Activity {
             code.append(Html.fromHtml(getString(R.string.ifString)));
         }
         else if(nodeType == Node.Type.ENDIFCONDITION){
-            code.append(Html.fromHtml(getString(R.string.endIfString)) + "\n");
+            code.append(Html.fromHtml(getString(R.string.endIfConditionString)) + "\n");
             openIfsIndent.add(true);
+        }
+        else if(nodeType == Node.Type.ENDIF){
+            openIfsIndent.remove(openIfsIndent.size() - 1);
+            indent();
+            code.append(Html.fromHtml(getString(R.string.endIfString)) + "\n");
         }
 
     }
@@ -1132,6 +1137,14 @@ public class Main extends Activity {
                 showButtons(homeMenu);
                 break;
 
+        /*    case R.id.btnEndIf:
+                openIfs.remove(openIfs.size() - 1);
+                tree = tree.moveUpTreeLimit(tree, "SEQ");
+                tree.addNode(tree, Node.Type.ENDIF, "right", null);
+                tree = tree.moveUpTreeLimit(tree, "IF");
+                break;
+        }*/
+
 
             case R.id.clear:
                 tree = new Node(Node.Type.ROOT, null);
@@ -1353,8 +1366,7 @@ public class Main extends Activity {
 
             case R.id.btnEndIf:
                 openIfs.remove(openIfs.size() - 1);
-                tree = tree.moveUpTreeLimit(tree, "SEQ");
-                tree.addNode(tree, Node.Type.ENDIF, "right", null);
+                tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "IF");
                 break;
             }
@@ -1611,9 +1623,10 @@ public class Main extends Activity {
 
 
 
-//Saturday 6th June
+//Sat + Sunday 7th June
 
 //TODO: Conditionals
+//TODO: generalise curly brackets
 
 //TODO: get end of IFs working in the code view (at the moment it deletes the code in the brackets
 //TODO: add option to add condition when you have choice to end condition
