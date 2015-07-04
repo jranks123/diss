@@ -31,9 +31,9 @@ public class Main extends Activity {
     Button btnPrintVar;
     Button btnPrintText;
 
-    Button btnUpdatePrintString;
-    Button btnUpdatePrintInt;
-    Button btnUpdatePrintBool;
+    Button btnSetEvalTypeString;
+    Button btnSetEvalTypeInt;
+    Button btnSetEvalTypeBool;
 
     Button btnLogTree;
     Button btnEnterVarName;
@@ -51,7 +51,6 @@ public class Main extends Activity {
     Button btnForPlus;
     Button btnForMinus;
     Button btnForEndLoop;
-    Boolean forLoopIsOpen;
 
     Button btnOperator;
     Button btnOperatorAdd;
@@ -64,7 +63,7 @@ public class Main extends Activity {
     Button btnOperatorBoolAnd;
     Button btnOperatorBoolOr;
 
-
+    Button btnOperatorInequality;
     Button btnOperatorEquality;
     Button btnOperatorLessThan;
     Button btnOperatorLessThanEquals;
@@ -77,6 +76,7 @@ public class Main extends Activity {
     Button btnEndIf;
     Button btnEndIfCondition;
 
+    Button btnCloseCurly;
 
 
     Button btnEnterText;
@@ -102,6 +102,8 @@ public class Main extends Activity {
     ArrayList<Boolean> openBrackets;
     ArrayList<Boolean> openIfs;
     ArrayList<Boolean> openIfsIndent;
+    ArrayList<Boolean> openCurlys;
+    ArrayList<Boolean> openCurlysIndent;
 
     String tempString1;
     String s;
@@ -114,9 +116,9 @@ public class Main extends Activity {
         tree = new Node(Node.Type.ROOT, null);
         btnPrint =(Button)findViewById(R.id.print);
         btnPrintBack = (Button)findViewById(R.id.printBack);
-        btnUpdatePrintInt = (Button) findViewById(R.id.btnUpdatePrintInt);
-        btnUpdatePrintString = (Button) findViewById(R.id.btnUpdatePrintString);
-        btnUpdatePrintBool = (Button) findViewById(R.id.btnUpdatePrintBool);
+        btnSetEvalTypeInt = (Button) findViewById(R.id.btnUpdatePrintInt);
+        btnSetEvalTypeString = (Button) findViewById(R.id.btnUpdatePrintString);
+        btnSetEvalTypeBool = (Button) findViewById(R.id.btnUpdatePrintBool);
 
 
         btnLoops = (Button)findViewById(R.id.loops);
@@ -133,6 +135,9 @@ public class Main extends Activity {
         openBrackets = new ArrayList<Boolean>();
         openIfs = new ArrayList<Boolean>();
         openIfsIndent = new ArrayList<Boolean>();
+        openCurlys = new ArrayList<Boolean>();
+        openCurlysIndent = new ArrayList<Boolean>();
+
         btnSemicolon =(Button)findViewById(R.id.semicolon);
         btnEnterString = (Button)findViewById(R.id.btnEnterTextString);
         edtEnterString = (EditText) findViewById(R.id.edtEnterTextString);
@@ -157,7 +162,6 @@ public class Main extends Activity {
         btnForPlus = (Button) findViewById(R.id.btnForPlus);
         btnForMinus = (Button) findViewById(R.id.btnForMinus);
         btnForEndLoop = (Button) findViewById(R.id.btnForEndLoop);
-        forLoopIsOpen = false;
 
         btnOperator = (Button) findViewById(R.id.btnOperator);
         btnOperatorAdd = (Button) findViewById(R.id.btnOperatorAdd);
@@ -169,7 +173,7 @@ public class Main extends Activity {
         btnCloseBracket = (Button) findViewById(R.id.btnCloseBracket);
         btnOperatorBoolAnd = (Button) findViewById(R.id.btnOperatorBoolAnd);
         btnOperatorBoolOr = (Button) findViewById(R.id.btnOperatorBoolOr);
-
+        btnOperatorInequality =(Button) findViewById(R.id.btnOperatorInequality);
         btnOperatorEquality =(Button) findViewById(R.id.btnOperatorEquality);
         btnOperatorLessThan = (Button) findViewById(R.id.btnOperatorLessThan);
         btnOperatorLessThanEquals = (Button) findViewById(R.id.btnOperatorLessThanEqual);
@@ -181,6 +185,8 @@ public class Main extends Activity {
         btnEndIfCondition = (Button) findViewById(R.id.btnEndIfCondition);
         btnElse = (Button) findViewById(R.id.btnElse);
         btnEndIf = (Button) findViewById(R.id.btnEndIf);
+
+        btnCloseCurly = (Button) findViewById(R.id.btnCloseCurly);
 
         Button btnConditionalIf;
         Button btnConditionalElse;
@@ -313,7 +319,8 @@ public class Main extends Activity {
     }
 
     public void indent(){
-        int loop = openLoopsIndent.size() + openIfsIndent.size();
+       // int loop = openLoopsIndent.size() + openIfsIndent.size();
+        int loop = openCurlysIndent.size();
         for(int i = 0; i < loop; i++){
             code.append("\t\t\t");
         }
@@ -421,10 +428,13 @@ public class Main extends Activity {
                 indent();
         }
         else if(nodeType == Node.Type.STARTLOOP){
-            openLoopsIndent.add(true);
+            //openLoopsIndent.add(true);
+            openCurlysIndent.add(true);
         }
         else if(nodeType == Node.Type.END){
-            openLoopsIndent.remove(openLoopsIndent.size() - 1);
+           // openLoopsIndent.remove(openLoopsIndent.size() - 1);
+            openCurlysIndent.remove(openCurlysIndent.size() - 1);
+
             indent();
             code.append("}\n");
         }
@@ -473,6 +483,8 @@ public class Main extends Activity {
                 code.append(" >= ");
             }else if(op.equals("EQUALS")){
                 code.append(" == ");
+            }else if(op.equals("NOTEQUALS")){
+                code.append(" != ");
             }
         }
         else if(nodeType == Node.Type.IF){
@@ -480,10 +492,12 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.ENDIFCONDITION){
             code.append(Html.fromHtml(getString(R.string.endIfConditionString)) + "\n");
-            openIfsIndent.add(true);
+            //openIfsIndent.add(true);
+            openCurlysIndent.add(true);
         }
         else if(nodeType == Node.Type.ENDIF){
-            openIfsIndent.remove(openIfsIndent.size() - 1);
+            //openIfsIndent.remove(openIfsIndent.size() - 1);
+            openCurlysIndent.remove(openCurlysIndent.size() - 1);
             indent();
             code.append(Html.fromHtml(getString(R.string.endIfString)) + "\n");
         }
@@ -587,6 +601,8 @@ public class Main extends Activity {
                 if (((Operator) node).opNodeType == Operator.Type.CONCAT) {
                     value = getVarOrVarValValue(array.get(i - 1)) + getVarOrVarValValue(array.get(i + 1));
                     removeOpFromArrayList(array, i, value);
+                }else{
+                    i++;
                 }
             }else{
                 i++;
@@ -766,11 +782,14 @@ public class Main extends Activity {
                 btnCloseBracket.setVisibility(View.GONE);
             }
         }
-        else if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL){
+        if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL){
             btnOpenBracket.setVisibility(View.GONE);
         }
-        else if(node.nodeType == Node.Type.OP){
+        if(node.nodeType == Node.Type.OP){
             btnCloseBracket.setVisibility(View.GONE);
+            if (((Operator) node).opNodeType == null){
+                btnOpenBracket.setVisibility(View.GONE);
+            }
         }
 
     }
@@ -783,6 +802,9 @@ public class Main extends Activity {
             }
         }
     }
+
+
+
 
 
 
@@ -971,8 +993,9 @@ public class Main extends Activity {
                         }
                         code.setText("");
                         if (tree != null) {
-                            openLoopsIndent.clear();
-                            openIfsIndent.clear();
+                          //  openLoopsIndent.clear();
+                          //  openIfsIndent.clear();
+                            openCurlysIndent.clear();
                             printTree(tree);
                         }
                         varButtons.add(b);
@@ -1048,8 +1071,8 @@ public class Main extends Activity {
 
 
             case R.id.btnFor:
-                forLoopIsOpen = true;
-                openLoops.add(true);
+              //  openLoops.add(true);
+                openCurlys.add(true);
                 clearButtons();
                 tree = tree.addNode(tree, Node.Type.FORLOOP, "left", "For");
                 //LogTree(tree);
@@ -1126,8 +1149,9 @@ public class Main extends Activity {
 
             case R.id.btnForEndLoop:
                 clearButtons();
-                forLoopIsOpen = false;
-                openLoops.remove(openLoops.size() - 1);
+                //openLoops.remove(openLoops.size() - 1);
+                //openLoops.remove(openLoops.size() - 1);
+                openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
                // tree.addNode(tree, Node.Type.NEWLINE, "right", null); TODO:Check this
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpToStartOfForLoop(tree);
@@ -1136,6 +1160,21 @@ public class Main extends Activity {
                 //  btnRun.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
                 break;
+
+            case R.id.btnCloseCurly:
+                openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
+                tree.addNode(tree, Node.Type.END, "right", null);
+                if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)){
+                    tree = tree.moveUpTreeLimit(tree, "FORLOOP");
+                    tree = tree.moveUpTreeLimit(tree, "SEQ");
+                }else if(tree.isXbeforeY(tree, Node.Type.IF, Node.Type.NEWLINE)){
+                    tree = tree.moveUpTreeLimit(tree, "IF");
+
+                }
+
+                break;
+
+
 
         /*    case R.id.btnEndIf:
                 openIfs.remove(openIfs.size() - 1);
@@ -1149,8 +1188,9 @@ public class Main extends Activity {
             case R.id.clear:
                 tree = new Node(Node.Type.ROOT, null);
                 clearButtons();
-                openLoops.clear();
+              //  openLoops.clear();
                 openBrackets.clear();
+                openCurlys.clear();
                 output.setText("");
                 variables.clear();
                 showButtons(homeMenu);
@@ -1173,7 +1213,7 @@ public class Main extends Activity {
             case R.id.var:
                 clearButtons();
                 Node curNode = tree.findCurNode(tree);
-                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP)){
+                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP) ||  (curNode.nodeType == Node.Type.STARTIF)){
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
                     //   tree.addNode(tree, Node.Type.VAR, "left", null);
@@ -1348,6 +1388,11 @@ public class Main extends Activity {
 
                 break;
 
+            case R.id.btnOperatorInequality:
+                tree = tree.updateOp(tree, Operator.Type.NOTEQUALS);
+                //     tree.addNode(tree, Node.Type.EVAL, "left", "none");
+                break;
+
             case R.id.btnIf:
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
@@ -1360,12 +1405,14 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.ENDIFCONDITION, "left", "none");
                 Node node = tree.findCurNode(tree);
                 tree = tree.moveUpTreeLimit(tree, "CONDITION");
-                openIfs.add(true);
+              //  openIfs.add(true);
+                openCurlys.add(true);
                 tree.addNode(tree, Node.Type.STARTIF, "right", "none");
                 break;
 
             case R.id.btnEndIf:
-                openIfs.remove(openIfs.size() - 1);
+              //  openIfs.remove(openIfs.size() - 1);
+                openCurlys.remove(openCurlys.size() - 1);
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "IF");
                 break;
@@ -1377,12 +1424,23 @@ public class Main extends Activity {
         if(tree != null) {
             Node currentNode = tree.findCurNode(tree);
             Node.Type currentNodeType = currentNode.nodeType;
-            openLoopsIndent.clear();
-            openIfsIndent.clear();
+           // openLoopsIndent.clear();
+           // openIfsIndent.clear();
+            openCurlysIndent.clear();
             printTree(tree);
-            int openLoopsSize = openLoops.size();
-            int openIfsSize = openIfs.size();
-            if(openLoopsSize > 0) {
+
+            if (openCurlys.size() > 0) {
+                if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.STARTLOOP) {
+                    btnCloseCurly.setVisibility(View.VISIBLE);
+                }
+            }else{
+                btnCloseCurly.setVisibility(View.GONE);
+            }
+
+          //  int openLoopsSize = openLoops.size();
+          //  int openIfsSize = openIfs.size();
+
+      /*      if(openLoopsSize > 0) {
                 if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.STARTLOOP) {
                     btnForEndLoop.setVisibility(View.VISIBLE);
                 }
@@ -1399,7 +1457,7 @@ public class Main extends Activity {
 
             if(openIfsSize == 0){
                 btnEndIf.setVisibility(View.GONE);
-            }
+            }*/
 
           //  if((v.getId() == R.id.semicolon) || (v.getId() == R.id.btnForPlus)  || (v.getId() == R.id.btnForMinus || (v.getId() == R.id.run) || (v.getId() == R.id.clear))){
            if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP )){
@@ -1436,18 +1494,22 @@ public class Main extends Activity {
                     btnOperatorBoolOr.setVisibility(View.VISIBLE);
                 }
                 //for if statements
-                else if(evalType == Eval.Type.NONE){
+                if(tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) {
                     showBracketButtons(currentNode);
-                    btnOperatorLessThan.setVisibility(View.VISIBLE);
-                    btnOperatorMoreThan.setVisibility(View.VISIBLE);
-                    btnOperatorMoreThanEquals.setVisibility(View.VISIBLE);
-                    btnOperatorLessThanEquals.setVisibility(View.VISIBLE);
-                    btnOperatorEquality.setVisibility(View.VISIBLE);
-                    btnOperatorAdd.setVisibility(View.VISIBLE);
-                    btnOperatorSub.setVisibility(View.VISIBLE);
-                    btnOperatorMulti.setVisibility(View.VISIBLE);
-                    btnOperatorDiv.setVisibility(View.VISIBLE);
-
+                    if(tree.hasConditionOperatorBeenUsed(currentNode) == false) {
+                        if (evalType == Eval.Type.INT) {
+                            btnOperatorLessThan.setVisibility(View.VISIBLE);
+                            btnOperatorMoreThan.setVisibility(View.VISIBLE);
+                            btnOperatorMoreThanEquals.setVisibility(View.VISIBLE);
+                            btnOperatorLessThanEquals.setVisibility(View.VISIBLE);
+                        }
+                        btnOperatorEquality.setVisibility(View.VISIBLE);
+                        btnOperatorInequality.setVisibility(View.VISIBLE);
+                      /*  btnOperatorAdd.setVisibility(View.VISIBLE);
+                        btnOperatorSub.setVisibility(View.VISIBLE);
+                        btnOperatorMulti.setVisibility(View.VISIBLE);
+                        btnOperatorDiv.setVisibility(View.VISIBLE);*/
+                    }
                 }
             }else if(currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType != null){
                 Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
@@ -1538,6 +1600,7 @@ public class Main extends Activity {
                     //btnSemicolon.setVisibility(View.VISIBLE);
                     btnOperator.setVisibility(View.VISIBLE);
                     showBracketButtons(currentNode);
+                    endIfCondition(currentNode); //TODO
                 }
 
             }
@@ -1553,6 +1616,7 @@ public class Main extends Activity {
                     btnOperator.setVisibility(View.VISIBLE);
                     btnOpenBracket.setVisibility(View.GONE);
                     showSemicolonButton();
+                    endIfCondition(currentNode); //TODO
                 }
             }
             else if(currentNodeType == Node.Type.CONDITION){
@@ -1562,7 +1626,8 @@ public class Main extends Activity {
             }
             else if(currentNodeType == Node.Type.STARTIF){
                 clearButtons();
-                btnEndIf.setVisibility(View.VISIBLE);
+                //btnEndIf.setVisibility(View.VISIBLE);
+                btnCloseCurly.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
             }
             else if(currentNodeType == Node.Type.ENDIFCONDITION){
@@ -1574,16 +1639,16 @@ public class Main extends Activity {
             else if(currentNodeType == Node.Type.EVAL) {
                 clearButtons();
                 if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.NONE) {
-                    if (tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ)) {
-                        btnUpdatePrintInt.setVisibility(View.VISIBLE);
-                        btnUpdatePrintString.setVisibility(View.VISIBLE);
-                        btnUpdatePrintBool.setVisibility(View.VISIBLE);
+                    if (tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ) || tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) {
+                        btnSetEvalTypeInt.setVisibility(View.VISIBLE);
+                        btnSetEvalTypeString.setVisibility(View.VISIBLE);
+                        btnSetEvalTypeBool.setVisibility(View.VISIBLE);
                     }
-                    else if(tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)){
+                  /* else if(tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)){
                         showBracketButtons(currentNode);
                         btnTypeInput.setVisibility(View.VISIBLE);
                         showVarButtons(null);
-                    }
+                    }*/
                 }
                 else{
                     showBracketButtons(currentNode);
@@ -1623,12 +1688,19 @@ public class Main extends Activity {
 
 
 
-//Sat + Sunday 7th June
+//Sat 4th July
 
-//TODO: Conditionals
-//TODO: generalise curly brackets
+//TODO: fix endifcondition button not showing -- DONE
+//TODO: Boolean assignment with operators doesnt work - fix it -- DONE
+//TODO: Variables button doesn't work when pressed at start of IF statement block -- DONE
+//TODO: open bracket shouldnt be an option here: if ( 9  -- DONE
+//TODO: make conditional operator buttons only show at appropriate times -- DONE
 
-//TODO: get end of IFs working in the code view (at the moment it deletes the code in the brackets
+
+
+
+//TODO: idea: give conditional operators a type eg Int string or bool
+
 //TODO: add option to add condition when you have choice to end condition
 
 
@@ -1636,6 +1708,8 @@ public class Main extends Activity {
 
 //TODO: check assigns in loops -- Need to implement scope
 //TODO: Implement variable scope
+//Will do this by creating new ArrayList<Varaible> every time new loop is open, then deleting it once the loops is
+//closed. Eg if 2 { are open there will be 2 additional lists, any declarations will be valid only inside those brackets
 //TODO: remove "" for ints and bools
 
 //ToDO: make loops work properly (with ++ -- etc)
@@ -1649,6 +1723,10 @@ public class Main extends Activity {
 //TODO: make it so that when you press enter on input it enters/make number buttons
 //TODO: input validation on ints
 //TODO: Check that loops work properly
+
+
+
+
 
 
 
@@ -1710,3 +1788,12 @@ public class Main extends Activity {
 //TODO: don't show semicolon unless brackets are closed -- DONE
 //TODO: implement brackets -- DONE
 //TODO: implement brackets in run -- DONE
+
+//Sat + Sunday 7th June
+
+//TODO: Conditionals
+//TODO: generalise curly brackets -- DONE
+
+//TODO: get end of IFs working in the code view (at the moment it deletes the code in the brackets -- DONE
+
+
