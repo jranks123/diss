@@ -97,6 +97,7 @@ public class Main extends Activity {
     ArrayList<Button> homeMenu;
     ArrayList<Button> varButtons;
     ArrayList<Variable> variables;
+    ArrayList<ArrayList<Variable>> variablesArray;
     ArrayList<Boolean> openLoops;
     ArrayList<Boolean> openLoopsIndent;
     ArrayList<Boolean> openBrackets;
@@ -131,6 +132,7 @@ public class Main extends Activity {
         btnNewVarBool = (Button) findViewById(R.id.btnVarNewBool);
         btnPrintVar =  (Button) findViewById(R.id.btnPrintVar);
         btnPrintText =  (Button) findViewById(R.id.btnPrintText);
+        variablesArray = new ArrayList<ArrayList<Variable>>();
         variables = new ArrayList<Variable>();
         openLoops = new ArrayList<Boolean>();
         openLoopsIndent = new ArrayList<Boolean>();
@@ -238,6 +240,7 @@ public class Main extends Activity {
         /*for(int i = 0; i < variables.size(); i++)
             variables.get(i).value = null;*/
         variables = new ArrayList<Variable>();
+        variablesArray = new ArrayList<ArrayList<Variable>>();
     }
 
 
@@ -1281,6 +1284,7 @@ public class Main extends Activity {
                 openCurlys.clear();
                 output.setText("");
                 variables.clear();
+                variablesArray.clear();
                 justEndedIfStatement = false;
                 showButtons(homeMenu);
                 break;
@@ -1800,6 +1804,7 @@ public class Main extends Activity {
 //TODO: make else work -- DONE
 
 //TODO: VARIABLE SCOPE
+//TODO: make it so you cannot declare a variable of the same name within the same scope
 
 //TODO: idea - clear line : go up to new line, go up to seq, delete child
 //TODO: idea - modify : give every newline a linenumber, when user clicks on line it highlights, they can delete line
