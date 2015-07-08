@@ -27,7 +27,6 @@
             android:layout_weight="2"
             android:id="@+id/code"
             android:gravity="left"
-            android:focusableInTouchMode="true"
             android:background="#B6F7BE">
 
 
@@ -39,7 +38,7 @@
                 android:scrollbars="vertical"
                 android:fillViewport="true">
 
-            <TextView
+            <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"

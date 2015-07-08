@@ -93,7 +93,7 @@ public class Main extends Activity {
 
     Variable newVar;
     Button btnEnterString;
-    TextView code;
+    EditText code;
     TextView output;
     ArrayList<Button> printMenu;
     ArrayList<Button> homeMenu;
@@ -215,8 +215,10 @@ public class Main extends Activity {
         printMenu.add(btnPrintBack);
         printMenu.add(btnSemicolon);
         printMenu.add(btnEnterString);
-        code = (TextView)findViewById(R.id.codeText);
+        code = (EditText)findViewById(R.id.codeText);
         code.setMovementMethod(new ScrollingMovementMethod());
+        code.setClickable(true);
+        code.setFocusable(false);
         code.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -1879,6 +1881,8 @@ public class Main extends Activity {
 //TODO: VARIABLE SCOPE -- DONE
 //TODO: make for loop variable only valid for that for loop -- DONE
 
+//TODO: nested else loops don't work ie. if then if then else then else
+
 
 //TODO: editing
 
@@ -1900,6 +1904,7 @@ public class Main extends Activity {
 //TODO: check assigns in loops -- Need to implement scope
 
 //TODO: implement modulo operator
+//TODO: implement arrays
 //ToDO: make loops work properly (with ++ -- etc)
 //TODO: optimize multiple calls to findCurNode
 //TODO: Implement Back functionality
