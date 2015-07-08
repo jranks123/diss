@@ -7,7 +7,9 @@ package com.example.jonny.myfirstapp;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
+import android.view.MotionEvent;
 import android.view.View;
 import android.app.Activity;
 import android.widget.*;
@@ -96,7 +98,7 @@ public class Main extends Activity {
     ArrayList<Button> printMenu;
     ArrayList<Button> homeMenu;
     ArrayList<Button> varButtons;
-    ArrayList<Variable> variables;
+  //  ArrayList<Variable> variables;
     ArrayList<ArrayList<Variable>> variablesArray;
     ArrayList<Boolean> openLoops;
     ArrayList<Boolean> openLoopsIndent;
@@ -133,7 +135,10 @@ public class Main extends Activity {
         btnPrintVar =  (Button) findViewById(R.id.btnPrintVar);
         btnPrintText =  (Button) findViewById(R.id.btnPrintText);
         variablesArray = new ArrayList<ArrayList<Variable>>();
-        variables = new ArrayList<Variable>();
+        variablesArray.add(new ArrayList<Variable>());
+     //   variables = new ArrayList<Variable>();
+
+
         openLoops = new ArrayList<Boolean>();
         openLoopsIndent = new ArrayList<Boolean>();
         openBrackets = new ArrayList<Boolean>();
@@ -212,6 +217,22 @@ public class Main extends Activity {
         printMenu.add(btnEnterString);
         code = (TextView)findViewById(R.id.codeText);
         code.setMovementMethod(new ScrollingMovementMethod());
+        code.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    Layout layout = ((TextView) v).getLayout();
+                    int x = (int) event.getX();
+                    int y = (int) event.getY();
+                    if (layout != null) {
+                        int line = layout.getLineForVertical(y);
+                        int offset = layout.getOffsetForHorizontal(line, x);
+                        Log.v("index", "" + offset);
+                        Log.v("line number", "" + line);
+                    }
+                }
+                return true;
+            }
+        });
         output = (TextView) findViewById(R.id.runText);
         output.setMovementMethod(new ScrollingMovementMethod());
         btnLogTree = (Button)findViewById(R.id.LogTree);
@@ -239,16 +260,13 @@ public class Main extends Activity {
     public void clearVar(){
         /*for(int i = 0; i < variables.size(); i++)
             variables.get(i).value = null;*/
-        variables = new ArrayList<Variable>();
+      //  variables = new ArrayList<Variable>();
         variablesArray = new ArrayList<ArrayList<Variable>>();
     }
 
-
-
-    public boolean checkVarExists(String var, Variable.Type type){
-        for(int i = 0; i < variables.size(); i++){
-            Variable v = variables.get(i);
-            if(v.name.equals(var) && v.varNodeType == type ){
+    public Boolean checkIfAnyVarsExist(){
+        for(int j = 0; j < variablesArray.size(); j++){
+            if(variablesArray.get(j).size() > 0){
                 return true;
             }
         }
@@ -256,16 +274,44 @@ public class Main extends Activity {
     }
 
 
-    public boolean checkVarTypeExistence(Variable.Type type){
-        if(variables != null){
-            for(int i = 0; i < variables.size(); i++){
-                if(variables.get(i).varNodeType == type){
+
+    public boolean checkVarExists(String var){
+        for(int j = 0; j < variablesArray.size(); j++) {
+            ArrayList<Variable> variables = variablesArray.get(j);
+            for (int i = 0; i < variables.size(); i++) {
+                Variable v = variables.get(i);
+                if (v.name.equals(var)) {
                     return true;
                 }
             }
         }
         return false;
+    }
 
+
+    public boolean checkVarTypeExistence(Variable.Type type){
+        if(variablesArray != null){
+            for(int j = 0; j < variablesArray.size(); j++){
+                ArrayList<Variable> variables = variablesArray.get(j);
+                for (int i = 0; i < variables.size(); i++) {
+                    if (variables.get(i).varNodeType == type) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+
+    }
+
+    public void addOpenCurly(){
+        openCurlys.add(true);
+        variablesArray.add(new ArrayList<Variable>());
+    }
+
+    public void removeOpenCurly(){
+        openCurlys.remove(openCurlys.size() - 1);
+        variablesArray.remove(variablesArray.size() - 1);
     }
 
 
@@ -278,20 +324,26 @@ public class Main extends Activity {
 
 
     public void updateVariableValue(String value, String name, Variable.Type type){
-        for(int i = 0; i < variables.size(); i++){
-            Variable v = variables.get(i);
-            if(v.name.equals(name) && v.varNodeType == type){
-               v.value = value;
+        for(int j = 0; j < variablesArray.size(); j++) {
+            ArrayList<Variable> variables = variablesArray.get(j);
+            for (int i = 0; i < variables.size(); i++) {
+                Variable v = variables.get(i);
+                if (v.name.equals(name) && v.varNodeType == type) {
+                    v.value = value;
+                }
             }
         }
     }
 
     public String getVariableValue(String name, Variable.Type type){
-        for(int i = 0; i < variables.size(); i++){
-            Variable v = variables.get(i);
-            if(v.name.equals(name) && v.varNodeType == type){
-                if(v.value != null) {
-                    return v.value;
+        for(int j = 0; j < variablesArray.size(); j++) {
+            ArrayList<Variable> variables = variablesArray.get(j);
+            for (int i = 0; i < variables.size(); i++) {
+                Variable v = variables.get(i);
+                if (v.name.equals(name) && v.varNodeType == type) {
+                    if (v.value != null) {
+                        return v.value;
+                    }
                 }
             }
         }
@@ -379,9 +431,9 @@ public class Main extends Activity {
                         v = tree.returnDecVar(tree);
                     }
                     type = v.varNodeType;
-                    if (!checkVarExists(v.name, v.varNodeType)) {
+                    if (!checkVarExists(v.name)) {
                             Variable var = new Variable(null, type, v.name, null);
-                            variables.add(var);
+                            variablesArray.get(openCurlysIndent.size()).add(var);
                         }
                 }
 
@@ -406,12 +458,15 @@ public class Main extends Activity {
                 case FOR:
                     code.append(Html.fromHtml(getString(R.string.forLoop)));
                     if(((Loops) tree).limiter != null){
+                        openCurlysIndent.add(true);
+                        variablesArray.add(new ArrayList<Variable>());
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
                         code.append(Html.fromHtml(s) + " = ");
-                        if(!checkVarExists(((Loops) tree).limiter.toString(), Variable.Type.INT)){
+                        if(!checkVarExists(((Loops) tree).limiter.toString())){
                             String name = ((Loops) tree).limiter.toString();
                             Variable v = new Variable(null, Variable.Type.INT, name, null );
-                            variables.add(v);
+                            variablesArray.get(openCurlysIndent.size()).add(v);
+                        //    variables.add(v);
                         }
                     }
                     if(((Loops) tree).lowerLim != null){
@@ -437,12 +492,13 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.STARTLOOP){
             //openLoopsIndent.add(true);
-            openCurlysIndent.add(true);
+            //openCurlysIndent.add(true);
+            //variablesArray.add(new ArrayList<Variable>());
         }
         else if(nodeType == Node.Type.END){
            // openLoopsIndent.remove(openLoopsIndent.size() - 1);
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
-
+            variablesArray.remove(variablesArray.size() - 1);
             indent();
             code.append("}\n");
         }
@@ -504,15 +560,18 @@ public class Main extends Activity {
 
 
             openCurlysIndent.add(true);
+            variablesArray.add(new ArrayList<Variable>());
         }
         else if(nodeType == Node.Type.ENDIFCONDITION){
             code.append(Html.fromHtml(getString(R.string.endIfConditionString)) + "\n");
             //openIfsIndent.add(true);
             openCurlysIndent.add(true);
+            variablesArray.add(new ArrayList<Variable>());
         }
         else if(nodeType == Node.Type.ENDIF){
             //openIfsIndent.remove(openIfsIndent.size() - 1);
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
+            variablesArray.remove(variablesArray.size() - 1);
             indent();
             code.append(Html.fromHtml(getString(R.string.endIfString)) + "\n");
         }
@@ -801,9 +860,10 @@ public class Main extends Activity {
                            Variable v = tree.returnDecVar(tree);
                            Variable.Type type = v.varNodeType;
                            String name = v.name;
-                           if (!checkVarExists(name, type)) {
+                           if (!checkVarExists(name)) {
                                Variable var = new Variable(null, type, name, null);
-                               variables.add(var);
+                               variablesArray.get(openCurlys.size()).add(var);
+                               //variables.add(var);
                            }
                            //evaluate if user assigns a value while declaring
                            if(tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)){
@@ -819,7 +879,7 @@ public class Main extends Activity {
                            //evaluate
                            String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
                            updateVariableValue(value, name, type);
-                           Log.d("Value is ", value);
+                        //   Log.d("Value is ", value);
                        }
                       else if(tree.isXbeforeY(tree, Node.Type.PRINT, Node.Type.SEQ)){
                            String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
@@ -890,14 +950,17 @@ public class Main extends Activity {
 
 
     public void runCode(Node tree){
+
         visitNodeRun(tree);
         if (tree.left != null) {
             if(tree.left.nodeType == Node.Type.FORLOOP){
                 Integer loopAmount = Math.abs(((Loops) tree.left).upperLim - ((Loops) tree.left).lowerLim);
                 String varValue = ((Loops) tree.left).lowerLim.toString();
                 String varName = ((Loops) tree.left).limiter;
-                if(!checkVarExists(varName, Variable.Type.INT)) {
-                    variables.add(new Variable(null, Variable.Type.INT, varName, varValue));
+                if(!checkVarExists(varName)) {
+                    variablesArray.get(openCurlys.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
+
+                    //variables.add(new Variable(null, Variable.Type.INT, varName, varValue));
                 }else{
                     updateVariableValue(varValue, varName, Variable.Type.INT);
                 }
@@ -1031,63 +1094,65 @@ public class Main extends Activity {
             }
         }
         LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
-        for(int i = 0; i < variables.size(); i++) {
-            if (varType == null || variables.get(i).varNodeType == varType){
-                final Button b = new Button(this);
-                s = "<b><i>" + variables.get(i).name + "</i></b>";
-                b.setText(Html.fromHtml(s));
-                b.setId(i);
-                b.setContentDescription(variables.get(i).varNodeType.toString());
-                if (variables.get(i).varNodeType == Variable.Type.STRING) {
-                    b.setBackgroundColor(0x9933FF0);
-                }
-                else if (variables.get(i).varNodeType == Variable.Type.INT) {
-                    b.setBackgroundColor(0xFFFF0000);
-                }else if (variables.get(i).varNodeType == Variable.Type.BOOL) {
-                    b.setBackgroundColor(0x9966FF0);
-                }
-                if(true){
+        for(int j = 0; j < variablesArray.size(); j ++) {
+            ArrayList<Variable> variables = variablesArray.get(j);
+            for (int i = 0; i < variables.size(); i++) {
+                if (varType == null || variables.get(i).varNodeType == varType) {
+                    final Button b = new Button(this);
+                    s = "<b><i>" + variables.get(i).name + "</i></b>";
+                    b.setText(Html.fromHtml(s));
+                    b.setId(i);
+                    b.setContentDescription(variables.get(i).varNodeType.toString());
+                    if (variables.get(i).varNodeType == Variable.Type.STRING) {
+                        b.setBackgroundColor(0x9933FF0);
+                    } else if (variables.get(i).varNodeType == Variable.Type.INT) {
+                        b.setBackgroundColor(0xFFFF0000);
+                    } else if (variables.get(i).varNodeType == Variable.Type.BOOL) {
+                        b.setBackgroundColor(0x9966FF0);
+                    }
+                    if (true) {
 
-                }else{
-
-                }
-                b.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View view) {
-                        Node curNode = tree.findCurNode(tree);
-                        clearButtons();
-                        if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
-                            curNode = doButtonLogic(b, curNode, Variable.Type.STRING, "String");
-                        }
-                        else if (b.getContentDescription().equals(Variable.Type.INT.toString())) {
-                            curNode = doButtonLogic(b, curNode, Variable.Type.INT, "Int");
-                        }
-                        else if (b.getContentDescription().equals(Variable.Type.BOOL.toString())) {
-                            curNode = doButtonLogic(b, curNode, Variable.Type.BOOL, "Bool");
-                        }
-                        btnNewVar.setVisibility(View.GONE);
-                        if(tree.isXbeforeY(curNode, Node.Type.EVAL, Node.Type.SEQ) || tree.isXbeforeY(curNode, Node.Type.IF, Node.Type.SEQ)){
-                            endIfCondition(curNode);
-                            btnOperator.setVisibility(View.VISIBLE);
-                            showBracketButtons(curNode);
-                        }
-                        if(tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.EVAL) && tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.IF) ){
-                            btnEquals.setVisibility(View.VISIBLE);
-                        } else {
-                            showSemicolonButton();
-                        }
-                        code.setText("");
-                        if (tree != null) {
-                          //  openLoopsIndent.clear();
-                          //  openIfsIndent.clear();
-                            openCurlysIndent.clear();
-                            printTree(tree);
-                        }
-                        varButtons.add(b);
-                        hideVarButtons();
+                    } else {
 
                     }
-                });
-                ll.addView(b);
+                    b.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View view) {
+                            Node curNode = tree.findCurNode(tree);
+                            clearButtons();
+                            if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
+                                curNode = doButtonLogic(b, curNode, Variable.Type.STRING, "String");
+                            } else if (b.getContentDescription().equals(Variable.Type.INT.toString())) {
+                                curNode = doButtonLogic(b, curNode, Variable.Type.INT, "Int");
+                            } else if (b.getContentDescription().equals(Variable.Type.BOOL.toString())) {
+                                curNode = doButtonLogic(b, curNode, Variable.Type.BOOL, "Bool");
+                            }
+                            btnNewVar.setVisibility(View.GONE);
+                            if (tree.isXbeforeY(curNode, Node.Type.EVAL, Node.Type.SEQ) || tree.isXbeforeY(curNode, Node.Type.IF, Node.Type.SEQ)) {
+                                endIfCondition(curNode);
+                                btnOperator.setVisibility(View.VISIBLE);
+                                showBracketButtons(curNode);
+                            }
+                            if (tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.EVAL) && tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.IF)) {
+                                btnEquals.setVisibility(View.VISIBLE);
+                            } else {
+                                showSemicolonButton();
+                            }
+                            code.setText("");
+                            if (tree != null) {
+                                //  openLoopsIndent.clear();
+                                //  openIfsIndent.clear();
+                                variablesArray.clear();
+                                variablesArray.add(new ArrayList<Variable>());
+                                openCurlysIndent.clear();
+                                printTree(tree);
+                            }
+                            varButtons.add(b);
+                            hideVarButtons();
+
+                        }
+                    });
+                    ll.addView(b);
+                }
             }
         }
     }
@@ -1163,7 +1228,8 @@ public class Main extends Activity {
 
             case R.id.btnFor:
               //  openLoops.add(true);
-                openCurlys.add(true);
+                addOpenCurly();
+            //    openCurlys.add(true);
                 clearButtons();
                 tree = tree.addNode(tree, Node.Type.FORLOOP, "left", "For");
                 //LogTree(tree);
@@ -1242,7 +1308,8 @@ public class Main extends Activity {
                 clearButtons();
                 //openLoops.remove(openLoops.size() - 1);
                 //openLoops.remove(openLoops.size() - 1);
-                openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
+                removeOpenCurly();
+          //      openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
                // tree.addNode(tree, Node.Type.NEWLINE, "right", null); TODO:Check this
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpToStartOfForLoop(tree);
@@ -1253,7 +1320,8 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnCloseCurly:
-                openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
+                removeOpenCurly();
+               // openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
                 tree.addNode(tree, Node.Type.END, "right", null);
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)){
                     tree = tree.moveUpTreeLimit(tree, "FORLOOP");
@@ -1283,8 +1351,9 @@ public class Main extends Activity {
                 openBrackets.clear();
                 openCurlys.clear();
                 output.setText("");
-                variables.clear();
+             //   variables.clear();
                 variablesArray.clear();
+                variablesArray.add(new ArrayList<Variable>());
                 justEndedIfStatement = false;
                 showButtons(homeMenu);
                 break;
@@ -1306,7 +1375,7 @@ public class Main extends Activity {
             case R.id.var:
                 clearButtons();
                 Node curNode = tree.findCurNode(tree);
-                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP) ||  (curNode.nodeType == Node.Type.STARTIF)){
+                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP) ||  (curNode.nodeType == Node.Type.STARTIF) || (curNode.nodeType == Node.Type.ELSE)){ //TODO: make this more efficient by making isValidResting property of Node
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
                     //   tree.addNode(tree, Node.Type.VAR, "left", null);
@@ -1496,7 +1565,8 @@ public class Main extends Activity {
 
             case R.id.btnElse:
                 tree = tree.addNode(tree, Node.Type.ELSE, "right", "none");
-                openCurlys.add(true);
+                addOpenCurly();
+                //openCurlys.add(true);
                 break;
 
             case R.id.btnEndIfCondition:
@@ -1504,7 +1574,8 @@ public class Main extends Activity {
                 Node node = tree.findCurNode(tree);
                 tree = tree.moveUpTreeLimit(tree, "CONDITION");
               //  openIfs.add(true);
-                openCurlys.add(true);
+                addOpenCurly();
+                //openCurlys.add(true);
                 tree.addNode(tree, Node.Type.STARTIF, "right", "none");
                 break;
 
@@ -1525,6 +1596,8 @@ public class Main extends Activity {
            // openLoopsIndent.clear();
            // openIfsIndent.clear();
             openCurlysIndent.clear();
+            variablesArray.clear();
+            variablesArray.add(new ArrayList<Variable>());
             printTree(tree);
 
             if (openCurlys.size() > 0) {
@@ -1614,7 +1687,7 @@ public class Main extends Activity {
                 clearButtons();
                 if (evalType == Eval.Type.STRING) {
                     btnTypeInput.setVisibility(View.VISIBLE);
-                    if (variables.size() > 0) {
+                    if (checkIfAnyVarsExist()) {
                         btnVar.setVisibility(View.VISIBLE);
                     }
                 }
@@ -1756,7 +1829,7 @@ public class Main extends Activity {
                     showBracketButtons(currentNode);
                     if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.STRING) {
                         btnTypeInput.setVisibility(View.VISIBLE);
-                        if (variables.size() > 0) {
+                        if (checkIfAnyVarsExist()) {
                             btnVar.setVisibility(View.VISIBLE);
                         }
                     }
@@ -1802,9 +1875,16 @@ public class Main extends Activity {
 //TODO: make sure condition isTrue value resets incase of function calls or loops etc -- DONE
 //TODO: make if conditional logic work when running -- DONE
 //TODO: make else work -- DONE
+//TODO: cannot declare variable immediatly after ELSE -- DONE
+//TODO: VARIABLE SCOPE -- DONE
+//TODO: make for loop variable only valid for that for loop -- DONE
 
-//TODO: VARIABLE SCOPE
+
+//TODO: editing
+
 //TODO: make it so you cannot declare a variable of the same name within the same scope
+
+
 
 //TODO: idea - clear line : go up to new line, go up to seq, delete child
 //TODO: idea - modify : give every newline a linenumber, when user clicks on line it highlights, they can delete line
@@ -1818,10 +1898,6 @@ public class Main extends Activity {
 //TODO: Functions
 
 //TODO: check assigns in loops -- Need to implement scope
-//TODO: Implement variable scope
-//Will do this by creating new ArrayList<Varaible> every time new loop is open, then deleting it once the loops is
-//closed. Eg if 2 { are open there will be 2 additional lists, any declarations will be valid only inside those brackets
-//TODO: remove "" for ints and bools
 
 //TODO: implement modulo operator
 //ToDO: make loops work properly (with ++ -- etc)
@@ -1832,7 +1908,8 @@ public class Main extends Activity {
 //TODO: Check that loops work properly
 //TODO: when writing up, talk about hwo you have only done ++ with for loops, not += 2 for example. Say it's further development
 
-
+//TODO: Idea - when modifying, to see if you can delete a line, run the code up to the end of that scope (i.e while opencurlies is >= to what it is for that line
+// and check that that variable is not used anywhere else in the scope. if it is, make them delete that line first
 
 
 

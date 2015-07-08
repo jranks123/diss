@@ -27,6 +27,7 @@
             android:layout_weight="2"
             android:id="@+id/code"
             android:gravity="left"
+            android:focusableInTouchMode="true"
             android:background="#B6F7BE">
 
 
@@ -655,6 +656,7 @@
                 android:layout_height="60dp"
                 android:text="Clear"
                 android:onClick="onBtnClicked"/>
+
 
 
             <Button
