@@ -27,6 +27,7 @@ public class Node {
         STARTLOOP,
         END,
         IF,
+        ELSE,
         STARTIF,
         ENDIF,
         ENDIFCONDITION,
@@ -132,8 +133,8 @@ public class Node {
                     newNode =  new Bracket(node, Bracket.Type.CLOSE);
                 }
             }
-            else if(type == Type.CONDITION){
-                newNode = new Condition(node);
+            else if(type == Type.IF){
+                newNode = new If(node);
             }
             else {
                 newNode = new Node(type, node);

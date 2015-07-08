@@ -262,6 +262,7 @@ public class Main extends Activity {
             }
         }
         return false;
+
     }
 
 
@@ -493,6 +494,13 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.IF){
             code.append(Html.fromHtml(getString(R.string.ifString)));
+        }
+        else if(nodeType == Node.Type.ELSE){
+            String codeText = code.getText().toString();
+            code.append(Html.fromHtml(getString(R.string.elseString)));
+
+
+            openCurlysIndent.add(true);
         }
         else if(nodeType == Node.Type.ENDIFCONDITION){
             code.append(Html.fromHtml(getString(R.string.endIfConditionString)) + "\n");
@@ -771,13 +779,13 @@ public class Main extends Activity {
     }
 
     public void setConditionValue(Node tree, String value){
-        while(tree.nodeType != Node.Type.CONDITION){
+        while(tree.nodeType != Node.Type.IF){
             tree = tree.parent;
         }
         if(value.equals("true")) {
-            ((Condition) tree).isTrue = true;
+            ((If) tree).isTrue = true;
         }else{
-            ((Condition)tree).isTrue = false;
+            ((If)tree).isTrue = false;
         }
     }
 
@@ -910,10 +918,15 @@ public class Main extends Activity {
         if (tree.right != null){
             if(tree.nodeType == Node.Type.STARTIF){
                 //check if if statement condition is true
-                if(((Condition)tree.parent).isTrue){
+                if(((If)tree.parent.parent).isTrue){
                     runCode(tree.right);
                 }
-            }else {
+            }else if(tree.nodeType == Node.Type.ELSE) {
+                if(!((If)tree.parent).isTrue){
+                    runCode(tree.right);
+                }
+            }
+            else{
                 runCode(tree.right);
             }
         }
@@ -1477,6 +1490,11 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
                 break;
 
+            case R.id.btnElse:
+                tree = tree.addNode(tree, Node.Type.ELSE, "right", "none");
+                openCurlys.add(true);
+                break;
+
             case R.id.btnEndIfCondition:
                 tree = tree.addNode(tree, Node.Type.ENDIFCONDITION, "left", "none");
                 Node node = tree.findCurNode(tree);
@@ -1711,6 +1729,10 @@ public class Main extends Activity {
             }
             else if(currentNodeType == Node.Type.IF){
                 btnElse.setVisibility(View.VISIBLE);
+            }else if(currentNodeType == Node.Type.ELSE){
+                clearButtons();
+                btnCloseCurly.setVisibility(View.VISIBLE);
+                showButtons(homeMenu);
             }
             else if(currentNodeType == Node.Type.EVAL) {
                 clearButtons();
@@ -1773,10 +1795,14 @@ public class Main extends Activity {
 //TODO: if user doesn't press else, make current node go up to seq -- DONE with justFinishedIfStatement
 //TODO: be able to print true or false when printing bool -- DONE
 //TODO: make it so run is only visible when there are no open brackets or open curlys -- DONE
-//TODO: make sure condition isTrue value resets incase of function calls or loops etc
+//TODO: make sure condition isTrue value resets incase of function calls or loops etc -- DONE
+//TODO: make if conditional logic work when running -- DONE
+//TODO: make else work -- DONE
 
-//TODO: make if conditional logic work when running
+//TODO: VARIABLE SCOPE
 
+//TODO: idea - clear line : go up to new line, go up to seq, delete child
+//TODO: idea - modify : give every newline a linenumber, when user clicks on line it highlights, they can delete line
 
 
 //TODO: idea: give conditional operators a type eg Int string or bool
