@@ -132,6 +132,9 @@ public class Node {
                     newNode =  new Bracket(node, Bracket.Type.CLOSE);
                 }
             }
+            else if(type == Type.CONDITION){
+                newNode = new Condition(node);
+            }
             else {
                 newNode = new Node(type, node);
             }
@@ -149,7 +152,7 @@ public class Node {
     public Node updateOp(Node tree, Operator.Type type ){
         Node node = findCurNode(tree);
         ((Operator)node).opNodeType = type;
-        if((type == Operator.Type.MORETHAN) || (type == Operator.Type.LESSTHAN) || (type == Operator.Type.MORETHANEQUALS) || (type == Operator.Type.LESSTHANEQALS) ||(type == Operator.Type.NOTEQUALS) ||  (type == Operator.Type.EQUALS)){
+        if((type == Operator.Type.MORETHAN) || (type == Operator.Type.LESSTHAN) || (type == Operator.Type.MORETHANEQUALS) || (type == Operator.Type.LESSTHANEQUALS) ||(type == Operator.Type.NOTEQUALS) ||  (type == Operator.Type.EQUALS)){
             ((Operator)node).isConditional = true;
         }
         return tree;

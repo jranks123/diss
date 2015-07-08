@@ -595,6 +595,81 @@ public class Main extends Activity {
         return array;
     }
 
+    public ArrayList<Node> evalConditionalOp(ArrayList<Node> array){
+        Node node;
+        String value = "";
+        int i = 0;
+        while(i < array.size()) {
+            node = array.get(i);
+            if (node.nodeType == Node.Type.OP) {
+                String leftValString = String.valueOf(getVarOrVarValValue(array.get(i - 1)));
+                String rightValString = String.valueOf(getVarOrVarValValue(array.get(i + 1)));
+                if (((Operator) node).opNodeType == Operator.Type.EQUALS) {
+                    if(leftValString.equals(rightValString)){
+                        value = "true";
+                    }else{
+                        value = "false";
+                    }
+                    removeOpFromArrayList(array, i, value);
+                }
+                else if (((Operator) node).opNodeType == Operator.Type.NOTEQUALS) {
+                    if(!leftValString.equals(rightValString)){
+                        value = "true";
+                    }else{
+                        value = "false";
+                    }
+                    removeOpFromArrayList(array, i, value);
+                }
+                else if (((Operator) node).opNodeType == Operator.Type.LESSTHAN) {
+                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    if(leftValInt < rightValInt){
+                        value = "true";
+                    }else{
+                        value = "false";
+                    }
+                    removeOpFromArrayList(array, i, value);
+                }
+                else if (((Operator) node).opNodeType == Operator.Type.MORETHAN) {
+                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    if(leftValInt > rightValInt){
+                        value = "true";
+                    }else{
+                        value = "false";
+                    }
+                    removeOpFromArrayList(array, i, value);
+                }
+                else if (((Operator) node).opNodeType == Operator.Type.LESSTHANEQUALS) {
+                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    if(leftValInt <= rightValInt){
+                        value = "true";
+                    }else{
+                        value = "false";
+                    }
+                    removeOpFromArrayList(array, i, value);
+                }
+                else if (((Operator) node).opNodeType == Operator.Type.MORETHANEQUALS) {
+                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    if(leftValInt >= rightValInt){
+                        value = "true";
+                    }else{
+                        value = "false";
+                    }
+                    removeOpFromArrayList(array, i, value);
+                }
+                else{
+                    i++;
+                }
+            }else{
+                i++;
+            }
+        }
+        return array;
+    }
+
     public ArrayList<Node> evalString(ArrayList<Node> array){
         Node node;
         String value = "";
@@ -668,30 +743,42 @@ public class Main extends Activity {
                     array = evalAddAndSub(array);
                     array = evalString(array);
                     array = evalBool(array);
+                    array = evalConditionalOp(array);
             }
             return array;
         }
     }
 
 
-    public String evaluate(Node tree){
+    public String evaluate(Node tree, Node.Type typeOfEvaluation){
         ArrayList<Node> array = new ArrayList<Node>();
         Node node = tree;
-        while(node.nodeType != Node.Type.SMCLN){
+        while(node.nodeType != typeOfEvaluation){
             if(node.left != null){
-                if(node.left.nodeType != Node.Type.SMCLN) {
+                if(node.left.nodeType != typeOfEvaluation) {
                     array.add(node.left);
                 }
                 node = node.left;
             }
             else if(node.right != null){
-                if(node.right.nodeType != Node.Type.SMCLN) {
+                if(node.right.nodeType != typeOfEvaluation) {
                     array.add(node.right);
                 }
                 node = node.right;
             }
         }
         return getVarOrVarValValue(evaluateArray(array).get(0));
+    }
+
+    public void setConditionValue(Node tree, String value){
+        while(tree.nodeType != Node.Type.CONDITION){
+            tree = tree.parent;
+        }
+        if(value.equals("true")) {
+            ((Condition) tree).isTrue = true;
+        }else{
+            ((Condition)tree).isTrue = false;
+        }
     }
 
 
@@ -709,7 +796,7 @@ public class Main extends Activity {
                            }
                            //evaluate if user assigns a value while declaring
                            if(tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)){
-                               String value = evaluate(tree.returnEvalNode(tree));
+                               String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
                                updateVariableValue(value, name, type);
                                Log.d("Value is ", value);
                            }
@@ -719,12 +806,12 @@ public class Main extends Activity {
                            Variable.Type type = v.varNodeType;
                            String name = v.name;
                            //evaluate
-                           String value = evaluate(tree.returnEvalNode(tree));
+                           String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
                            updateVariableValue(value, name, type);
                            Log.d("Value is ", value);
                        }
                       else if(tree.isXbeforeY(tree, Node.Type.PRINT, Node.Type.SEQ)){
-                           String value = evaluate(tree.returnEvalNode(tree));
+                           String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
                            output.append(value + "\n");
                      }
                }
@@ -732,45 +819,15 @@ public class Main extends Activity {
                    String varValue = ((Loops) tree).lowerLim.toString();
                    String varName = ((Loops) tree).limiter;
                    updateVariableValue(varValue, varName, Variable.Type.INT);
+               }else if(tree.nodeType == Node.Type.ENDIFCONDITION){
+                   String value = evaluate(tree.returnEvalNode(tree), Node.Type.ENDIFCONDITION);
+                   if(value.equals("true")){
+                       setConditionValue(tree, "true");
+                   }else if(value.equals("false")){
+                       setConditionValue(tree, "false");
+                   }
+                   Log.d("STATEMENT IS", value);
                }
-
-
-
-
-                  /* if ((tree.left.left) != null) {
-
-                       String varName = ((Variable) tree.left.left).name;
-                       String varValue = getVariableValue(varName, ((Variable) tree.left.left).varNodeType);
-                       output.append(varValue + "\n");
-                   } else {
-                       output.append("trolololsds");
-                   }*/
-
-       /*    } catch (NullPointerException e) {
-               output.append("trolololsds");
-           }*/
-
-      /* else if(tree.nodeType == Node.Type.ASSIGN){
-            String varValue = ((VarVal) tree.left.right).value;
-            String varName = ((Variable)tree.parent).name;
-            Variable.Type type = ((Variable)tree.parent).varNodeType;
-            updateVariableValue(varValue, varName, type);
-        }
-       else if(tree.nodeType == Node.Type.DEC){
-            Variable v = ((Variable)tree.left);
-            Variable.Type type = v.varNodeType;
-            String name = v.name;
-            if(!checkVarExists(name, type)) {
-                Variable var = new Variable(null, type, name, null);
-                variables.add(var);
-            }
-        }
-       else  if(tree.nodeType == Node.Type.FORLOOP){
-            String varValue = ((Loops) tree).lowerLim.toString();
-            String varName = ((Loops) tree).limiter;
-            updateVariableValue(varValue, varName, Variable.Type.INT);
-        }*/
-
     }
 
 
@@ -851,7 +908,14 @@ public class Main extends Activity {
             }
         }
         if (tree.right != null){
-            runCode(tree.right);
+            if(tree.nodeType == Node.Type.STARTIF){
+                //check if if statement condition is true
+                if(((Condition)tree.parent).isTrue){
+                    runCode(tree.right);
+                }
+            }else {
+                runCode(tree.right);
+            }
         }
     }
 
@@ -1378,7 +1442,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnOperatorLessThanEqual:
-                tree = tree.updateOp(tree, Operator.Type.LESSTHANEQALS);
+                tree = tree.updateOp(tree, Operator.Type.LESSTHANEQUALS);
                // tree.addNode(tree, Node.Type.EVAL, "left", "none");
 
                 break;
@@ -1483,8 +1547,8 @@ public class Main extends Activity {
             }else{*/
                 btnLoops.setVisibility(View.VISIBLE);
             }
-            if(currentNodeType == Node.Type.SEQ) {
-                if (openLoops.size() == 0) {
+            if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF) {
+                if (openLoops.size() == 0 && openCurlys.size() == 0) {
                     btnRun.setVisibility(View.VISIBLE);
                 } else {
                     btnRun.setVisibility(View.GONE);
@@ -1676,10 +1740,10 @@ public class Main extends Activity {
                             btnVar.setVisibility(View.VISIBLE);
                         }
                     }else if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.BOOL) {
-                        if(tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ )){
+                    //    if(tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ )){
                             btnBoolTrue.setVisibility(View.VISIBLE);
                             btnBoolFalse.setVisibility(View.VISIBLE);
-                        }
+                    //    }
                         if(checkVarTypeExistence(Variable.Type.BOOL)){
                             btnVar.setVisibility(View.VISIBLE);
                         }
@@ -1708,6 +1772,8 @@ public class Main extends Activity {
 //TODO: make current node be the right node when you end if statement -- DONE
 //TODO: if user doesn't press else, make current node go up to seq -- DONE with justFinishedIfStatement
 //TODO: be able to print true or false when printing bool -- DONE
+//TODO: make it so run is only visible when there are no open brackets or open curlys -- DONE
+//TODO: make sure condition isTrue value resets incase of function calls or loops etc
 
 //TODO: make if conditional logic work when running
 
@@ -1726,6 +1792,7 @@ public class Main extends Activity {
 //closed. Eg if 2 { are open there will be 2 additional lists, any declarations will be valid only inside those brackets
 //TODO: remove "" for ints and bools
 
+//TODO: implement modulo operator
 //ToDO: make loops work properly (with ++ -- etc)
 //TODO: optimize multiple calls to findCurNode
 //TODO: Implement Back functionality

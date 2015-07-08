@@ -8,7 +8,7 @@ public class Condition extends Node{
     Boolean isTrue;
 
 
-    public Condition(Node parent, Type type)
+    public Condition(Node parent)
     {
         super(Node.Type.CONDITION, parent);
         this.isCurrentNode = true;

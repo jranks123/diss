@@ -21,7 +21,7 @@ public class Operator extends Node {
         MORETHAN,
         LESSTHAN,
         MORETHANEQUALS,
-        LESSTHANEQALS,
+        LESSTHANEQUALS,
         EQUALS,
         NOTEQUALS,
         NONE
