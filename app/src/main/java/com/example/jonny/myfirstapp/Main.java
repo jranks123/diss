@@ -108,17 +108,19 @@ public class Main extends Activity {
     String tempString1;
     String s;
 
+    Boolean justEndedIfStatement;
+
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         tree = new Node(Node.Type.ROOT, null);
-        btnPrint =(Button)findViewById(R.id.print);
+        btnPrint =(Button)findViewById(R.id.btnPrint);
         btnPrintBack = (Button)findViewById(R.id.printBack);
-        btnSetEvalTypeInt = (Button) findViewById(R.id.btnUpdatePrintInt);
-        btnSetEvalTypeString = (Button) findViewById(R.id.btnUpdatePrintString);
-        btnSetEvalTypeBool = (Button) findViewById(R.id.btnUpdatePrintBool);
+        btnSetEvalTypeInt = (Button) findViewById(R.id.btnSetEvalTypeInt);
+        btnSetEvalTypeString = (Button) findViewById(R.id.btnSetEvalTypeString);
+        btnSetEvalTypeBool = (Button) findViewById(R.id.btnSetEvalTypeBool);
 
 
         btnLoops = (Button)findViewById(R.id.loops);
@@ -187,6 +189,8 @@ public class Main extends Activity {
         btnEndIf = (Button) findViewById(R.id.btnEndIf);
 
         btnCloseCurly = (Button) findViewById(R.id.btnCloseCurly);
+
+        justEndedIfStatement = false;
 
         Button btnConditionalIf;
         Button btnConditionalElse;
@@ -1015,8 +1019,15 @@ public class Main extends Activity {
        // if((v.getId() != R.id.semicolon) && (v.getId() != R.id.run)){
        //     btnRun.setVisibility(View.GONE);
       //  }
+
+        if(justEndedIfStatement){
+            if(v.getId() != R.id.btnElse){
+                tree = tree.moveUpTreeLimit(tree, "SEQ");
+            }
+            justEndedIfStatement = false;
+        }
         switch(v.getId()){
-            case R.id.print:
+            case R.id.btnPrint:
                 Log.d("DEBUG", "PRESS PRINT");
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
@@ -1024,15 +1035,15 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
                 break;
 
-            case R.id.btnUpdatePrintInt:
+            case R.id.btnSetEvalTypeInt:
                 tree = tree.updateEval(tree, Eval.Type.INT);
                 break;
 
-            case R.id.btnUpdatePrintString:
+            case R.id.btnSetEvalTypeString:
                 tree = tree.updateEval(tree, Eval.Type.STRING);
                 break;
 
-            case R.id.btnUpdatePrintBool:
+            case R.id.btnSetEvalTypeBool:
                 tree = tree.updateEval(tree, Eval.Type.BOOL);
                 break;
 
@@ -1167,9 +1178,9 @@ public class Main extends Activity {
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)){
                     tree = tree.moveUpTreeLimit(tree, "FORLOOP");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
-                }else if(tree.isXbeforeY(tree, Node.Type.IF, Node.Type.NEWLINE)){
+                }else if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.IF, Node.Type.NEWLINE)){
                     tree = tree.moveUpTreeLimit(tree, "IF");
-
+                    justEndedIfStatement = true;
                 }
 
                 break;
@@ -1193,6 +1204,7 @@ public class Main extends Activity {
                 openCurlys.clear();
                 output.setText("");
                 variables.clear();
+                justEndedIfStatement = false;
                 showButtons(homeMenu);
                 break;
 
@@ -1410,12 +1422,12 @@ public class Main extends Activity {
                 tree.addNode(tree, Node.Type.STARTIF, "right", "none");
                 break;
 
-            case R.id.btnEndIf:
+         /*   case R.id.btnEndIf:
               //  openIfs.remove(openIfs.size() - 1);
                 openCurlys.remove(openCurlys.size() - 1);
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "IF");
-                break;
+                break;*/
             }
 
 
@@ -1496,7 +1508,7 @@ public class Main extends Activity {
                 //for if statements
                 if(tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) {
                     showBracketButtons(currentNode);
-                    if(tree.hasConditionOperatorBeenUsed(currentNode) == false) {
+                    if(tree.hasConditionOperatorBeenUsed(currentNode) == false && openBrackets.size() == 0) {
                         if (evalType == Eval.Type.INT) {
                             btnOperatorLessThan.setVisibility(View.VISIBLE);
                             btnOperatorMoreThan.setVisibility(View.VISIBLE);
@@ -1664,7 +1676,7 @@ public class Main extends Activity {
                             btnVar.setVisibility(View.VISIBLE);
                         }
                     }else if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.BOOL) {
-                        if(!tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ )){
+                        if(tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ )){
                             btnBoolTrue.setVisibility(View.VISIBLE);
                             btnBoolFalse.setVisibility(View.VISIBLE);
                         }
@@ -1688,14 +1700,16 @@ public class Main extends Activity {
 
 
 
-//Sat 4th July
 
-//TODO: fix endifcondition button not showing -- DONE
-//TODO: Boolean assignment with operators doesnt work - fix it -- DONE
-//TODO: Variables button doesn't work when pressed at start of IF statement block -- DONE
-//TODO: open bracket shouldnt be an option here: if ( 9  -- DONE
-//TODO: make conditional operator buttons only show at appropriate times -- DONE
 
+
+//Wed 8th July
+//TODO: make conditional operators only appear when brackets are closed -- DONE
+//TODO: make current node be the right node when you end if statement -- DONE
+//TODO: if user doesn't press else, make current node go up to seq -- DONE with justFinishedIfStatement
+//TODO: be able to print true or false when printing bool -- DONE
+
+//TODO: make if conditional logic work when running
 
 
 
@@ -1713,17 +1727,12 @@ public class Main extends Activity {
 //TODO: remove "" for ints and bools
 
 //ToDO: make loops work properly (with ++ -- etc)
-//TODO: make it so when no ints or bools defined, when you click Print from home screen the Print Int/Bool button doesn't show
 //TODO: optimize multiple calls to findCurNode
 //TODO: Implement Back functionality
 //TODO: Make it editable
 //TODO: deal with overflows with ints
-//TODO: if no int/strings declared yet, remove "type input" logic
-//TODO: make brackets
-//TODO: make it so that when you press enter on input it enters/make number buttons
-//TODO: input validation on ints
 //TODO: Check that loops work properly
-
+//TODO: when writing up, talk about hwo you have only done ++ with for loops, not += 2 for example. Say it's further development
 
 
 
@@ -1796,4 +1805,12 @@ public class Main extends Activity {
 
 //TODO: get end of IFs working in the code view (at the moment it deletes the code in the brackets -- DONE
 
+
+//Sat 4th July
+
+//TODO: fix endifcondition button not showing -- DONE
+//TODO: Boolean assignment with operators doesnt work - fix it -- DONE
+//TODO: Variables button doesn't work when pressed at start of IF statement block -- DONE
+//TODO: open bracket shouldnt be an option here: if ( 9  -- DONE
+//TODO: make conditional operator buttons only show at appropriate times -- DONE
 

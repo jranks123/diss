@@ -111,7 +111,7 @@
 
         <!--Home menu -->
         <Button
-            android:id="@+id/print"
+            android:id="@+id/btnPrint"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Print"
@@ -492,7 +492,7 @@
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/btnUpdatePrintString"
+            android:id="@+id/btnSetEvalTypeString"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="String"
@@ -500,7 +500,7 @@
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/btnUpdatePrintInt"
+            android:id="@+id/btnSetEvalTypeInt"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Integer"
@@ -508,7 +508,7 @@
             android:onClick="onBtnClicked"/>
 
         <Button
-            android:id="@+id/btnUpdatePrintBool"
+            android:id="@+id/btnSetEvalTypeBool"
             android:layout_width="141dp"
             android:layout_height="60dp"
             android:text="Bool"

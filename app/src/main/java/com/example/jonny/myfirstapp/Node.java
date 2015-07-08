@@ -245,6 +245,7 @@ public class Node {
 
 
 
+
     public Variable returnDecVar(Node node){
 
         while(node.nodeType != Node.Type.DEC){
@@ -295,12 +296,12 @@ public class Node {
         Node node = findCurNode(tree);
 
         while (!node.nodeType.toString().equals(limit)){
-           Log.d("DEBUG", "Current node before = " + node.nodeType.toString());
+           Log.e("DEBUG", "Current node before = " + node.nodeType.toString());
            node.isCurrentNode = false;
            node.parent.isCurrentNode = true;
             node = node.parent;
 
-            Log.d("DEBUG", "Current node = " + node.parent.nodeType.toString());
+            Log.e("DEBUG", "Current node = " + node.parent.nodeType.toString());
 
         }
         return tree;
