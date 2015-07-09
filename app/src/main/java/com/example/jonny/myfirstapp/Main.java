@@ -558,6 +558,7 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.ELSE){
             String codeText = code.getText().toString();
+            code.setText(codeText.substring(0, codeText.length() - 1));
             code.append(Html.fromHtml(getString(R.string.elseString)));
 
 
@@ -1168,9 +1169,7 @@ public class Main extends Activity {
       //  }
 
         if(justEndedIfStatement){
-            if(v.getId() != R.id.btnElse){
-                tree = tree.moveUpTreeLimit(tree, "SEQ");
-            }
+            btnElse.setVisibility(View.VISIBLE);
             justEndedIfStatement = false;
         }
         switch(v.getId()){
@@ -1330,6 +1329,7 @@ public class Main extends Activity {
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
                 }else if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.IF, Node.Type.NEWLINE)){
                     tree = tree.moveUpTreeLimit(tree, "IF");
+                    tree = tree.moveUpTreeLimit(tree, "SEQ");
                     justEndedIfStatement = true;
                 }
 
@@ -1566,6 +1566,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnElse:
+                tree = tree.left.left;
                 tree = tree.addNode(tree, Node.Type.ELSE, "right", "none");
                 addOpenCurly();
                 //openCurlys.add(true);
@@ -1806,9 +1807,9 @@ public class Main extends Activity {
             else if(currentNodeType == Node.Type.ENDIFCONDITION){
            //     tree = tree.moveUpTreeLimit(currentNode, "CONDITION");
             }
-            else if(currentNodeType == Node.Type.IF){
+            /*else if(currentNodeType == Node.Type.IF){
                 btnElse.setVisibility(View.VISIBLE);
-            }else if(currentNodeType == Node.Type.ELSE){
+            }*/else if(currentNodeType == Node.Type.ELSE){
                 clearButtons();
                 btnCloseCurly.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
@@ -1867,21 +1868,11 @@ public class Main extends Activity {
 
 
 
+//Thursday 9th July
 
-//Wed 8th July
-//TODO: make conditional operators only appear when brackets are closed -- DONE
-//TODO: make current node be the right node when you end if statement -- DONE
-//TODO: if user doesn't press else, make current node go up to seq -- DONE with justFinishedIfStatement
-//TODO: be able to print true or false when printing bool -- DONE
-//TODO: make it so run is only visible when there are no open brackets or open curlys -- DONE
-//TODO: make sure condition isTrue value resets incase of function calls or loops etc -- DONE
-//TODO: make if conditional logic work when running -- DONE
-//TODO: make else work -- DONE
-//TODO: cannot declare variable immediatly after ELSE -- DONE
-//TODO: VARIABLE SCOPE -- DONE
-//TODO: make for loop variable only valid for that for loop -- DONE
 
-//TODO: nested else loops don't work ie. if then if then else then else
+//TODO: make else button not appear after else has already been used ie don't let if; else; else;
+//TODO: justendedifstatement is a bit dodgy because what if you press logtree or some future button. Try and find solution that uses tree
 
 
 //TODO: editing
@@ -1994,3 +1985,15 @@ public class Main extends Activity {
 //TODO: open bracket shouldnt be an option here: if ( 9  -- DONE
 //TODO: make conditional operator buttons only show at appropriate times -- DONE
 
+//Wed 8th July
+//TODO: make conditional operators only appear when brackets are closed -- DONE
+//TODO: make current node be the right node when you end if statement -- DONE
+//TODO: if user doesn't press else, make current node go up to seq -- DONE with justFinishedIfStatement
+//TODO: be able to print true or false when printing bool -- DONE
+//TODO: make it so run is only visible when there are no open brackets or open curlys -- DONE
+//TODO: make sure condition isTrue value resets incase of function calls or loops etc -- DONE
+//TODO: make if conditional logic work when running -- DONE
+//TODO: make else work -- DONE
+//TODO: cannot declare variable immediatly after ELSE -- DONE
+//TODO: VARIABLE SCOPE -- DONE
+//TODO: make for loop variable only valid for that for loop -- DONE
