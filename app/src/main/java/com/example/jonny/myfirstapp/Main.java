@@ -495,7 +495,11 @@ public class Main extends Activity {
             }
         }
         else if(nodeType == Node.Type.NEWLINE){
-                indent();
+         //   if(tree.right != null) {
+           //     if (tree.right.nodeType != Node.Type.END) {
+                    indent();
+             //   }
+           // }
         }
         else if(nodeType == Node.Type.STARTLOOP){
             //openLoopsIndent.add(true);
@@ -1333,7 +1337,7 @@ public class Main extends Activity {
                 removeOpenCurly();
           //      openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
                // tree.addNode(tree, Node.Type.NEWLINE, "right", null); TODO:Check this
-              //  tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+             //   tree.addNode(tree, Node.Type.NEWLINE, "right", null);
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpToStartOfForLoop(tree);
                 tree = tree.moveUpOneStep(tree);
@@ -1345,7 +1349,7 @@ public class Main extends Activity {
             case R.id.btnCloseCurly:
                 removeOpenCurly();
                // openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
-            //    tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+             //   tree.addNode(tree, Node.Type.NEWLINE, "right", null);
                 tree.addNode(tree, Node.Type.END, "right", null);
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)){
                     tree = tree.moveUpTreeLimit(tree, "FORLOOP");
@@ -1910,7 +1914,7 @@ public class Main extends Activity {
 //TODO: make sure run only shows in appropriate place with else -- DONE
 
 //TODO: make new line count incorporate close curlys
-//TODO: find way of selecting one line of code. Can get it to highlight up to certain index, use this combined with line number 
+//TODO: find way of selecting one line of code. Can get it to highlight up to certain index, use this combined with line number
 
 
 
