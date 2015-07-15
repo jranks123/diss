@@ -107,7 +107,7 @@ public class Main extends Activity {
     ArrayList<Boolean> openIfsIndent;
     ArrayList<Boolean> openCurlys;
     ArrayList<Boolean> openCurlysIndent;
-
+    Integer numberOfNewLines;
     String tempString1;
     String s;
 
@@ -230,11 +230,16 @@ public class Main extends Activity {
                         int offset = layout.getOffsetForHorizontal(line, x);
                         Log.v("index", "" + offset);
                         Log.v("line number", "" + line);
+                        code.requestFocus();
+                        code.setSelection(0, offset);
                     }
+
+
                 }
                 return true;
             }
         });
+        numberOfNewLines = 0;
         output = (TextView) findViewById(R.id.runText);
         output.setMovementMethod(new ScrollingMovementMethod());
         btnLogTree = (Button)findViewById(R.id.LogTree);
@@ -1058,6 +1063,25 @@ public class Main extends Activity {
         }
     }
 
+    public void countNewLines(Node tree){
+        if (tree.left != null){
+            if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
+                Log.d("Newline", " left");
+                numberOfNewLines += 1;
+            }
+            countNewLines(tree.left);
+
+        }
+        if (tree.right != null){
+            if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
+                Log.d("Newline", " right");
+                numberOfNewLines += 1;
+            }
+            countNewLines(tree.right);
+        }
+    }
+
+
 
 
 
@@ -1168,10 +1192,7 @@ public class Main extends Activity {
        //     btnRun.setVisibility(View.GONE);
       //  }
 
-        if(justEndedIfStatement){
-            btnElse.setVisibility(View.VISIBLE);
-            justEndedIfStatement = false;
-        }
+
         switch(v.getId()){
             case R.id.btnPrint:
                 Log.d("DEBUG", "PRESS PRINT");
@@ -1312,6 +1333,7 @@ public class Main extends Activity {
                 removeOpenCurly();
           //      openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
                // tree.addNode(tree, Node.Type.NEWLINE, "right", null); TODO:Check this
+              //  tree.addNode(tree, Node.Type.NEWLINE, "right", null);
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpToStartOfForLoop(tree);
                 tree = tree.moveUpOneStep(tree);
@@ -1323,14 +1345,17 @@ public class Main extends Activity {
             case R.id.btnCloseCurly:
                 removeOpenCurly();
                // openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
+            //    tree.addNode(tree, Node.Type.NEWLINE, "right", null);
                 tree.addNode(tree, Node.Type.END, "right", null);
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)){
                     tree = tree.moveUpTreeLimit(tree, "FORLOOP");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
                 }else if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.IF, Node.Type.NEWLINE)){
+                    if(!tree.isXbeforeY(tree.findCurNode(tree), Node.Type.ELSE, Node.Type.IF)) {
+                        justEndedIfStatement = true;
+                    }
                     tree = tree.moveUpTreeLimit(tree, "IF");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
-                    justEndedIfStatement = true;
                 }
 
                 break;
@@ -1362,6 +1387,9 @@ public class Main extends Activity {
 
             case R.id.LogTree:
                 LogTree(tree);
+                numberOfNewLines = 0;
+                countNewLines(tree);
+                Log.d("Number of lines = ", numberOfNewLines.toString());
                 break;
 
 
@@ -1566,7 +1594,8 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnElse:
-                tree = tree.left.left;
+                tree = tree.moveDownOneStep(tree, "left");
+                tree = tree.moveDownOneStep(tree, "left");
                 tree = tree.addNode(tree, Node.Type.ELSE, "right", "none");
                 addOpenCurly();
                 //openCurlys.add(true);
@@ -1651,6 +1680,8 @@ public class Main extends Activity {
                 } else {
                     btnRun.setVisibility(View.GONE);
                 }
+            }else{
+                btnRun.setVisibility(View.GONE);
             }
             if(currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType == null){
                 clearButtons();
@@ -1856,6 +1887,10 @@ public class Main extends Activity {
             if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.VAR) && (currentNodeType != Node.Type.BRACKET) ){
                 btnOperator.setVisibility(View.GONE);
             }
+            if(justEndedIfStatement){
+                btnElse.setVisibility(View.VISIBLE);
+                justEndedIfStatement = false;
+            }
         }
     }
 }
@@ -1868,10 +1903,18 @@ public class Main extends Activity {
 
 
 
-//Thursday 9th July
+//Wed 15th July
 
 
-//TODO: make else button not appear after else has already been used ie don't let if; else; else;
+//TODO: make else button not appear after else has already been used ie don't let if; else; else; -- DONE
+//TODO: make sure run only shows in appropriate place with else -- DONE
+
+//TODO: make new line count incorporate close curlys
+//TODO: find way of selecting one line of code. Can get it to highlight up to certain index, use this combined with line number 
+
+
+
+
 //TODO: justendedifstatement is a bit dodgy because what if you press logtree or some future button. Try and find solution that uses tree
 
 
