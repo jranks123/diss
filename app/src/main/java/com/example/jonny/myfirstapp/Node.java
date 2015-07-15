@@ -44,6 +44,7 @@ public class Node {
     Node parent;
     Boolean isCurrentNode;
     Boolean found;
+    Integer numberOfNewLines;
 
     public Node (Type type, Node parent){
         this.parent = parent;
@@ -216,6 +217,55 @@ public class Node {
         return tree;
     }
 
+    public Node deleteChildren(Node tree){
+        if(tree.left != null){
+            tree.left = null;
+        }
+        if(tree.right != null){
+            tree.right = null;
+        }
+        return tree;
+    }
+
+
+    public Node findLine(Node tree, Integer lineNumber){
+        if (tree.left != null){
+            if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
+                Log.d("Newline", " left");
+                numberOfNewLines += 1;
+                if(numberOfNewLines == lineNumber){
+                   // tree = tree.deleteChildren(tree.left);
+                    tree.left = null;
+                    return tree;
+                }
+            }
+            findLine(tree.left, lineNumber);
+
+        }
+        if (tree.right != null){
+            if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
+                Log.d("Newline", " right");
+                numberOfNewLines += 1;
+                if(numberOfNewLines == lineNumber){
+                    //tree = tree.deleteChildren(tree.right);
+                    tree.right = null;
+                    return tree;
+                }
+            }
+            findLine(tree.right, lineNumber);
+        }
+        return tree;
+
+    }
+
+    public Node delete(Node tree, Integer lineNumber){
+        numberOfNewLines = 0;
+        tree = findLine(tree, lineNumber);
+        numberOfNewLines = 0;
+        return tree;
+    }
+
+
 
 
 
@@ -257,6 +307,7 @@ public class Node {
         }
         return ((Variable)node.left);
     }
+
 
 
 
@@ -338,7 +389,24 @@ public class Node {
             Log.d("THERE", "IS A PROBLEM");
         }
         return tree;
+    }
+
+    public Node moveDownDirectionLimit(Node tree, String direction, String limit){
+        Node node;
+        node = findCurNode(tree);
+        while(!node.nodeType.toString().equals(limit)) {
+            node.isCurrentNode = false;
+            if (direction.equals("left")) {
+                node.left.isCurrentNode = true;
+            } else if (direction.equals("right")) {
+                node.right.isCurrentNode = true;
+            } else {
+                Log.d("THERE", "IS A PROBLEM");
+            }
+            node = findCurNode(tree);
         }
+        return tree;
+    }
 
     public Node moveUpOneStep(Node tree){
         Node node;

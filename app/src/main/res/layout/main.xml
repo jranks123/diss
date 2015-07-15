@@ -656,6 +656,13 @@
                 android:text="Clear"
                 android:onClick="onBtnClicked"/>
 
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="141dp"
+                android:layout_height="60dp"
+                android:text="Delete"
+                android:onClick="onBtnClicked"/>
+
 
 
             <Button
