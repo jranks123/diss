@@ -65,17 +65,23 @@ public class Node {
             }
 
         }
-        Node newTree = new Node(Node.Type.ROOT, null);
+        Node newTree = null;
         if (tree.isCurrentNode == true){
             Log.e("ADDNODE", "Current node findCurNode " + tree.nodeType.toString());
             return tree;
         }
         if (tree.left != null) {
             newTree = findCurNode(tree.left);
+            if(newTree != null){
+                return newTree;
+            }
 
         }
         if (tree.right != null) {
             newTree = findCurNode(tree.right);
+            if(newTree != null){
+                return newTree;
+            }
         }
         return newTree;
     }

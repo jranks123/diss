@@ -2072,7 +2072,7 @@ public class Main extends Activity {
 //TODO: vars still appear when in loop, then declare int without val, then on new line try and assign val. only = should appear -- DONE
 //TODO: vars still appear when in loop, then NOT DEC int without val, then on new line try and assign val. only = should appear -- DONE
 //TODO: when you print a var, it adds a none node to tree -- DONE
-//TODO: stop double var adding after print caused by adding var when var btton pressed as well as b pressed -- DONE
+//TODO: stop double var adding after print caused by adding var when var button pressed as well as b pressed -- DONE
 //TODO: make assignment work again with vars -- DONE
 //TODO: stop double var on assign -- DONE
 //TODO: make sure you can't use a var in it's declaration i.e. String i = k + "hi" + i. seems to happen after you input text -- DONE
