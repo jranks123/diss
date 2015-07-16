@@ -248,50 +248,54 @@ public class Node {
         return tree;
     }
 
+    public Node lineWhat(Node tree, Integer lineNumber, String function){
+        if(tree.nodeType.equals(Node.Type.NEWLINE)){
+            Node newLineNode = tree;
+            Newline.Type newLineType = ((Newline)newLineNode).newlineNodeType;
+            Log.d("Newline", " left");
+            numberOfNewLines += 1;
+            if(numberOfNewLines ==
+                    lineNumber){
+                if(newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND) {
+                    if(function.equals("delete")) {
+                        tree = tree.deleteEnd(tree);
+                    }else if(function.equals("setCurrent")){
+                        if(newLineType == Newline.Type.FOREND){
+                            tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
+                            tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                        }else if(newLineType == Newline.Type.IFEND || newLineType == Newline.Type.ELSEEND){
+                            tree = tree.moveUpTreeLimitNode(tree, "IF");
+                            tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                        }
+                    }
+                }else if(newLineType == Newline.Type.ELSE && function.equals("setCurrent")) {
+                    tree.right.isCurrentNode = true;
+                }else{
+                    if(function.equals("delete")) {
+                        tree = null;
+                    }else if(function.equals("setCurrent")){
+                        tree.isCurrentNode = true;
+                    }
+                }
+                return tree;
+            }
+        }
+        return tree;
+    }
 
     public Node findLine(Node tree, Integer lineNumber, String function){
-        Boolean endTree = false;
-        Boolean elseTree = false;
+//        Boolean endTree = false;
+  //      Boolean elseTree = false;
         if (tree.left != null){
-            if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
-                Log.d("Newline", " left");
-                numberOfNewLines += 1;
-                if(numberOfNewLines ==
-                        lineNumber){
-                    if(tree.left.right != null){
-                        if(tree.left.right.nodeType == Type.END){
-                            endTree = true;
-                        }
-                    }
-                    if(endTree) {
-                        if(function.equals("delete")) {
-                            tree = tree.deleteEnd(tree.left);
-                        }else if(function.equals("setCurrent")){
-                           // tree.isCurrentNode = true;
-                            if(isXbeforeY(tree, Type.FORLOOP, Type.NEWLINE)){
-                                tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
-                                tree = tree.moveUpTreeLimitNode(tree, "SEQ");
-                            }else{
-                                tree = tree.moveUpTreeLimitNode(tree, "IF");
-                                tree = tree.moveUpTreeLimitNode(tree, "SEQ");
-                            }
-                        }
-                    }else {
-                        if(function.equals("delete")) {
-                            tree.left = null;
-                        }else if(function.equals("setCurrent")){
-                            tree.isCurrentNode = true;
-                        }
-                    }
-                    return tree;
-                }
-            }
+            lineWhat(tree.left, lineNumber, function);
             findLine(tree.left, lineNumber, function);
-
         }
-        endTree = false;
-        elseTree = false;
-       if (tree.right != null){
+        if (tree.right != null){
+            lineWhat(tree.right, lineNumber, function);
+            findLine(tree.right, lineNumber, function);
+        }
+
+     /*  if (tree.right != null){
             if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
                 Log.d("Newline", " right");
                 numberOfNewLines += 1;
@@ -330,7 +334,7 @@ public class Node {
                 }
             }
             findLine(tree.right, lineNumber, function);
-        }
+        }*/
         return tree;
 
     }
