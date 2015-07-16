@@ -5,6 +5,8 @@ package com.example.jonny.myfirstapp;
  */
 
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Layout;
@@ -12,6 +14,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.app.Activity;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.util.Log;
 
@@ -230,6 +233,7 @@ public class Main extends Activity {
         code.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    btnDelete.setVisibility(View.VISIBLE);
                     Layout layout = ((TextView) v).getLayout();
                     int x = (int) event.getX();
                     int y = (int) event.getY();
@@ -240,9 +244,23 @@ public class Main extends Activity {
                         lineJustPressed = line + 1;
                         Log.v("line number", "" + lineJustPressed);
                         code.requestFocus();
-                        code.setSelection(0, offset);
+                        Boolean endOfLine = false;
+                        while(offset < code.getText().length()-1 && endOfLine == false){
+                            String codeChar = code.getText().toString().substring(offset, offset+1);
+                            if(codeChar.equals("\n")){
+                                endOfLine = true;
+                            }
+                            Log.d("Next char is" , codeChar);
+                            offset += 1;
+                        }
+                        offset --;
+                        code.setSelection(offset, offset);
+                        int start = code.getSelectionStart();
+                        int end = code.getSelectionEnd();
+                        int l = 0;
+                        int k = 9;
                     }
-
+                   tree = tree.changeFocus(tree, lineJustPressed);
 
                 }
                 return true;
@@ -254,8 +272,20 @@ public class Main extends Activity {
         btnLogTree = (Button)findViewById(R.id.LogTree);
         tempString1 = "HELLOOO";
         btnFor = (Button) findViewById(R.id.btnFor);
+        hideKeyboard();
 
         // tempAddVar();
+
+
+    }
+
+    private void hideKeyboard() {
+        // Check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
 
@@ -1174,6 +1204,7 @@ public class Main extends Activity {
                     }
                     b.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View view) {
+                            btnDelete.setVisibility(View.GONE);
                             Node curNode = tree.findCurNode(tree);
                             clearButtons();
                             if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
@@ -1202,6 +1233,7 @@ public class Main extends Activity {
                                 variablesArray.add(new ArrayList<Variable>());
                                 openCurlysIndent.clear();
                                 printTree(tree);
+                                code.setSelection(code.getText().length());
                             }
                             varButtons.add(b);
                             hideVarButtons();
@@ -1215,7 +1247,10 @@ public class Main extends Activity {
     }
 
 
+
+
     public void onBtnClicked(View v){
+        btnDelete.setVisibility(View.GONE);
         String text = "";
         Boolean clearScreen = false;
        // if((v.getId() != R.id.semicolon) && (v.getId() != R.id.run)){
@@ -1277,7 +1312,7 @@ public class Main extends Activity {
             case R.id.loops:
                 clearButtons();
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
-                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "FOR");
                 btnFor.setVisibility(View.VISIBLE);
                 break;
 
@@ -1382,13 +1417,13 @@ public class Main extends Activity {
                // openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
 
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)){
-                    tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+                    tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
                     tree.addNode(tree, Node.Type.END, "right", null);
                     tree = tree.moveUpTreeLimit(tree, "FORLOOP");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
                 }else if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.IF, Node.Type.ELSE)){
                     tree = tree.moveUpTreeLimit(tree, "STARTIF");
-                    tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+                    tree.addNode(tree, Node.Type.NEWLINE, "right", "IFEND");
                     tree.addNode(tree, Node.Type.END, "right", null);
                     if(!tree.isXbeforeY(tree.findCurNode(tree), Node.Type.ELSE, Node.Type.IF)) {
                         justEndedIfStatement = true;
@@ -1396,7 +1431,7 @@ public class Main extends Activity {
                     tree = tree.moveUpTreeLimit(tree, "IF");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
                 }else if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.ELSE, Node.Type.IF)){
-                    tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+                    tree.addNode(tree, Node.Type.NEWLINE, "right", "ELSEEND");
                     tree.addNode(tree, Node.Type.END, "right", null);
                     tree = tree.moveUpTreeLimit(tree, "IF");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
@@ -1631,7 +1666,7 @@ public class Main extends Activity {
 
             case R.id.btnIf:
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
-                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "IF");
                 tree = tree.addNode(tree, Node.Type.IF, "left", "none");
                 tree = tree.addNode(tree, Node.Type.CONDITION, "left", "none");
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
@@ -1642,7 +1677,7 @@ public class Main extends Activity {
                // tree = tree.moveDownOneStep(tree, "left");
                 tree = tree.moveDownDirectionLimit(tree, "left", "CONDITION");
                 tree = tree.moveDownDirectionLimit(tree, "right", "END");
-                tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "none");
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "ELSE");
                 tree = tree.addNode(tree, Node.Type.ELSE, "right", "none");
                 addOpenCurly();
                 //openCurlys.add(true);
@@ -1679,6 +1714,8 @@ public class Main extends Activity {
             variablesArray.clear();
             variablesArray.add(new ArrayList<Variable>());
             printTree(tree);
+            code.setSelection(code.getText().length());
+
 
             if (openCurlys.size() > 0) {
                 if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.STARTLOOP) {
@@ -1957,17 +1994,14 @@ public class Main extends Activity {
 
 
 
-//Wed 15th July
+//Thurs 16th July
 
 
-//TODO: make else button not appear after else has already been used ie don't let if; else; else; -- DONE
-//TODO: make sure run only shows in appropriate place with else -- DONE
+//TODO: make it so when you select a line, the cursor moves to the end -- DONE (sort of)
+//TODO: make it so that delete button only appears when you touch code area -- DONE
+//TODO: add nodetype to newline nodes then change how findnewlines works
 
-//TODO: make new line count incorporate close curlys -- DONE
-
-//TODO: make else appear on new line so that deleting the else part is doable -- DONE
-
-//TODO: idea: if child of newline to be deleted is END, look up tree for previous newline DO THIS NEXT
+//TODO: make setting the focus change the current node correctly so that you can add in new lines of code
 
 //TODO: fix indentation for close curlys
 
@@ -2102,3 +2136,15 @@ public class Main extends Activity {
 //TODO: cannot declare variable immediatly after ELSE -- DONE
 //TODO: VARIABLE SCOPE -- DONE
 //TODO: make for loop variable only valid for that for loop -- DONE
+
+//Wed 15th July
+
+
+//TODO: make else button not appear after else has already been used ie don't let if; else; else; -- DONE
+//TODO: make sure run only shows in appropriate place with else -- DONE
+
+//TODO: make new line count incorporate close curlys -- DONE
+
+//TODO: make else appear on new line so that deleting the else part is doable -- DONE
+
+//TODO: idea: if child of newline to be deleted is END, look up tree for previous newline DO THIS NEXT -- DONE

@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/allScreen"
     tools:context=".Main">
 
 
@@ -661,6 +662,7 @@
                 android:layout_width="141dp"
                 android:layout_height="60dp"
                 android:text="Delete"
+                android:visibility="gone"
                 android:onClick="onBtnClicked"/>
 
 

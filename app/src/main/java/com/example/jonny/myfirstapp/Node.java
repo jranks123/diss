@@ -45,6 +45,7 @@ public class Node {
     Boolean isCurrentNode;
     Boolean found;
     Integer numberOfNewLines;
+    Integer numberOfNewLinesPostDelete;
 
     public Node (Type type, Node parent){
         this.parent = parent;
@@ -121,10 +122,20 @@ public class Node {
                 newNode = new Operator(node, null);
             }
             else if (type == Type.NEWLINE) {
-                if(value == "for") {
+                if(value == "FOR") {
                     newNode = new Newline(node, Newline.Type.FOR); //For indentation
+                }else if (value == "FOREND") {
+                    newNode = new Newline(node, Newline.Type.FOREND); //For indentation
+                }else if (value == "IF") {
+                    newNode = new Newline(node, Newline.Type.IF); //For indentation
+                }else if (value == "IFEND") {
+                    newNode = new Newline(node, Newline.Type.IFEND); //For indentation
+                }else if (value == "ELSE") {
+                    newNode = new Newline(node, Newline.Type.ELSE); //For indentation
+                }else if (value == "ELSEEND") {
+                    newNode = new Newline(node, Newline.Type.ELSEEND); //For indentation
                 }else{
-                    newNode = new Newline(node, null);
+                    newNode = new Newline(node, Newline.Type.NONE);
                 }
             }
             else if(type == Type.BRACKET){
@@ -217,50 +228,171 @@ public class Node {
         return tree;
     }
 
-    public Node deleteChildren(Node tree){
-        if(tree.left != null){
-            tree.left = null;
+    public Node deleteEnd(Node tree){
+        while (tree.parent.nodeType != Type.NEWLINE){
+            tree = tree.parent;
         }
-        if(tree.right != null){
-            tree.right = null;
+        tree = tree.parent;
+        tree = tree.parent;
+        if(tree.right != null) {
+            if (tree.right.nodeType == Type.NEWLINE) {
+                tree.right = null;
+            }
         }
+        if(tree.left != null) {
+            if (tree.left.nodeType == Type.NEWLINE) {
+                tree.left = null;
+            }
+        }
+
         return tree;
     }
 
 
-    public Node findLine(Node tree, Integer lineNumber){
+    public Node findLine(Node tree, Integer lineNumber, String function){
+        Boolean endTree = false;
+        Boolean elseTree = false;
         if (tree.left != null){
             if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
                 Log.d("Newline", " left");
                 numberOfNewLines += 1;
-                if(numberOfNewLines == lineNumber){
-                   // tree = tree.deleteChildren(tree.left);
-                    tree.left = null;
+                if(numberOfNewLines ==
+                        lineNumber){
+                    if(tree.left.right != null){
+                        if(tree.left.right.nodeType == Type.END){
+                            endTree = true;
+                        }
+                    }
+                    if(endTree) {
+                        if(function.equals("delete")) {
+                            tree = tree.deleteEnd(tree.left);
+                        }else if(function.equals("setCurrent")){
+                           // tree.isCurrentNode = true;
+                            if(isXbeforeY(tree, Type.FORLOOP, Type.NEWLINE)){
+                                tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
+                                tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                            }else{
+                                tree = tree.moveUpTreeLimitNode(tree, "IF");
+                                tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                            }
+                        }
+                    }else {
+                        if(function.equals("delete")) {
+                            tree.left = null;
+                        }else if(function.equals("setCurrent")){
+                            tree.isCurrentNode = true;
+                        }
+                    }
                     return tree;
                 }
             }
-            findLine(tree.left, lineNumber);
+            findLine(tree.left, lineNumber, function);
 
         }
-        if (tree.right != null){
+        endTree = false;
+        elseTree = false;
+       if (tree.right != null){
             if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
                 Log.d("Newline", " right");
                 numberOfNewLines += 1;
                 if(numberOfNewLines == lineNumber){
-                    //tree = tree.deleteChildren(tree.right);
-                    tree.right = null;
+                    if(tree.right.right != null){
+                        if(tree.right.right.nodeType == Type.END){
+                            endTree = true;
+                        }else if(tree.right.right.nodeType == Type.ELSE) {
+                            elseTree = true;
+                        }
+                    }
+                    if(endTree == true) {
+                        if(function.equals("delete")) {
+                            tree = tree.deleteEnd(tree.right);
+                        }else if(function.equals("setCurrent")){
+                            //tree.isCurrentNode = true;
+                            if(isXbeforeY(tree, Type.FORLOOP, Type.NEWLINE)){
+                                tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
+                                tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                            }else{
+                                tree = tree.moveUpTreeLimitNode(tree, "IF");
+                                tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                            }
+                        }
+                    }else if(elseTree == true && function.equals("setCurrent")) {
+                        tree.right.right.isCurrentNode = true;
+                    }else {
+                        if(function.equals("delete")) {
+                            tree.right = null;
+                        }else if(function.equals("setCurrent")){
+                            tree.isCurrentNode = true;
+                        }
+                    }
+
                     return tree;
                 }
             }
-            findLine(tree.right, lineNumber);
+            findLine(tree.right, lineNumber, function);
         }
         return tree;
 
     }
 
+    public Node changeFocus(Node tree, Integer lineNumber){
+        tree = clearCurrentNode(tree);
+      //  tree.findCurNode(tree).isCurrentNode = false;
+        numberOfNewLines = 0;
+        tree = findLine(tree, lineNumber, "setCurrent");
+        numberOfNewLines = 0;
+        return tree;
+    }
+
+    public Node clearCurrentNode(Node tree){
+        if (tree.left != null){
+            if(tree.left.isCurrentNode == true){
+                tree.left.isCurrentNode = false;
+                return tree;
+            }else {
+                clearCurrentNode(tree.left);
+            }
+        }
+        if (tree.right != null){
+            if(tree.right.isCurrentNode == true){
+                tree.right.isCurrentNode = false;
+                return tree;
+            }else {
+                clearCurrentNode(tree.right);
+            }
+        }
+        return tree;
+
+    }
+
+    public Node countNewLines(Node tree){
+        if (tree.left != null){
+            if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
+                Log.d("Newline", " left");
+                numberOfNewLinesPostDelete += 1;
+            }
+            countNewLines(tree.left);
+        }
+        if (tree.right != null){
+            if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
+                Log.d("Newline", " right");
+                numberOfNewLinesPostDelete += 1;
+            }
+            countNewLines(tree.right);
+        }
+        return tree;
+
+    }
+
+
     public Node delete(Node tree, Integer lineNumber){
         numberOfNewLines = 0;
-        tree = findLine(tree, lineNumber);
+        tree = findLine(tree, lineNumber, "delete");
+        numberOfNewLinesPostDelete = 0;
+        countNewLines(tree);
+        numberOfNewLines = 0;
+        tree = changeFocus(tree, numberOfNewLinesPostDelete);
+        numberOfNewLinesPostDelete = 0;
         numberOfNewLines = 0;
         return tree;
     }
@@ -357,6 +489,21 @@ public class Node {
             node = node.parent;
 
             Log.e("DEBUG", "Current node = " + node.parent.nodeType.toString());
+
+        }
+        return tree;
+    }
+
+    public Node moveUpTreeLimitNode(Node tree, String limit){
+        Log.e("ADDNODE", "moving up tree");
+
+        while (!tree.nodeType.toString().equals(limit)){
+            Log.e("DEBUG", "Current node before = " + tree.nodeType.toString());
+            tree.isCurrentNode = false;
+            tree.parent.isCurrentNode = true;
+            tree = tree.parent;
+
+            Log.e("DEBUG", "Current node = " + tree.parent.nodeType.toString());
 
         }
         return tree;

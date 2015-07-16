@@ -9,6 +9,11 @@ public class Newline extends Node  {
 
     public enum Type{
         FOR,
+        FOREND,
+        IF,
+        IFEND,
+        ELSE,
+        ELSEEND,
         NONE
     }
 
