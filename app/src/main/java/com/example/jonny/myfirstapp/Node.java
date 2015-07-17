@@ -31,6 +31,7 @@ public class Node {
         STARTIF,
         ENDIF,
         ENDIFCONDITION,
+        ENDPROGRAM,
         CONDITION;
     }
 
@@ -400,6 +401,12 @@ public class Node {
     public Boolean doCurrentNodeLineNumberCount(Node tree, Boolean curNodeFound){
         if(tree.isCurrentNode){
             curNodeFound = true;
+            if(tree.nodeType == Node.Type.SEQ){
+                if(tree.left != null) {
+                    numberOfNewLinesBeforeCurNode += 1;
+                    doCurrentNodeLineNumberCount(tree.left, false);
+                }
+            }
         }
         if(!curNodeFound){
             if (tree.left != null){
@@ -407,14 +414,18 @@ public class Node {
                     Log.d("Newline", " left");
                     numberOfNewLinesBeforeCurNode += 1;
                 }
-                    doCurrentNodeLineNumberCount(tree.left, curNodeFound);
+                    if(!curNodeFound) {
+                        curNodeFound = doCurrentNodeLineNumberCount(tree.left, curNodeFound);
+                    }
             }
             if (tree.right != null){
                 if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
                     Log.d("Newline", " right");
                     numberOfNewLinesBeforeCurNode += 1;
                 }
-                    doCurrentNodeLineNumberCount(tree.right, curNodeFound);
+                if(!curNodeFound) {
+                    curNodeFound = doCurrentNodeLineNumberCount(tree.right, curNodeFound);
+                }
             }
         }
         return curNodeFound;
@@ -524,14 +535,16 @@ public class Node {
     public Node moveUpTreeLimit(Node tree, String limit){
         Log.e("ADDNODE", "moving up tree");
         Node node = findCurNode(tree);
-
+        node.isCurrentNode = false;
+        node = node.parent;
+        node.isCurrentNode = true;
         while (!node.nodeType.toString().equals(limit)){
            Log.e("DEBUG", "Current node before = " + node.nodeType.toString());
            node.isCurrentNode = false;
            node.parent.isCurrentNode = true;
             node = node.parent;
 
-            Log.e("DEBUG", "Current node = " + node.parent.nodeType.toString());
+           // Log.e("DEBUG", "Current node = " + node.parent.nodeType.toString());
 
         }
         return tree;

@@ -120,12 +120,21 @@ public class Main extends Activity {
 
 
 
+    public void initialise(){
+        tree = new Node(Node.Type.ROOT, null);
+       // tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+        tree = tree.addNode(tree, Node.Type.ENDPROGRAM, "right", null);
+        tree = tree.moveUpTreeLimit(tree, "ROOT");
 
+        printTree(tree);
+        setCursorToEndOfCurrentLine();
+
+        //tree
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        tree = new Node(Node.Type.ROOT, null);
         btnPrint =(Button)findViewById(R.id.btnPrint);
         btnPrintBack = (Button)findViewById(R.id.printBack);
         btnSetEvalTypeInt = (Button) findViewById(R.id.btnSetEvalTypeInt);
@@ -244,18 +253,18 @@ public class Main extends Activity {
                         Log.v("line number", "" + lineJustPressed);
                         code.requestFocus();
                         Boolean endOfLine = false;
-                        while(offset < code.getText().length()-1 && endOfLine == false){
-                            String codeChar = code.getText().toString().substring(offset, offset+1);
-                            if(codeChar.equals("\n")){
+                        while (offset < code.getText().length() - 1 && endOfLine == false) {
+                            String codeChar = code.getText().toString().substring(offset, offset + 1);
+                            if (codeChar.equals("\n")) {
                                 endOfLine = true;
                             }
-                            Log.d("Next char is" , codeChar);
+                            Log.d("Next char is", codeChar);
                             offset += 1;
                         }
-                        offset --;
+                        offset--;
                         code.setSelection(offset, offset);
                     }
-                   tree = tree.changeCurrentNode(tree, lineJustPressed);
+                    tree = tree.changeCurrentNode(tree, lineJustPressed);
 
                 }
                 return true;
@@ -268,7 +277,7 @@ public class Main extends Activity {
         tempString1 = "HELLOOO";
         btnFor = (Button) findViewById(R.id.btnFor);
         hideKeyboard();
-
+        initialise();
         // tempAddVar();
 
 
@@ -276,7 +285,23 @@ public class Main extends Activity {
 
     public void setCursorToEndOfCurrentLine(){
         Integer lineNumber = tree.getLineNumberOfCurrentNode(tree);
-        Log.d("Line number of current line = ", lineNumber.toString());
+        Integer offset = 0;
+        Integer numberOfLinesSoFar = -1;
+        Boolean endOfLine = false;
+        while(offset < code.getText().length() && endOfLine == false){
+            String codeChar = code.getText().toString().substring(offset, offset+1);
+            if(codeChar.equals("\n")){
+                numberOfLinesSoFar += 1;
+            }
+            if(numberOfLinesSoFar == lineNumber){
+                endOfLine = true;
+            }
+            Log.d("Next char is", codeChar);
+            offset += 1;
+        }
+        offset -= 1;
+        code.setSelection(offset, offset);
+        Log.d("Line number = ", lineNumber.toString());
     }
 
 
@@ -551,6 +576,10 @@ public class Main extends Activity {
             variablesArray.remove(variablesArray.size() - 1);
             indent();
             code.append("}");
+        }
+        else if(nodeType == Node.Type.ENDPROGRAM){
+            // openLoopsIndent.remove(openLoopsIndent.size() - 1);
+            code.append("\n");
         }
         else if(nodeType == Node.Type.VAR){
             if (((Variable)tree).name != null){
@@ -1452,11 +1481,11 @@ public class Main extends Activity {
 
 
             case R.id.clear:
-                tree = new Node(Node.Type.ROOT, null);
+                initialise();
                 clearButtons();
               //  openLoops.clear();
-                openBrackets.clear();
                 openCurlys.clear();
+                openBrackets.clear();
                 output.setText("");
              //   variables.clear();
                 variablesArray.clear();
@@ -1715,7 +1744,8 @@ public class Main extends Activity {
             variablesArray.clear();
             variablesArray.add(new ArrayList<Variable>());
             printTree(tree);
-            code.setSelection(code.getText().length());
+            setCursorToEndOfCurrentLine();
+            //  code.setSelection(code.getText().length());
 
 
             if (openCurlys.size() > 0) {

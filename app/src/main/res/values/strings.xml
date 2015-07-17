@@ -23,6 +23,8 @@
     <string name="lessThanEquals"><![CDATA[<=]]></string>
     <string name="moreThan"><![CDATA[>]]></string>
     <string name="moreThanEquals"><![CDATA[>=]]></string>
+    <string name="root"><![CDATA[<b>public void</b><a> main </a> &#123;]]></string>
+
 
 
 
