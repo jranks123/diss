@@ -6,7 +6,6 @@ package com.example.jonny.myfirstapp;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Layout;
@@ -241,7 +240,7 @@ public class Main extends Activity {
                         int line = layout.getLineForVertical(y);
                         int offset = layout.getOffsetForHorizontal(line, x);
                         Log.v("index", "" + offset);
-                        lineJustPressed = line + 1;
+                        lineJustPressed = line;
                         Log.v("line number", "" + lineJustPressed);
                         code.requestFocus();
                         Boolean endOfLine = false;
@@ -255,12 +254,8 @@ public class Main extends Activity {
                         }
                         offset --;
                         code.setSelection(offset, offset);
-                        int start = code.getSelectionStart();
-                        int end = code.getSelectionEnd();
-                        int l = 0;
-                        int k = 9;
                     }
-                   tree = tree.changeFocus(tree, lineJustPressed);
+                   tree = tree.changeCurrentNode(tree, lineJustPressed);
 
                 }
                 return true;
@@ -278,6 +273,12 @@ public class Main extends Activity {
 
 
     }
+
+    public void setCursorToEndOfCurrentLine(){
+        Integer lineNumber = tree.getLineNumberOfCurrentNode(tree);
+        Log.d("Line number of current line = ", lineNumber.toString());
+    }
+
 
     private void hideKeyboard() {
         // Check if no view has focus:
@@ -467,7 +468,7 @@ public class Main extends Activity {
         }
         else if (nodeType == Node.Type.SMCLN){
                 Variable.Type type = null;
-                code.append(" ;\n");
+                code.append(" ;");
             //   if( tree.parent.parent.nodeType == Node.Type.DEC ){
                 if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)){
                     Variable v;// = new Variable(null, null, null, null);
@@ -528,13 +529,13 @@ public class Main extends Activity {
                     }
                     if(((Loops) tree).plusOrMinus != null){
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
-                        code.append(" " + ((Loops) tree).plusOrMinus.toString() + " ) {\n");
+                        code.append(" " + ((Loops) tree).plusOrMinus.toString() + " ) {");
                     }
                     break;
             }
         }
         else if(nodeType == Node.Type.NEWLINE){
-                   // code.append("\n");
+                    code.append("\n");
                     indent();
              //   }
            // }
@@ -549,7 +550,7 @@ public class Main extends Activity {
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
             variablesArray.remove(variablesArray.size() - 1);
             indent();
-            code.append("}\n");
+            code.append("}");
         }
         else if(nodeType == Node.Type.VAR){
             if (((Variable)tree).name != null){
@@ -613,7 +614,7 @@ public class Main extends Activity {
             variablesArray.add(new ArrayList<Variable>());
         }
         else if(nodeType == Node.Type.ENDIFCONDITION){
-            code.append(Html.fromHtml(getString(R.string.endIfConditionString)) + "\n");
+            code.append(Html.fromHtml(getString(R.string.endIfConditionString)));
             //openIfsIndent.add(true);
             openCurlysIndent.add(true);
             variablesArray.add(new ArrayList<Variable>());
@@ -623,7 +624,7 @@ public class Main extends Activity {
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
             variablesArray.remove(variablesArray.size() - 1);
             indent();
-            code.append(Html.fromHtml(getString(R.string.endIfString)) + "\n");
+            code.append(Html.fromHtml(getString(R.string.endIfString)));
         }
 
     }
@@ -934,7 +935,7 @@ public class Main extends Activity {
                       else if(tree.isXbeforeY(tree, Node.Type.PRINT, Node.Type.SEQ)){
                            String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
                            output.append(value + "\n");
-                     }
+                       }
                }
                else  if(tree.nodeType == Node.Type.FORLOOP){
                    String varValue = ((Loops) tree).lowerLim.toString();
@@ -1232,7 +1233,8 @@ public class Main extends Activity {
                                 variablesArray.add(new ArrayList<Variable>());
                                 openCurlysIndent.clear();
                                 printTree(tree);
-                                code.setSelection(code.getText().length());
+                                setCursorToEndOfCurrentLine();
+                                //code.setSelection(code.getText().length());
                             }
                             varButtons.add(b);
                             hideVarButtons();
@@ -1993,14 +1995,29 @@ public class Main extends Activity {
 
 
 //Friday 17th July
-//TODO: try changing it so that newline nodes make a new line rather than the way im doing it atm
-//TODO: can't delcare new var on first line in curly brackets - fix it
-//TODO: make it so when you do insert new line into first line of for loop the line goes in the loop, not after
+//TODO: try changing it so that newline nodes make a new line rather than the way im doing it atm -- DONE
+//TODO: make it so that you can add a line at the top ( currently crashes) -- DONE
+//TODO: make it so when you do insert new line into first line of for loop the line goes in the loop, not after -- DONE
+
+//TODO: make the cursor appear in the right place when you go back and edit code
+
 //TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
 
+//TODO: add newline button
+
+//TODO: make it so that you can only select a line if you have finished the current line
+
+
+//TODO: idea : make close curly come up as soon as open curly is declared
+
+
+//TODO: can't delcare new var on first line in curly brackets - fix it
+
+//TODO: make it possible to save variable as null
 
 
 //TODO: fix indentation for close curlys
+//TODO: fix indentation when you insert a forloop into a if statement
 
 
 
