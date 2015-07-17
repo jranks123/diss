@@ -534,8 +534,7 @@ public class Main extends Activity {
             }
         }
         else if(nodeType == Node.Type.NEWLINE){
-         //   if(tree.right != null) {
-           //     if (tree.right.nodeType != Node.Type.END) {
+                   // code.append("\n");
                     indent();
              //   }
            // }
@@ -1993,20 +1992,18 @@ public class Main extends Activity {
 
 
 
+//Friday 17th July
+//TODO: try changing it so that newline nodes make a new line rather than the way im doing it atm
+//TODO: can't delcare new var on first line in curly brackets - fix it
+//TODO: make it so when you do insert new line into first line of for loop the line goes in the loop, not after
+//TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
 
-//Thurs 16th July
 
-
-//TODO: make it so when you select a line, the cursor moves to the end -- DONE (sort of)
-//TODO: make it so that delete button only appears when you touch code area -- DONE
-//TODO: add nodetype to newline nodes then change how findnewlines works
-
-//TODO: make setting the focus change the current node correctly so that you can add in new lines of code
 
 //TODO: fix indentation for close curlys
 
 
-//TODO: find way of selecting one line of code. Can get it to highlight up to certain index, use this combined with line number
+
 //TODO: make it so when you select a line, all the code that will be deleted is highlighted
 
 
@@ -2020,8 +2017,8 @@ public class Main extends Activity {
 
 
 
-//TODO: idea - clear line : go up to new line, go up to seq, delete child
-//TODO: idea - modify : give every newline a linenumber, when user clicks on line it highlights, they can delete line
+
+
 
 
 //TODO: idea: give conditional operators a type eg Int string or bool
@@ -2148,3 +2145,15 @@ public class Main extends Activity {
 //TODO: make else appear on new line so that deleting the else part is doable -- DONE
 
 //TODO: idea: if child of newline to be deleted is END, look up tree for previous newline DO THIS NEXT -- DONE
+
+
+//Thurs 16th July
+
+
+//TODO: make it so when you select a line, the cursor moves to the end -- DONE (sort of)
+//TODO: make it so that delete button only appears when you touch code area -- DONE
+//TODO: add nodetype to newline nodes then change how findnewlines works -- DONE
+//TODO: make setting the focus change the current node correctly so that you can add in new lines of code -- DONE
+//TODO: find way of selecting one line of code. Can get it to highlight up to certain index, use this combined with line number -- DONE
+//TODO: idea - modify : give every newline a linenumber, when user clicks on line it highlights, they can delete line -- DONE
+//TODO: idea - clear line : go up to new line, go up to seq, delete child -- DONE

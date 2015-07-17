@@ -158,8 +158,14 @@ public class Node {
                 newNode = new Node(type, node);
             }
             if(direction == "left"){
+                if(node.left != null){
+                    newNode.left = node.left;
+                }
                 node.left = newNode;
             }else if(direction == "right"){
+                if(node.right != null){
+                    newNode.right = node.right;
+                }
                 node.right = newNode;
             }
             node.isCurrentNode = false;
