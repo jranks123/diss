@@ -16,14 +16,13 @@
     <string name="bool"><![CDATA[<b>Boolean </b>]]></string>
     <string name="forLoop"><![CDATA[<b>for</b>( <b>int  </b>]]></string>
     <string name="ifString"><![CDATA[<b>if</b>&#40; ]]></string>
-    <string name="elseString"><![CDATA[<br><b>else</b>&#123; ]]></string>
+    <string name="elseString"><![CDATA[<b>else</b>&#123; ]]></string>
     <string name="endIfConditionString"><![CDATA[ &#41; &#123;]]></string>
     <string name="endIfString"><![CDATA[&#125;]]></string>
     <string name="lessThan"><![CDATA[<]]></string>
     <string name="lessThanEquals"><![CDATA[<=]]></string>
     <string name="moreThan"><![CDATA[>]]></string>
     <string name="moreThanEquals"><![CDATA[>=]]></string>
-    <string name="root"><![CDATA[<b>public void</b><a> main </a> &#123;]]></string>
 
 
 

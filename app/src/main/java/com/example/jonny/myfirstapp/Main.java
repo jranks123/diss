@@ -123,12 +123,6 @@ public class Main extends Activity {
     public void initialise(){
         tree = new Node(Node.Type.ROOT, null);
        // tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
-        tree = tree.addNode(tree, Node.Type.ENDPROGRAM, "right", null);
-        tree = tree.moveUpTreeLimit(tree, "ROOT");
-
-        printTree(tree);
-        setCursorToEndOfCurrentLine();
-
         //tree
     }
 
@@ -450,10 +444,10 @@ public class Main extends Activity {
         }
     }
 
-    public void indent(){
+    public void indent(Integer handicap){
        // int loop = openLoopsIndent.size() + openIfsIndent.size();
         int loop = openCurlysIndent.size();
-        for(int i = 0; i < loop; i++){
+        for(int i = 0; i < loop+handicap; i++){
             code.append("\t\t\t");
         }
     }
@@ -560,8 +554,13 @@ public class Main extends Activity {
             }
         }
         else if(nodeType == Node.Type.NEWLINE){
-                    code.append("\n");
-                    indent();
+            code.append("\n");
+            Newline.Type newNodeType = ((Newline)tree).newlineNodeType;
+            if(newNodeType == Newline.Type.FOREND || newNodeType == Newline.Type.IFEND || newNodeType == Newline.Type.ELSEEND) {
+                indent(-1);
+            }else {
+                indent(0);
+            }
              //   }
            // }
         }
@@ -574,7 +573,9 @@ public class Main extends Activity {
            // openLoopsIndent.remove(openLoopsIndent.size() - 1);
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
             variablesArray.remove(variablesArray.size() - 1);
-            indent();
+            //indent();
+            //String codeText = code.getText().toString();
+            //code.setText(codeText.substring(0, codeText.length() - 3));
             code.append("}");
         }
         else if(nodeType == Node.Type.ENDPROGRAM){
@@ -634,8 +635,8 @@ public class Main extends Activity {
             code.append(Html.fromHtml(getString(R.string.ifString)));
         }
         else if(nodeType == Node.Type.ELSE){
-            String codeText = code.getText().toString();
-            code.setText(codeText.substring(0, codeText.length() - 1));
+            //String codeText = code.getText().toString();
+            //code.setText(codeText.substring(0, codeText.length() - 1));
             code.append(Html.fromHtml(getString(R.string.elseString)));
 
 
@@ -647,13 +648,6 @@ public class Main extends Activity {
             //openIfsIndent.add(true);
             openCurlysIndent.add(true);
             variablesArray.add(new ArrayList<Variable>());
-        }
-        else if(nodeType == Node.Type.ENDIF){
-            //openIfsIndent.remove(openIfsIndent.size() - 1);
-            openCurlysIndent.remove(openCurlysIndent.size() - 1);
-            variablesArray.remove(variablesArray.size() - 1);
-            indent();
-            code.append(Html.fromHtml(getString(R.string.endIfString)));
         }
 
     }
@@ -1957,9 +1951,7 @@ public class Main extends Activity {
                 btnCloseCurly.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
             }
-            else if(currentNodeType == Node.Type.ENDIFCONDITION){
-           //     tree = tree.moveUpTreeLimit(currentNode, "CONDITION");
-            }
+
             /*else if(currentNodeType == Node.Type.IF){
                 btnElse.setVisibility(View.VISIBLE);
             }*/else if(currentNodeType == Node.Type.ELSE){
@@ -2028,8 +2020,12 @@ public class Main extends Activity {
 //TODO: try changing it so that newline nodes make a new line rather than the way im doing it atm -- DONE
 //TODO: make it so that you can add a line at the top ( currently crashes) -- DONE
 //TODO: make it so when you do insert new line into first line of for loop the line goes in the loop, not after -- DONE
+//TODO: make it so when you do insert new line into first line of if the line goes in the loop, not after -- DONE
+//TODO: fix indentation for close curlys -- DONE (this also fixed bold text not showing) -- DONE
 
-//TODO: make the cursor appear in the right place when you go back and edit code
+//TODO: be able to add else condition afterwards
+
+//TODO: make the cursor appear in the right place when you go back and edit code -- getting there
 
 //TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
 
@@ -2046,7 +2042,8 @@ public class Main extends Activity {
 //TODO: make it possible to save variable as null
 
 
-//TODO: fix indentation for close curlys
+
+
 //TODO: fix indentation when you insert a forloop into a if statement
 
 

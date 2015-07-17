@@ -535,9 +535,9 @@ public class Node {
     public Node moveUpTreeLimit(Node tree, String limit){
         Log.e("ADDNODE", "moving up tree");
         Node node = findCurNode(tree);
-        node.isCurrentNode = false;
+        /*node.isCurrentNode = false;
         node = node.parent;
-        node.isCurrentNode = true;
+        node.isCurrentNode = true;*/
         while (!node.nodeType.toString().equals(limit)){
            Log.e("DEBUG", "Current node before = " + node.nodeType.toString());
            node.isCurrentNode = false;
