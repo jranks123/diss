@@ -13,6 +13,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.app.Activity;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.util.Log;
@@ -257,11 +258,11 @@ public class Main extends Activity {
         });
         numberOfNewLines = 0;
         output = (TextView) findViewById(R.id.runText);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         output.setMovementMethod(new ScrollingMovementMethod());
         btnLogTree = (Button)findViewById(R.id.LogTree);
         tempString1 = "HELLOOO";
         btnFor = (Button) findViewById(R.id.btnFor);
-        hideKeyboard();
         initialise();
         // tempAddVar();
 
@@ -303,14 +304,7 @@ public class Main extends Activity {
     }
 
 
-    private void hideKeyboard() {
-        // Check if no view has focus:
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
+
 
 
 
@@ -322,6 +316,7 @@ public class Main extends Activity {
     }
 
     public void showButtons(ArrayList<Button> b){
+        
         for(int i = 0; i < b.size(); i++ ){
             b.get(i).setVisibility(View.VISIBLE);
         }
@@ -568,7 +563,7 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.END){
            // openLoopsIndent.remove(openLoopsIndent.size() - 1);
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
-        //    variablesArray.remove(variablesArray.size() - 1);
+            variablesArray.remove(variablesArray.size() - 1);
             //indent();
             //String codeText = code.getText().toString();
             //code.setText(codeText.substring(0, codeText.length() - 3));
@@ -1192,6 +1187,83 @@ public class Main extends Activity {
         return curNode;
     }
 
+    public void visitNodeVar(Node tree){
+        Node.Type nodeType = tree.nodeType;
+        if (nodeType == Node.Type.SMCLN){
+            Variable.Type type = null;
+            if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)){
+                Variable v;// = new Variable(null, null, null, null);
+                if(tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)) {
+                    v = tree.returnAssignVar(tree);
+                }else{
+                    v = tree.returnDecVar(tree);
+                }
+                type = v.varNodeType;
+                if (!checkVarExists(v.name)) {
+                    Variable var = new Variable(null, type, v.name, null);
+                    variablesArray.get(openCurlysIndent.size()).add(var);
+                }
+            }
+
+        }
+        else if(nodeType == Node.Type.FORLOOP){
+            switch(((Loops)tree).varNodeType){
+                case FOR:
+                    if(((Loops) tree).limiter != null){
+                        openCurlysIndent.add(true);
+                        variablesArray.add(new ArrayList<Variable>());
+                        if(!checkVarExists(((Loops) tree).limiter.toString())){
+                            String name = ((Loops) tree).limiter.toString();
+                            Variable v = new Variable(null, Variable.Type.INT, name, null );
+                            variablesArray.get(openCurlysIndent.size()).add(v);
+                        }
+                    }
+                    break;
+            }
+        }
+        else if(nodeType == Node.Type.END){
+            openCurlysIndent.remove(openCurlysIndent.size() - 1);
+            variablesArray.remove(variablesArray.size() - 1);
+        }
+        else if(nodeType == Node.Type.ELSE){
+            openCurlysIndent.add(true);
+            variablesArray.add(new ArrayList<Variable>());
+        }
+        else if(nodeType == Node.Type.ENDIFCONDITION){
+            openCurlysIndent.add(true);
+            variablesArray.add(new ArrayList<Variable>());
+        }
+
+    }
+
+    public Boolean runFillVar(Node node, Boolean curNodeFound){
+        if(node.isCurrentNode == true){
+            curNodeFound = true;
+        }
+        if(!curNodeFound) {
+            visitNodeVar(node);
+            if (node.left != null) {
+                curNodeFound = runFillVar(node.left, curNodeFound);
+            }
+            if (node.right != null && !curNodeFound) {
+                curNodeFound = runFillVar(node.right, curNodeFound);
+            }
+        }
+        return curNodeFound;
+    }
+
+
+
+
+    public void fillVariablesArray(){
+        variablesArray.clear();
+        variablesArray = new ArrayList<ArrayList<Variable>>();
+        variablesArray.add(new ArrayList<Variable>());
+        openCurlysIndent.clear();
+        runFillVar(tree, false);
+    }
+
+
     public void showVarButtons(Variable.Type varType){
         varButtons.clear();
         Node.Type nodeType = tree.findCurNode(tree).nodeType;
@@ -1201,6 +1273,7 @@ public class Main extends Activity {
             }
         }
         LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
+        fillVariablesArray();
         for(int j = 0; j < variablesArray.size(); j ++) {
             ArrayList<Variable> variables = variablesArray.get(j);
             for (int i = 0; i < variables.size(); i++) {
@@ -2016,12 +2089,13 @@ public class Main extends Activity {
 //Sunday 19th July
 //TODO: make the cursor appear in the right place when you go back and edit code -- getting there -- DONE
 //TODO: cant delete for loop from open curly (it crashes) -- DONE
-
-
-//TODO: cant insert into first lien of if
-
+//TODO: cant insert into first lien of if -- DONE
 
 //TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
+
+
+//TODo: make it so you can't delete the newline node at the end
+
 
 //TODO: be able to add else condition afterwards
 

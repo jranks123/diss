@@ -294,7 +294,9 @@ public class Node {
                             }
                         } else if (newLineType == Newline.Type.ELSE && function.equals("setCurrent")) {
                             tree.left.right.isCurrentNode = true;
-                        } else {
+                        } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
+                            tree.left.left.left.right.left.isCurrentNode = true;
+                        }else {
                             if (function.equals("delete")) {
                                 tree.left = null;
                             } else if (function.equals("setCurrent")) {
@@ -316,7 +318,7 @@ public class Node {
                     numberOfNewLines += 1;
                     if (numberOfNewLines ==
                             lineNumber) {
-                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND || newLineType == Newline.Type.FOR) {
+                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND) {
                             if (function.equals("delete")) {
                                 tree = tree.deleteEnd(tree.right);
                             } else if (function.equals("setCurrent")) {
@@ -332,6 +334,8 @@ public class Node {
                             }
                         } else if (newLineType == Newline.Type.ELSE && function.equals("setCurrent")) {
                             tree.right.right.isCurrentNode = true;
+                        } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
+                            tree.left.left.left.right.left.isCurrentNode = true;
                         } else {
                             if (function.equals("delete")) {
                                 tree.right = null;
