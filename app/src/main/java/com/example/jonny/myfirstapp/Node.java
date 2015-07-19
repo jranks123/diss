@@ -277,7 +277,7 @@ public class Node {
                     numberOfNewLines += 1;
                     if (numberOfNewLines ==
                             lineNumber) {
-                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND || newLineType == Newline.Type.FOR) {
+                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND) {
                             if (function.equals("delete")) {
                                 tree = tree.deleteEnd(tree.left);
                             } else if (function.equals("setCurrent")) {

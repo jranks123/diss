@@ -103,12 +103,7 @@ public class Main extends Activity {
     ArrayList<Button> varButtons;
   //  ArrayList<Variable> variables;
     ArrayList<ArrayList<Variable>> variablesArray;
-    ArrayList<Boolean> openLoops;
-    ArrayList<Boolean> openLoopsIndent;
     ArrayList<Boolean> openBrackets;
-    ArrayList<Boolean> openIfs;
-    ArrayList<Boolean> openIfsIndent;
-    ArrayList<Boolean> openCurlys;
     ArrayList<Boolean> openCurlysIndent;
     Integer numberOfNewLines;
     String tempString1;
@@ -151,12 +146,7 @@ public class Main extends Activity {
 
 
 
-        openLoops = new ArrayList<Boolean>();
-        openLoopsIndent = new ArrayList<Boolean>();
         openBrackets = new ArrayList<Boolean>();
-        openIfs = new ArrayList<Boolean>();
-        openIfsIndent = new ArrayList<Boolean>();
-        openCurlys = new ArrayList<Boolean>();
         openCurlysIndent = new ArrayList<Boolean>();
 
         btnSemicolon =(Button)findViewById(R.id.semicolon);
@@ -384,15 +374,7 @@ public class Main extends Activity {
 
     }
 
-    public void addOpenCurly(){
-        openCurlys.add(true);
-        variablesArray.add(new ArrayList<Variable>());
-    }
 
-    public void removeOpenCurly(){
-        openCurlys.remove(openCurlys.size() - 1);
-        variablesArray.remove(variablesArray.size() - 1);
-    }
 
 
 
@@ -586,14 +568,15 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.END){
            // openLoopsIndent.remove(openLoopsIndent.size() - 1);
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
-            variablesArray.remove(variablesArray.size() - 1);
+        //    variablesArray.remove(variablesArray.size() - 1);
             //indent();
             //String codeText = code.getText().toString();
             //code.setText(codeText.substring(0, codeText.length() - 3));
             code.append("}");
         }
         else if(nodeType == Node.Type.ENDPROGRAM){
-            // openLoopsIndent.remove(openLoopsIndent.size() - 1);
+            // openLoopsIndent.remove(
+            // Indent.size() - 1);
             code.append("\n");
         }
         else if(nodeType == Node.Type.VAR){
@@ -950,7 +933,7 @@ public class Main extends Activity {
                            String name = v.name;
                            if (!checkVarExists(name)) {
                                Variable var = new Variable(null, type, name, null);
-                               variablesArray.get(openCurlys.size()).add(var);
+                               variablesArray.get(openCurlysIndent.size()).add(var);
                                //variables.add(var);
                            }
                            //evaluate if user assigns a value while declaring
@@ -1046,7 +1029,7 @@ public class Main extends Activity {
                 String varValue = ((Loops) tree.left).lowerLim.toString();
                 String varName = ((Loops) tree.left).limiter;
                 if(!checkVarExists(varName)) {
-                    variablesArray.get(openCurlys.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
+                    variablesArray.get(openCurlysIndent.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
 
                     //variables.add(new Variable(null, Variable.Type.INT, varName, varValue));
                 }else{
@@ -1359,7 +1342,7 @@ public class Main extends Activity {
 
             case R.id.btnFor:
               //  openLoops.add(true);
-                addOpenCurly();
+              //  addOpenCurly();
             //    openCurlys.add(true);
                 clearButtons();
                 tree = tree.addNode(tree, Node.Type.FORLOOP, "left", "For");
@@ -1439,8 +1422,8 @@ public class Main extends Activity {
                 clearButtons();
                 //openLoops.remove(openLoops.size() - 1);
                 //openLoops.remove(openLoops.size() - 1);
-                removeOpenCurly();
-          //      openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
+              //  removeOpenCurly();
+              //  openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
                // tree.addNode(tree, Node.Type.NEWLINE, "right", null); TODO:Check this
              //   tree.addNode(tree, Node.Type.NEWLINE, "right", null);
                 tree.addNode(tree, Node.Type.END, "right", null);
@@ -1452,7 +1435,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnCloseCurly:
-                removeOpenCurly();
+             //   removeOpenCurly();
                // openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
 
                 if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)){
@@ -1493,7 +1476,7 @@ public class Main extends Activity {
                 initialise();
                 clearButtons();
               //  openLoops.clear();
-                openCurlys.clear();
+               // openCurlys.clear();
                 openBrackets.clear();
                 output.setText("");
              //   variables.clear();
@@ -1718,7 +1701,7 @@ public class Main extends Activity {
                 tree = tree.moveDownDirectionLimit(tree, "right", "END");
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "ELSE");
                 tree = tree.addNode(tree, Node.Type.ELSE, "right", "none");
-                addOpenCurly();
+              //  addOpenCurly();
                 //openCurlys.add(true);
                 break;
 
@@ -1727,7 +1710,7 @@ public class Main extends Activity {
                 Node node = tree.findCurNode(tree);
                 tree = tree.moveUpTreeLimit(tree, "CONDITION");
               //  openIfs.add(true);
-                addOpenCurly();
+              //  addOpenCurly();
                 //openCurlys.add(true);
                 tree.addNode(tree, Node.Type.STARTIF, "right", "none");
                 tree.addNode(tree, Node.Type.NONE, "left", "none");
@@ -1757,7 +1740,7 @@ public class Main extends Activity {
             //  code.setSelection(code.getText().length());
 
 
-            if (openCurlys.size() > 0) {
+            if (openCurlysIndent.size() > 0) {
                 if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.STARTLOOP) {
                     btnCloseCurly.setVisibility(View.VISIBLE);
                 }
@@ -1800,7 +1783,7 @@ public class Main extends Activity {
                 btnLoops.setVisibility(View.VISIBLE);
             }
             if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF) {
-                if (openLoops.size() == 0 && openCurlys.size() == 0) {
+                if (openCurlysIndent.size() == 0) {
                     btnRun.setVisibility(View.VISIBLE);
                 } else {
                     btnRun.setVisibility(View.GONE);
@@ -2032,6 +2015,11 @@ public class Main extends Activity {
 
 //Sunday 19th July
 //TODO: make the cursor appear in the right place when you go back and edit code -- getting there -- DONE
+//TODO: cant delete for loop from open curly (it crashes) -- DONE
+
+
+//TODO: cant insert into first lien of if
+
 
 //TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
 
