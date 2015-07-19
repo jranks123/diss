@@ -6,6 +6,7 @@ package com.example.jonny.myfirstapp;
 public class Newline extends Node  {
 
     Type newlineNodeType;
+    Boolean isEnd;
 
     public enum Type{
         FOR,
@@ -22,6 +23,10 @@ public class Newline extends Node  {
         super(Node.Type.NEWLINE, parent);
         this.isCurrentNode = true;
         this.newlineNodeType = type;
+        isEnd = false;
+        if(type == Type.FOREND || type == Type.IFEND || type == Type.ELSEEND){
+            isEnd = true;
+        }
     }
 
 

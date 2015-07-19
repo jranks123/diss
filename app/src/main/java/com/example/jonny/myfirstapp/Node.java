@@ -404,23 +404,22 @@ public class Node {
             if(tree.nodeType == Node.Type.SEQ){
                 if(tree.left != null) {
                     numberOfNewLinesBeforeCurNode += 1;
+                    Log.d("added new one ", tree.nodeType.toString());
                     doCurrentNodeLineNumberCount(tree.left, false);
                 }
             }
-        }
-        if(!curNodeFound){
-            if (tree.left != null){
+        }if(!curNodeFound){
+            if (tree.left != null && !curNodeFound){
                 if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
-                    Log.d("Newline", " left");
+                    Log.d("Newlineleft after ", tree.nodeType.toString());
                     numberOfNewLinesBeforeCurNode += 1;
                 }
-                    if(!curNodeFound) {
                         curNodeFound = doCurrentNodeLineNumberCount(tree.left, curNodeFound);
-                    }
+
             }
-            if (tree.right != null){
+            if (tree.right != null && !curNodeFound){
                 if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
-                    Log.d("Newline", " right");
+                    Log.d("Newrightleft after ", tree.nodeType.toString());
                     numberOfNewLinesBeforeCurNode += 1;
                 }
                 if(!curNodeFound) {

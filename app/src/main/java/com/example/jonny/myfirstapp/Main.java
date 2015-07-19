@@ -122,8 +122,9 @@ public class Main extends Activity {
 
     public void initialise(){
         tree = new Node(Node.Type.ROOT, null);
-       // tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
-        //tree
+        //tree = tree.addNode(tree, Node.Type.NONE, "right", null);
+        tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+        tree = tree.moveUpTreeLimit(tree, "ROOT");
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,7 +253,7 @@ public class Main extends Activity {
                             if (codeChar.equals("\n")) {
                                 endOfLine = true;
                             }
-                            Log.d("Next char is", codeChar);
+                           // Log.d("Next char is", codeChar);
                             offset += 1;
                         }
                         offset--;
@@ -278,9 +279,9 @@ public class Main extends Activity {
     }
 
     public void setCursorToEndOfCurrentLine(){
-        Integer lineNumber = tree.getLineNumberOfCurrentNode(tree);
+        Integer lineNumber = tree.getLineNumberOfCurrentNode(tree); //the minus 1 is because we have added a newline after root
         Integer offset = 0;
-        Integer numberOfLinesSoFar = -1;
+        Integer numberOfLinesSoFar = 0;
         Boolean endOfLine = false;
         while(offset < code.getText().length() && endOfLine == false){
             String codeChar = code.getText().toString().substring(offset, offset+1);
@@ -288,10 +289,23 @@ public class Main extends Activity {
                 numberOfLinesSoFar += 1;
             }
             if(numberOfLinesSoFar == lineNumber){
+                Boolean end = false;
+                while (offset < code.getText().length()-1 && end == false){
+                    offset += 1;
+                    codeChar = code.getText().toString().substring(offset, offset+1);
+                    if(codeChar.equals("\n")){
+                        end = true;
+                    }
+                }
                 endOfLine = true;
             }
-            Log.d("Next char is", codeChar);
+           // Log.d("Next char is", codeChar);
             offset += 1;
+        }
+        if(endOfLine){
+            Log.d("Found end of", " line");
+        }else{
+            Log.d("Didn't find end of ", "line");
         }
         offset -= 1;
         code.setSelection(offset, offset);
@@ -555,8 +569,8 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.NEWLINE){
             code.append("\n");
-            Newline.Type newNodeType = ((Newline)tree).newlineNodeType;
-            if(newNodeType == Newline.Type.FOREND || newNodeType == Newline.Type.IFEND || newNodeType == Newline.Type.ELSEEND) {
+            Boolean isEnd = ((Newline)tree).isEnd;
+            if(isEnd == true) {
                 indent(-1);
             }else {
                 indent(0);
@@ -1313,6 +1327,7 @@ public class Main extends Activity {
             case R.id.btnPrintTextMenu:
                 clearButtons();
                 edtEnterString.setVisibility(View.VISIBLE);
+
                 btnEnterString.setVisibility(View.VISIBLE);
                 btnPrintBack.setVisibility(View.VISIBLE);
                 break;
@@ -1508,7 +1523,7 @@ public class Main extends Activity {
             case R.id.var:
                 clearButtons();
                 Node curNode = tree.findCurNode(tree);
-                if((curNode.nodeType == Node.Type.SEQ) || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP) ||  (curNode.nodeType == Node.Type.STARTIF) || (curNode.nodeType == Node.Type.ELSE)){ //TODO: make this more efficient by making isValidResting property of Node
+                if((curNode.nodeType == Node.Type.SEQ) || curNode.nodeType == Node.Type.NONE || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP) ||  (curNode.nodeType == Node.Type.STARTIF) || (curNode.nodeType == Node.Type.ELSE)){ //TODO: make this more efficient by making isValidResting property of Node
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "none");
                     //   tree.addNode(tree, Node.Type.VAR, "left", null);
@@ -2015,19 +2030,13 @@ public class Main extends Activity {
 
 
 
+//Sunday 19th July
+//TODO: make the cursor appear in the right place when you go back and edit code -- getting there -- DONE
 
-//Friday 17th July
-//TODO: try changing it so that newline nodes make a new line rather than the way im doing it atm -- DONE
-//TODO: make it so that you can add a line at the top ( currently crashes) -- DONE
-//TODO: make it so when you do insert new line into first line of for loop the line goes in the loop, not after -- DONE
-//TODO: make it so when you do insert new line into first line of if the line goes in the loop, not after -- DONE
-//TODO: fix indentation for close curlys -- DONE (this also fixed bold text not showing) -- DONE
+//TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
 
 //TODO: be able to add else condition afterwards
 
-//TODO: make the cursor appear in the right place when you go back and edit code -- getting there
-
-//TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
 
 //TODO: add newline button
 
@@ -2201,3 +2210,11 @@ public class Main extends Activity {
 //TODO: find way of selecting one line of code. Can get it to highlight up to certain index, use this combined with line number -- DONE
 //TODO: idea - modify : give every newline a linenumber, when user clicks on line it highlights, they can delete line -- DONE
 //TODO: idea - clear line : go up to new line, go up to seq, delete child -- DONE
+
+
+//Friday 17th July
+//TODO: try changing it so that newline nodes make a new line rather than the way im doing it atm -- DONE
+//TODO: make it so that you can add a line at the top ( currently crashes) -- DONE
+//TODO: make it so when you do insert new line into first line of for loop the line goes in the loop, not after -- DONE
+//TODO: make it so when you do insert new line into first line of if the line goes in the loop, not after -- DONE
+//TODO: fix indentation for close curlys -- DONE (this also fixed bold text not showing) -- DONE
