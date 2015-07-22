@@ -1391,6 +1391,7 @@ public class Main extends Activity {
 
 
     public void onBtnClicked(View v){
+        clearButtons();
         btnDelete.setVisibility(View.GONE);
         btnUpLine.setVisibility(View.GONE);
         btnDownLine.setVisibility(View.GONE);
@@ -1470,20 +1471,20 @@ public class Main extends Activity {
               //  openLoops.add(true);
               //  addOpenCurly();
             //    openCurlys.add(true);
-                clearButtons();
+              //  clearButtons();
                 tree = tree.addNode(tree, Node.Type.FORLOOP, "left", "For");
                 //LogTree(tree);
                 btnForNewVar.setVisibility(View.VISIBLE);
                 break;
 
             case R.id.btnForNewVar:
-                clearButtons();
+             //   clearButtons();
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnForNewVarEnter.setVisibility(View.VISIBLE);
                 break;
 
             case R.id.btnForNewVarEnter:
-                clearButtons();
+              //  clearButtons();
                 ((Loops) tree.findCurNode(tree)).limiter = edtEnterString.getText().toString().trim();
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnForNewVarValueEnter.setVisibility(View.VISIBLE);
@@ -1503,14 +1504,14 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnForLess:
-                clearButtons();
+           //     clearButtons();
                 ((Loops) tree.findCurNode(tree)).operator = "<";
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnForNewVarValueUpperEnter.setVisibility(View.VISIBLE);
                 break;
 
             case R.id.btnForGreater:
-                clearButtons();
+              //  clearButtons();
                 ((Loops) tree.findCurNode(tree)).operator = ">";
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnForNewVarValueUpperEnter.setVisibility(View.VISIBLE);
@@ -1531,7 +1532,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnForPlus:
-                clearButtons();
+             //   clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "++";
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
                 tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
@@ -1541,7 +1542,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnForMinus:
-                clearButtons();
+             //   clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "--";
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
                 tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
@@ -1551,7 +1552,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnForEndLoop:
-                clearButtons();
+            //    clearButtons();
                 //openLoops.remove(openLoops.size() - 1);
                 //openLoops.remove(openLoops.size() - 1);
               //  removeOpenCurly();
@@ -1637,7 +1638,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.var:
-                clearButtons();
+            //    clearButtons();
                 Node curNode = tree.findCurNode(tree);
                 if((curNode.nodeType == Node.Type.SEQ) || curNode.nodeType == Node.Type.NONE || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP) ||  (curNode.nodeType == Node.Type.STARTIF) || (curNode.nodeType == Node.Type.ELSE)){ //TODO: make this more efficient by making isValidResting property of Node
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
@@ -1659,7 +1660,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.varNew:
-                clearButtons();
+             //   clearButtons();
                 tree = tree.addNode(tree, Node.Type.DEC, "left", "none");
                 break;
 
@@ -1685,13 +1686,13 @@ public class Main extends Activity {
                     tree = tree.addNode(tree, Node.Type.VAR, "left", "Bool");
                 }
                 tree.setVarName(tree, edtEnterString.getText().toString().trim());
-                clearButtons();
+           //     clearButtons();
                 break;
 
 
 
             case R.id.btnEquals:
-                clearButtons();
+             //   clearButtons();
                 tree = tree.addNode(tree, Node.Type.ASSIGN, "right", null);
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
                 Variable.Type type = tree.getVarType(tree.findCurNode(tree));
@@ -1739,7 +1740,7 @@ public class Main extends Activity {
                 }else{
                     tree = tree.addNode(tree, Node.Type.VARVAL, "left", edtEnterString.getText().toString());
                 }
-                clearButtons();
+            //    clearButtons();
                 break;
 
             case R.id.btnOperator:
@@ -1899,10 +1900,10 @@ public class Main extends Activity {
 
             if (openCurlysIndent.size() > 0) {
                 if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.STARTLOOP) {
-                    btnCloseCurly.setVisibility(View.VISIBLE);
+                   // btnCloseCurly.setVisibility(View.VISIBLE);
                 }
             }else{
-                btnCloseCurly.setVisibility(View.GONE);
+               // btnCloseCurly.setVisibility(View.GONE);
             }
 
           //  int openLoopsSize = openLoops.size();
@@ -1950,7 +1951,7 @@ public class Main extends Activity {
                 btnRun.setVisibility(View.GONE);
             }
             if(currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType == null){
-                clearButtons();
+               // clearButtons();
                 Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
                 if(evalType == Eval.Type.INT){
                     btnOperatorAdd.setVisibility(View.VISIBLE);
@@ -1984,7 +1985,7 @@ public class Main extends Activity {
                 }
             }else if(currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType != null){
                 Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
-                clearButtons();
+             //   clearButtons();
                 if (evalType == Eval.Type.STRING) {
                     btnTypeInput.setVisibility(View.VISIBLE);
                     if (checkIfAnyVarsExist()) {
@@ -2018,7 +2019,7 @@ public class Main extends Activity {
                 }*/
             }
             else if(currentNodeType == Node.Type.DEC){
-                clearButtons();
+             //   clearButtons();
                 if( ((Dec)currentNode).varNodeType == Dec.Type.NONE) {
                     btnNewVar.setVisibility(View.GONE);
                     btnNewVarInt.setVisibility(View.VISIBLE);
@@ -2031,7 +2032,7 @@ public class Main extends Activity {
                 }
             }
             else if(currentNodeType == Node.Type.VAR){
-                clearButtons();
+             //   clearButtons();
                 //Node node = tree.findCurNode(tree);
                 if(tree.isXbeforeY(currentNode, Node.Type.EVAL, Node.Type.SEQ)){
                 //    Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
@@ -2060,7 +2061,7 @@ public class Main extends Activity {
 
             }
             else if(currentNodeType == Node.Type.VARVAL){
-                clearButtons();
+              //  clearButtons();
                 Node varVal = currentNode;
                 if(((VarVal)varVal).value == null){
                     edtEnterString.setVisibility(View.VISIBLE);
@@ -2076,7 +2077,7 @@ public class Main extends Activity {
 
             }
             else if(currentNodeType == Node.Type.STRING){
-                clearButtons();
+              //  clearButtons();
                 showSemicolonButton();
                 //btnSemicolon.setVisibility(View.VISIBLE);
                 btnOperator.setVisibility(View.VISIBLE);
@@ -2104,7 +2105,7 @@ public class Main extends Activity {
             else if(currentNodeType == Node.Type.NONE){
                // clearButtons();
                 //btnEndIf.setVisibility(View.VISIBLE);
-                btnCloseCurly.setVisibility(View.VISIBLE);
+              //  btnCloseCurly.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
             }
 
@@ -2112,11 +2113,11 @@ public class Main extends Activity {
                 btnElse.setVisibility(View.VISIBLE);
             }*/else if(currentNodeType == Node.Type.ELSE){
              //   clearButtons();
-                btnCloseCurly.setVisibility(View.VISIBLE);
+              //  btnCloseCurly.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
             }
             else if(currentNodeType == Node.Type.EVAL) {
-                clearButtons();
+             //   clearButtons();
                 if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.NONE) {
                     if (tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ) || tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) {
                         btnSetEvalTypeInt.setVisibility(View.VISIBLE);
