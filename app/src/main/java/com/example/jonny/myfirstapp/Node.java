@@ -1,11 +1,16 @@
 package com.example.jonny.myfirstapp;
 
+import android.app.Activity;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+
 
 /**
  * Created by Jonny on 20/03/2015.
  */
-public class Node {
+public class Node extends Activity {
 
 
     public enum Type{
@@ -49,11 +54,15 @@ public class Node {
     Integer numberOfNewLinesPostDelete;
     Integer numberOfNewLinesBeforeCurNode;
 
+
+
     public Node (Type type, Node parent){
         this.parent = parent;
         this.nodeType = type;
         this.isCurrentNode = true;
     }
+
+
 
 
 
@@ -263,6 +272,7 @@ public class Node {
     }
 
 
+
     public Node findLine(Node tree, Integer lineNumber, String function){
         if(lineNumber == 0){
             tree.isCurrentNode = true;
@@ -345,10 +355,14 @@ public class Node {
                                     ((Newline)newLineNode).stop = true;
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
                                 } else if (newLineType == Newline.Type.ELSEEND) {
+                                    tree = tree.moveUpTreeLimitNode(tree, "ELSE");
+                                    tree = tree.moveUpTreeLimitNode(tree, "END");
+                                    tree = tree.moveUpTreeLimitNode(tree, "NEWLINE");
+                                    newLineNode = tree.findCurNode(tree);
+                                    ((Newline)newLineNode).stop = false;
                                     tree = tree.moveUpTreeLimitNode(tree, "IF");
                                  //   Node node = tree.findCurNode(tree);
                                  //   ((If)node).cameFromElse = false;
-                                    ((Newline)newLineNode).stop = false;
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
                                 }
                             }
@@ -468,7 +482,7 @@ public class Node {
                     numberOfNewLinesBeforeCurNode += 1;
                     if(isIf){
                         if(((Newline)tree.right).stop == true){
-                            ((Newline)tree.right).stop = false;
+                          //  ((Newline)tree.right).stop = false;
                             return curNodeFound;
                         }
                     }

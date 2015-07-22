@@ -274,6 +274,7 @@ public class Main extends Activity {
     }
 
     public void setCursorToEndOfCurrentLine(Integer lineDirection){
+        btnElse.setVisibility(View.GONE);
         Integer lineNumber = tree.getLineNumberOfCurrentNode(tree) + lineDirection; //the minus 1 is because we have added a newline after root
         if(lineNumber < 1){
             lineNumber = 1;
@@ -310,6 +311,23 @@ public class Main extends Activity {
         code.setSelection(offset, offset);
         if(lineDirection != 0){
                 tree = tree.changeCurrentNode(tree, lineNumber);
+                Node node = tree.findCurNode(tree);
+                if(node.nodeType == Node.Type.SEQ){
+                    if(node.left != null) {
+                        if (node.left.left != null) {
+                            if (node.left.left.nodeType == Node.Type.IF) {
+                                tree = tree.moveDownDirectionLimit(tree, "left", "CONDITION");
+                                tree = tree.moveDownDirectionLimit(tree, "right", "NEWLINE");
+                                node = tree.findCurNode(tree);
+                                if (((Newline) node).stop == true) {
+                                    btnElse.setVisibility(View.VISIBLE);
+                                //    ((Newline)node).stop = false;
+                                }
+                                tree = tree.moveUpTreeLimit(tree, "SEQ");
+                            }
+                        }
+                    }
+                }
         }
         Log.d("Line number = ", lineNumber.toString());
     }
@@ -1810,13 +1828,20 @@ public class Main extends Activity {
                 tree = tree.moveDownDirectionLimit(tree, "right", "END");
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "ELSE");
                 tree = tree.addNode(tree, Node.Type.ELSE, "right", "none");
-              //  addOpenCurly();
+                tree.addNode(tree, Node.Type.NEWLINE, "right", "ELSEEND");
+                tree.addNode(tree, Node.Type.END, "right", null);
+                tree = tree.moveUpTreeLimit(tree, "ELSE");
+
+                //  addOpenCurly();
                 //openCurlys.add(true);
                 break;
 
             case R.id.btnEndIfCondition:
                 tree = tree.addNode(tree, Node.Type.ENDIFCONDITION, "left", "none");
                 Node node = tree.findCurNode(tree);
+                tree = tree.moveUpTreeLimit(tree, "CONDITION");
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "IFEND");
+                tree = tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "CONDITION");
               //  openIfs.add(true);
               //  addOpenCurly();
@@ -2080,7 +2105,7 @@ public class Main extends Activity {
             /*else if(currentNodeType == Node.Type.IF){
                 btnElse.setVisibility(View.VISIBLE);
             }*/else if(currentNodeType == Node.Type.ELSE){
-                clearButtons();
+             //   clearButtons();
                 btnCloseCurly.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
             }
