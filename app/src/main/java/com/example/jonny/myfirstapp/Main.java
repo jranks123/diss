@@ -1534,6 +1534,9 @@ public class Main extends Activity {
                 clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "++";
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
+                tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
+                tree.addNode(tree, Node.Type.END, "right", null);
+                tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
                // showButtons(homeMenu);
                 break;
 
@@ -1541,6 +1544,9 @@ public class Main extends Activity {
                 clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "--";
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
+                tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
+                tree.addNode(tree, Node.Type.END, "right", null);
+                tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
              //   showButtons(homeMenu);
                 break;
 
@@ -2096,7 +2102,7 @@ public class Main extends Activity {
                 showButtons(homeMenu);
             }*/
             else if(currentNodeType == Node.Type.NONE){
-                clearButtons();
+               // clearButtons();
                 //btnEndIf.setVisibility(View.VISIBLE);
                 btnCloseCurly.setVisibility(View.VISIBLE);
                 showButtons(homeMenu);
