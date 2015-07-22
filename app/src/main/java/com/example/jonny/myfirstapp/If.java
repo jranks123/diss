@@ -6,6 +6,8 @@ package com.example.jonny.myfirstapp;
 public class If extends Node{
     Boolean conditionEnded;
     Boolean isTrue;
+    Boolean isFinised;
+
 
 
     public If(Node parent)

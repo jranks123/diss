@@ -47,6 +47,8 @@ public class Main extends Activity {
     EditText edtEnterString;
     Button btnRun;
     Button btnDelete;
+    Button btnUpLine;
+    Button btnDownLine;
     Button btnFor;
     Button btnForNewVar;
     Button btnForNewVarEnter;
@@ -193,6 +195,8 @@ public class Main extends Activity {
         btnOperatorMoreThanEquals = (Button) findViewById(R.id.btnOperatorMoreThanEquals);
 
         btnDelete = (Button) findViewById(R.id.btnDelete);
+        btnUpLine = (Button) findViewById(R.id.btnUpLine);
+        btnDownLine = (Button) findViewById(R.id.btnDownLine);
         btnIf = (Button) findViewById(R.id.btnIf);
         btnStartIf = (Button) findViewById(R.id.btnStartIf);
         btnEndIfCondition = (Button) findViewById(R.id.btnEndIfCondition);
@@ -269,8 +273,12 @@ public class Main extends Activity {
 
     }
 
-    public void setCursorToEndOfCurrentLine(){
-        Integer lineNumber = tree.getLineNumberOfCurrentNode(tree); //the minus 1 is because we have added a newline after root
+    public void setCursorToEndOfCurrentLine(Integer lineDirection){
+        Integer lineNumber = tree.getLineNumberOfCurrentNode(tree) + lineDirection; //the minus 1 is because we have added a newline after root
+        if(lineNumber < 1){
+            lineNumber = 1;
+        }
+        lineJustPressed = lineNumber;
         Integer offset = 0;
         Integer numberOfLinesSoFar = 0;
         Boolean endOfLine = false;
@@ -300,6 +308,9 @@ public class Main extends Activity {
         }
         offset -= 1;
         code.setSelection(offset, offset);
+        if(lineDirection != 0){
+                tree = tree.changeCurrentNode(tree, lineNumber);
+        }
         Log.d("Line number = ", lineNumber.toString());
     }
 
@@ -316,7 +327,9 @@ public class Main extends Activity {
     }
 
     public void showButtons(ArrayList<Button> b){
-        
+        btnDelete.setVisibility(View.VISIBLE);
+        btnUpLine.setVisibility(View.VISIBLE);
+        btnDownLine.setVisibility(View.VISIBLE);
         for(int i = 0; i < b.size(); i++ ){
             b.get(i).setVisibility(View.VISIBLE);
         }
@@ -1298,6 +1311,8 @@ public class Main extends Activity {
                     b.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View view) {
                             btnDelete.setVisibility(View.GONE);
+                            btnUpLine.setVisibility(View.GONE);
+                            btnDownLine.setVisibility(View.GONE);
                             Node curNode = tree.findCurNode(tree);
                             clearButtons();
                             if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
@@ -1325,8 +1340,9 @@ public class Main extends Activity {
                                 variablesArray.clear();
                                 variablesArray.add(new ArrayList<Variable>());
                                 openCurlysIndent.clear();
+                                tree = checkNewLineNotDeleted();
                                 printTree(tree);
-                                setCursorToEndOfCurrentLine();
+                                setCursorToEndOfCurrentLine(0);
                                 //code.setSelection(code.getText().length());
                             }
                             varButtons.add(b);
@@ -1341,12 +1357,28 @@ public class Main extends Activity {
     }
 
 
+    public Node checkNewLineNotDeleted(){
+        Node node = tree;
+        while(node.right != null){
+            node = node.right;
+        }
+        if(node.nodeType != Node.Type.NEWLINE){
+            node.right = new Newline(node, Newline.Type.NONE);
+        }
+
+        return tree;
+
+    }
+
 
 
     public void onBtnClicked(View v){
         btnDelete.setVisibility(View.GONE);
+        btnUpLine.setVisibility(View.GONE);
+        btnDownLine.setVisibility(View.GONE);
         String text = "";
         Boolean clearScreen = false;
+        Integer move = 0;
        // if((v.getId() != R.id.semicolon) && (v.getId() != R.id.run)){
        //     btnRun.setVisibility(View.GONE);
       //  }
@@ -1364,6 +1396,9 @@ public class Main extends Activity {
             case R.id.btnDelete:
                 Log.d("DEBUG", "PRESS PRINT");
                 tree = tree.delete(tree, lineJustPressed);
+                btnDelete.setVisibility(View.VISIBLE);
+                btnUpLine.setVisibility(View.VISIBLE);
+                btnDownLine.setVisibility(View.VISIBLE);
                 break;
 
             case R.id.btnSetEvalTypeInt:
@@ -1392,7 +1427,7 @@ public class Main extends Activity {
                 Log.d("DEBUG", "PRESS PRINT BACK");
                 btnPrintBack.setVisibility(View.GONE);
                 clearButtons();
-                showButtons(homeMenu);
+              //  showButtons(homeMenu);
                 edtEnterString.setVisibility(View.GONE);
                 backTree(tree, "SEQ", 1, "right");
                 break;
@@ -1481,14 +1516,14 @@ public class Main extends Activity {
                 clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "++";
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
-                showButtons(homeMenu);
+               // showButtons(homeMenu);
                 break;
 
             case R.id.btnForMinus:
                 clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "--";
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
-                showButtons(homeMenu);
+             //   showButtons(homeMenu);
                 break;
 
             case R.id.btnForEndLoop:
@@ -1504,7 +1539,7 @@ public class Main extends Activity {
                 tree = tree.moveUpOneStep(tree);
                 tree = tree.moveUpOneStep(tree);
                 //  btnRun.setVisibility(View.VISIBLE);
-                showButtons(homeMenu);
+              //  showButtons(homeMenu);
                 break;
 
             case R.id.btnCloseCurly:
@@ -1531,6 +1566,7 @@ public class Main extends Activity {
                     tree = tree.moveUpTreeLimit(tree, "IF");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
                 }
+              //  showButtons(homeMenu);
 
                 break;
 
@@ -1573,7 +1609,7 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "SEQ");
                 clearButtons();
-                showButtons(homeMenu);
+               // showButtons(homeMenu);
                 break;
 
             case R.id.var:
@@ -1789,6 +1825,22 @@ public class Main extends Activity {
                 tree.addNode(tree, Node.Type.NONE, "left", "none");
                 break;
 
+            case R.id.btnUpLine:
+                btnDelete.setVisibility(View.VISIBLE);
+                btnUpLine.setVisibility(View.VISIBLE);
+                btnDownLine.setVisibility(View.VISIBLE);
+              //  setCursorToEndOfCurrentLine(-1);
+                move = -1;
+                break;
+
+            case R.id.btnDownLine:
+                btnDelete.setVisibility(View.VISIBLE);
+                btnUpLine.setVisibility(View.VISIBLE);
+                btnDownLine.setVisibility(View.VISIBLE);
+             //   setCursorToEndOfCurrentLine(1);
+                move = 1;
+                break;
+
          /*   case R.id.btnEndIf:
               //  openIfs.remove(openIfs.size() - 1);
                 openCurlys.remove(openCurlys.size() - 1);
@@ -1808,8 +1860,9 @@ public class Main extends Activity {
             openCurlysIndent.clear();
             variablesArray.clear();
             variablesArray.add(new ArrayList<Variable>());
+            tree = checkNewLineNotDeleted();
             printTree(tree);
-            setCursorToEndOfCurrentLine();
+            setCursorToEndOfCurrentLine(move);
             //  code.setSelection(code.getText().length());
 
 
@@ -1853,9 +1906,10 @@ public class Main extends Activity {
                    btnLoops.setVisibility(View.VISIBLE);
                }
             }else{*/
-                btnLoops.setVisibility(View.VISIBLE);
+               // btnLoops.setVisibility(View.VISIBLE);
+               showButtons(homeMenu);
             }
-            if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF) {
+            if(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF ||  currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE) {
                 if (openCurlysIndent.size() == 0) {
                     btnRun.setVisibility(View.VISIBLE);
                 } else {
@@ -2083,15 +2137,18 @@ public class Main extends Activity {
 
 
 
+//MONDAY 20th July Wed 22nd
+//TODO: get move up and move down buttons working
+//almost done, need to get it working perfectly for FOR and IF
+
+//TODO: when you delete an if statement in a for loop, the close bracket for the for loop gets deleted too
+//TODO when you move up using buttons to close if when there is an else close bracket shouldnt appear
+//TODO: when you go back into a loop and delclare a var, you can assing it a new value but you can't print it
+//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it)
 
 
 
-//Sunday 19th July
-//TODO: make the cursor appear in the right place when you go back and edit code -- getting there -- DONE
-//TODO: cant delete for loop from open curly (it crashes) -- DONE
-//TODO: cant insert into first lien of if -- DONE
-
-//TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't)
+//TODO: at the moemnt when you delete it just deletes from the Newline, need to delete the seq aswell
 
 
 //TODo: make it so you can't delete the newline node at the end
@@ -2280,3 +2337,10 @@ public class Main extends Activity {
 //TODO: make it so when you do insert new line into first line of for loop the line goes in the loop, not after -- DONE
 //TODO: make it so when you do insert new line into first line of if the line goes in the loop, not after -- DONE
 //TODO: fix indentation for close curlys -- DONE (this also fixed bold text not showing) -- DONE
+
+
+//Sunday 19th July
+//TODO: make the cursor appear in the right place when you go back and edit code -- getting there -- DONE
+//TODO: cant delete for loop from open curly (it crashes) -- DONE
+//TODO: cant insert into first lien of if -- DONE
+//TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't) -- DONE

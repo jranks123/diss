@@ -665,6 +665,22 @@
                 android:visibility="gone"
                 android:onClick="onBtnClicked"/>
 
+            <Button
+                android:id="@+id/btnUpLine"
+                android:layout_width="141dp"
+                android:layout_height="60dp"
+                android:text="Move Up"
+                android:visibility="gone"
+                android:onClick="onBtnClicked"/>
+
+            <Button
+                android:id="@+id/btnDownLine"
+                android:layout_width="141dp"
+                android:layout_height="60dp"
+                android:text="Move Down"
+                android:visibility="gone"
+                android:onClick="onBtnClicked"/>
+
 
 
             <Button
@@ -673,6 +689,8 @@
             android:layout_height="60dp"
             android:text="Logtree"
             android:onClick="onBtnClicked"/>
+
+
 
         </LinearLayout>
        </LinearLayout>
