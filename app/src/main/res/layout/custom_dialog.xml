@@ -9,7 +9,8 @@
         android:layout_weight="1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Please enter a valid value"
-        />
+        android:text="Please enter a valid value" />
+
+
 
 </LinearLayout>
