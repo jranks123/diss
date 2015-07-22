@@ -7,6 +7,7 @@ public class Newline extends Node  {
 
     Type newlineNodeType;
     Boolean isEnd;
+    Boolean stop;
 
     public enum Type{
         FOR,
@@ -24,6 +25,7 @@ public class Newline extends Node  {
         this.isCurrentNode = true;
         this.newlineNodeType = type;
         isEnd = false;
+        stop = false;
         if(type == Type.FOREND || type == Type.IFEND || type == Type.ELSEEND){
             isEnd = true;
         }

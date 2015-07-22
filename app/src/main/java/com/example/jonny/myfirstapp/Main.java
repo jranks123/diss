@@ -2138,7 +2138,9 @@ public class Main extends Activity {
 
 
 //MONDAY 20th July Wed 22nd
-//TODO: get move up and move down buttons working
+//TODO: get move up and move down buttons working -- DONE
+//TODO : done for if (had to add stop property for newline) -- DONE
+//TODO: done for for -- DONE
 //almost done, need to get it working perfectly for FOR and IF
 
 //TODO: when you delete an if statement in a for loop, the close bracket for the for loop gets deleted too

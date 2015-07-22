@@ -287,11 +287,22 @@ public class Node {
                                 if (newLineType == Newline.Type.FOREND) {
                                     tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
-                                } else if (newLineType == Newline.Type.IFEND || newLineType == Newline.Type.ELSEEND) {
+                                } else if (newLineType == Newline.Type.IFEND) {
                                     tree = tree.moveUpTreeLimitNode(tree, "IF");
+                                   // Node node = tree.findCurNode(tree);
+                                  //  ((If)node).cameFromElse = true;
+                                    ((Newline)newLineNode).stop = true;
+                                    tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                                } else if (newLineType == Newline.Type.ELSEEND) {
+                                    tree = tree.moveUpTreeLimitNode(tree, "IF");
+                                  //  Node node = tree.findCurNode(tree);
+                                  //  ((If)node).cameFromElse = false;
+                                    ((Newline)newLineNode).stop = false;
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
                                 }
                             }
+                        } else if (newLineType == Newline.Type.FOR && function.equals("setCurrent")) {
+                            tree.left.left.left.isCurrentNode = true;
                         } else if (newLineType == Newline.Type.ELSE && function.equals("setCurrent")) {
                             tree.left.right.isCurrentNode = true;
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
@@ -327,11 +338,22 @@ public class Node {
                                 } else if (newLineType == Newline.Type.FOREND) {
                                     tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
-                                } else if (newLineType == Newline.Type.IFEND || newLineType == Newline.Type.ELSEEND) {
+                                } else if (newLineType == Newline.Type.IFEND) {
                                     tree = tree.moveUpTreeLimitNode(tree, "IF");
+                                  //  Node node = tree.findCurNode(tree);
+                                   // ((If)node).cameFromElse = true;
+                                    ((Newline)newLineNode).stop = true;
+                                    tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                                } else if (newLineType == Newline.Type.ELSEEND) {
+                                    tree = tree.moveUpTreeLimitNode(tree, "IF");
+                                 //   Node node = tree.findCurNode(tree);
+                                 //   ((If)node).cameFromElse = false;
+                                    ((Newline)newLineNode).stop = false;
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
                                 }
                             }
+                        }else if (newLineType == Newline.Type.FOR && function.equals("setCurrent")) {
+                            tree.left.left.left.isCurrentNode = true;
                         } else if (newLineType == Newline.Type.ELSE && function.equals("setCurrent")) {
                             tree.right.right.isCurrentNode = true;
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
@@ -354,11 +376,26 @@ public class Node {
 
     }
 
+    public void clearCameFromElse(Node tree){
+       /* if(tree.nodeType == Node.Type.IF){
+            ((If)tree).cameFromElse = false;
+        }
+        if(tree.right != null){
+            clearCameFromElse(tree.right);
+        }
+        if(tree.left != null){
+            clearCameFromElse(tree.left);
+        }*/
+
+    }
+
+
     public Node changeCurrentNode(Node tree, Integer lineNumber){
         tree = clearCurrentNode(tree);
       //  tree.findCurNode(tree).isCurrentNode = false;
         numberOfNewLines = 0;
         tree = findLine(tree, lineNumber, "setCurrent");
+//        clearCameFromElse(tree);
         numberOfNewLines = 0;
         return tree;
     }
@@ -402,14 +439,18 @@ public class Node {
         return tree;
 
     }
-    public Boolean doCurrentNodeLineNumberCount(Node tree, Boolean curNodeFound){
+    public Boolean doCurrentNodeLineNumberCount(Node tree, Boolean curNodeFound, Boolean isIf){
         if(tree.isCurrentNode){
             curNodeFound = true;
             if(tree.nodeType == Node.Type.SEQ){
+
                 if(tree.left != null) {
                     numberOfNewLinesBeforeCurNode += 1;
                     Log.d("added new one ", tree.nodeType.toString());
-                    doCurrentNodeLineNumberCount(tree.left, false);
+                    if(tree.left.left.nodeType == Node.Type.IF){
+                        isIf = true;
+                    }
+                    doCurrentNodeLineNumberCount(tree.left, false, isIf);
                 }
             }
         }if(!curNodeFound){
@@ -418,16 +459,22 @@ public class Node {
                     Log.d("Newlineleft after ", tree.nodeType.toString());
                     numberOfNewLinesBeforeCurNode += 1;
                 }
-                        curNodeFound = doCurrentNodeLineNumberCount(tree.left, curNodeFound);
+                        curNodeFound = doCurrentNodeLineNumberCount(tree.left, curNodeFound, isIf);
 
             }
             if (tree.right != null && !curNodeFound){
                 if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
                     Log.d("Newrightleft after ", tree.nodeType.toString());
                     numberOfNewLinesBeforeCurNode += 1;
+                    if(isIf){
+                        if(((Newline)tree.right).stop == true){
+                            ((Newline)tree.right).stop = false;
+                            return curNodeFound;
+                        }
+                    }
                 }
                 if(!curNodeFound) {
-                    curNodeFound = doCurrentNodeLineNumberCount(tree.right, curNodeFound);
+                    curNodeFound = doCurrentNodeLineNumberCount(tree.right, curNodeFound, isIf);
                 }
             }
         }
@@ -437,7 +484,7 @@ public class Node {
 
     public Integer getLineNumberOfCurrentNode(Node tree){
         numberOfNewLinesBeforeCurNode = 0;
-        doCurrentNodeLineNumberCount(tree, false);
+        doCurrentNodeLineNumberCount(tree, false, false);
         return numberOfNewLinesBeforeCurNode;
     }
 

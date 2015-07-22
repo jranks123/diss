@@ -163,13 +163,7 @@
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
 
-        <Button
-            android:id="@+id/btnCloseCurly"
-            android:layout_width="141dp"
-            android:layout_height="60dp"
-            android:text="}"
-            android:visibility="gone"
-            android:onClick="onBtnClicked"/>
+
 
 
 
@@ -623,6 +617,15 @@
             android:text=";"
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnCloseCurly"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="}"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
 
 
     </LinearLayout>
