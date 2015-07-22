@@ -257,6 +257,7 @@ public class Main extends Activity {
                             code.setSelection(offset, offset);
                         }
                         tree = tree.changeCurrentNode(tree, lineJustPressed);
+                        showElse();
 
                     }
                 }
@@ -314,27 +315,41 @@ public class Main extends Activity {
         code.setSelection(offset, offset);
         if(lineDirection != 0){
                 tree = tree.changeCurrentNode(tree, lineNumber);
-                Node node = tree.findCurNode(tree);
-                if(node.nodeType == Node.Type.SEQ){
-                    if(node.left != null) {
-                        if (node.left.left != null) {
-                            if (node.left.left.nodeType == Node.Type.IF) {
-                                tree = tree.moveDownDirectionLimit(tree, "left", "CONDITION");
-                                tree = tree.moveDownDirectionLimit(tree, "right", "NEWLINE");
-                                node = tree.findCurNode(tree);
-                                if (((Newline) node).stop == true) {
-                                    btnElse.setVisibility(View.VISIBLE);
-                                //    ((Newline)node).stop = false;
-                                }
-                                tree = tree.moveUpTreeLimit(tree, "SEQ");
-                            }
-                        }
-                    }
-                }
+                showElse();
         }
         Log.d("Line number = ", lineNumber.toString());
     }
 
+    public void showElse(){
+        Node node = tree.findCurNode(tree);
+        btnElse.setVisibility(View.GONE);
+        if(node.nodeType == Node.Type.SEQ){
+            if(node.left != null) {
+                if (node.left.left != null) {
+                    if (node.left.left.nodeType == Node.Type.IF) {
+                        tree = tree.moveDownDirectionLimit(tree, "left", "CONDITION");
+                        tree = tree.moveDownDirectionLimit(tree, "right", "NEWLINE");
+                        node = tree.findCurNode(tree);
+
+                       try {
+                           if (node.right.right.right.nodeType == Node.Type.ELSE) {
+
+                           }
+                       }catch (NullPointerException e){
+                           if (((Newline) node).stop == true) {
+                               btnElse.setVisibility(View.VISIBLE);
+                               //    ((Newline)node).stop = false;
+                           }
+                       }
+
+
+
+                        tree = tree.moveUpTreeLimit(tree, "SEQ");
+                    }
+                }
+            }
+        }
+    }
 
 
 
@@ -1012,7 +1027,6 @@ public class Main extends Activity {
         }
         if(node.nodeType == Node.Type.BRACKET){
             if(((Bracket)node).bracketType == Bracket.Type.OPEN){
-          //      btnTypeInput.setVisibility(View.VISIBLE);
                 btnCloseBracket.setVisibility(View.GONE);
             }
         }
@@ -1937,38 +1951,7 @@ public class Main extends Activity {
                 }
             }
         } else if (currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType != null) {
-            Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
-            //   clearButtons();
-            if (evalType == Eval.Type.STRING) {
-                btnTypeInput.setVisibility(View.VISIBLE);
-                if (checkIfAnyVarsExist()) {
-                    btnVar.setVisibility(View.VISIBLE);
-                }
-            } else if (evalType == Eval.Type.INT) {
-                btnTypeInput.setVisibility(View.VISIBLE);
-                if (checkVarTypeExistence(Variable.Type.INT)) {
-                    btnVar.setVisibility(View.VISIBLE);
-                }
-
-            } else if (evalType == Eval.Type.BOOL) {
-                btnBoolTrue.setVisibility(View.VISIBLE);
-                btnBoolFalse.setVisibility(View.VISIBLE);
-                if (checkVarTypeExistence(Variable.Type.BOOL)) {
-                    btnVar.setVisibility(View.VISIBLE);
-                }
-            } else if (evalType == Eval.Type.NONE) {
-                btnTypeInput.setVisibility(View.VISIBLE);
-                if (checkVarTypeExistence(Variable.Type.INT)) {
-                    btnVar.setVisibility(View.VISIBLE);
-                }
-            }
-            showBracketButtons(currentNode);
-               /* Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
-                if(varType == Variable.Type.STRING) {
-                    showVarButtons(null);
-                }else if (varType == Variable.Type.INT){
-                    showVarButtons(varType);
-                }*/
+            showTypeInput(currentNode);
         } else if (currentNodeType == Node.Type.DEC) {
             //   clearButtons();
             if (((Dec) currentNode).varNodeType == Dec.Type.NONE) {
@@ -1985,6 +1968,7 @@ public class Main extends Activity {
             //   clearButtons();
             //Node node = tree.findCurNode(tree);
             if (tree.isXbeforeY(currentNode, Node.Type.EVAL, Node.Type.SEQ)) {
+                clearButtons();
                 //    Variable.Type varType = tree.returnAssignVar(tree.findCurNode(tree)).varNodeType;
                 Eval.Type type = tree.returnEvalVar(currentNode).evalNodeType;
                 if (type == Eval.Type.STRING) {
@@ -2053,6 +2037,8 @@ public class Main extends Activity {
                 btnOpenBracket.setVisibility(View.GONE);
                 showSemicolonButton();
                 endIfCondition(currentNode); //TODO
+            }else{
+               showTypeInput(currentNode);
             }
         } else if (currentNodeType == Node.Type.CONDITION) {
             // clearButtons();
@@ -2124,20 +2110,45 @@ public class Main extends Activity {
             btnOperator.setVisibility(View.GONE);
         }
     }
+
+    public void showTypeInput(Node currentNode){
+        Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
+        if (evalType == Eval.Type.STRING) {
+            btnTypeInput.setVisibility(View.VISIBLE);
+            if (checkIfAnyVarsExist()) {
+                btnVar.setVisibility(View.VISIBLE);
+            }
+        } else if (evalType == Eval.Type.INT) {
+            btnTypeInput.setVisibility(View.VISIBLE);
+            if (checkVarTypeExistence(Variable.Type.INT)) {
+                btnVar.setVisibility(View.VISIBLE);
+            }
+
+        } else if (evalType == Eval.Type.BOOL) {
+            btnBoolTrue.setVisibility(View.VISIBLE);
+            btnBoolFalse.setVisibility(View.VISIBLE);
+            if (checkVarTypeExistence(Variable.Type.BOOL)) {
+                btnVar.setVisibility(View.VISIBLE);
+            }
+        } else if (evalType == Eval.Type.NONE) {
+            btnTypeInput.setVisibility(View.VISIBLE);
+            if (checkVarTypeExistence(Variable.Type.INT)) {
+                btnVar.setVisibility(View.VISIBLE);
+            }
+        }
+        showBracketButtons(currentNode);
+    }
 }
 
 
 
 
 
-//MONDAY 20th July Wed 22nd
-//TODO: get move up and move down buttons working -- DONE
-//TODO : done for if (had to add stop property for newline) -- DONE
-//TODO: done for for -- DONE
-//almost done, need to get it working perfectly for FOR and IF
+//TODO: can't use move up buttons to get to first line
+
 
 //TODO: when you delete an if statement in a for loop, the close bracket for the for loop gets deleted too
-//TODO when you move up using buttons to close if when there is an else close bracket shouldnt appear
+//TODO when you move up using buttons to close if when there is an else close bracket shouldnt appear -- DONE
 //TODO: when you go back into a loop and delclare a var, you can assing it a new value but you can't print it
 //TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it)
 
@@ -2154,20 +2165,14 @@ public class Main extends Activity {
 
 //TODO: add newline button
 
-//TODO: make it so that you can only select a line if you have finished the current line
 
-
-//TODO: idea : make close curly come up as soon as open curly is declared
-
-
-//TODO: can't delcare new var on first line in curly brackets - fix it
 
 //TODO: make it possible to save variable as null
 
 
 
 
-//TODO: fix indentation when you insert a forloop into a if statement
+
 
 
 
@@ -2175,7 +2180,7 @@ public class Main extends Activity {
 
 
 
-//TODO: justendedifstatement is a bit dodgy because what if you press logtree or some future button. Try and find solution that uses tree
+
 
 
 //TODO: editing
@@ -2339,3 +2344,13 @@ public class Main extends Activity {
 //TODO: cant delete for loop from open curly (it crashes) -- DONE
 //TODO: cant insert into first lien of if -- DONE
 //TODO: make variables be selectable when editing in an existing curly (at the moment it doesn't) -- DONE
+
+//MONDAY 20th July Wed 22nd
+//TODO: fix indentation when you insert a forloop into a if statement -- DONE
+//TODO: get move up and move down buttons working -- DONE
+//TODO : done for if (had to add stop property for newline) -- DONE
+//TODO: done for for -- DONE
+//almost done, need to get it working perfectly for FOR and IF
+//TODO: can't delcare new var on first line in curly brackets - fix it -- DONE
+//TODO: make it so that you can only select a line if you have finished the current line -- DONE
+//TODO: justendedifstatement is a bit dodgy because what if you press logtree or some future button. Try and find solution that uses tree -- DONE

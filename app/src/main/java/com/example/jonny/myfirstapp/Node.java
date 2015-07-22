@@ -404,6 +404,7 @@ public class Node extends Activity {
     }
 
 
+
     public Node changeCurrentNode(Node tree, Integer lineNumber){
         tree = clearCurrentNode(tree);
       //  tree.findCurNode(tree).isCurrentNode = false;
