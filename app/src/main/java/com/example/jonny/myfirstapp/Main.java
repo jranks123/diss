@@ -230,7 +230,7 @@ public class Main extends Activity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     Node.Type currentNodeType = tree.findCurNode(tree).nodeType;
-                    if (!(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE || currentNodeType == Node.Type.STARTLOOP)) {
+                    if (!(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE || currentNodeType == Node.Type.STARTLOOP)) {
                         showInvalidAlert("Please finish current line before changing line");
                     } else {
                         btnDelete.setVisibility(View.VISIBLE);
@@ -379,6 +379,7 @@ public class Main extends Activity {
     }
 
     public Boolean checkIfAnyVarsExist(){
+        fillVariablesArray();
         for(int j = 0; j < variablesArray.size(); j++){
             if(variablesArray.get(j).size() > 0){
                 return true;
@@ -404,6 +405,7 @@ public class Main extends Activity {
 
 
     public boolean checkVarTypeExistence(Variable.Type type){
+        fillVariablesArray();
         if(variablesArray != null){
             for(int j = 0; j < variablesArray.size(); j++){
                 ArrayList<Variable> variables = variablesArray.get(j);
@@ -1493,8 +1495,16 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnForNewVarEnter:
+                String varName = edtEnterString.getText().toString().trim();
                 clearButtons();
-                ((Loops) tree.findCurNode(tree)).limiter = edtEnterString.getText().toString().trim();
+                if(checkVarExists(varName)){
+                    showInvalidAlert("Error: A variable has already been declared with this name");
+                }else if(varName.length() == 0) {
+                    showInvalidAlert("Error: please enter a name for the variable");
+
+                } else {
+                    ((Loops) tree.findCurNode(tree)).limiter = edtEnterString.getText().toString().trim();
+                }
                 //      edtEnterString.setVisibility(View.VISIBLE);
                 //     btnForNewVarValueEnter.setVisibility(View.VISIBLE);
                 break;
@@ -1682,14 +1692,24 @@ public class Main extends Activity {
 
 
             case R.id.btnEnterVarName:
-                if (((Dec) tree.findCurNode(tree)).varNodeType == Dec.Type.STRING) {
-                    tree = tree.addNode(tree, Node.Type.VAR, "left", "String");
-                } else if (((Dec) tree.findCurNode(tree)).varNodeType == Dec.Type.INT) {
-                    tree = tree.addNode(tree, Node.Type.VAR, "left", "Int");
-                } else if (((Dec) tree.findCurNode(tree)).varNodeType == Dec.Type.BOOL) {
-                    tree = tree.addNode(tree, Node.Type.VAR, "left", "Bool");
+                String vName = edtEnterString.getText().toString().trim();
+                if(checkVarExists(vName)){
+                    showInvalidAlert("Error: A variable has already been declared with this name");
+                }else if(vName.length() == 0) {
+                    showInvalidAlert("Error: please enter a name for the variable");
+
+                } else {
+                    if (((Dec) tree.findCurNode(tree)).varNodeType == Dec.Type.STRING) {
+                        tree = tree.addNode(tree, Node.Type.VAR, "left", "String");
+                    } else if (((Dec) tree.findCurNode(tree)).varNodeType == Dec.Type.INT) {
+                        tree = tree.addNode(tree, Node.Type.VAR, "left", "Int");
+                    } else if (((Dec) tree.findCurNode(tree)).varNodeType == Dec.Type.BOOL) {
+                        tree = tree.addNode(tree, Node.Type.VAR, "left", "Bool");
+                    }
+                    tree.setVarName(tree, vName);
                 }
-                tree.setVarName(tree, edtEnterString.getText().toString().trim());
+         //       getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
                 //     clearButtons();
                 break;
 
@@ -1743,6 +1763,7 @@ public class Main extends Activity {
                 } else {
                     tree = tree.addNode(tree, Node.Type.VARVAL, "left", edtEnterString.getText().toString());
                 }
+             //   getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 //    clearButtons();
                 break;
 
@@ -2143,55 +2164,23 @@ public class Main extends Activity {
 
 
 
-
-//TODO: can't use move up buttons to get to first line
-
-
-//TODO: when you delete an if statement in a for loop, the close bracket for the for loop gets deleted too
-//TODO when you move up using buttons to close if when there is an else close bracket shouldnt appear -- DONE
-//TODO: when you go back into a loop and delclare a var, you can assing it a new value but you can't print it
-//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it)
-
-
-
-//TODO: at the moemnt when you delete it just deletes from the Newline, need to delete the seq aswell
-
-
-//TODo: make it so you can't delete the newline node at the end
-
-
-//TODO: be able to add else condition afterwards
-
+//Thursday 23rd July
+//TODO: check assigns in loops -- Need to implement scope -- DONE
+//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it) -- DONE
+//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it) -- DONE
+//TODO: be able to add else condition afterwards -- DONE
+//TODO: when you delete an if statement in a for loop, the close bracket for the for loop gets deleted too -- DONE
+//TODO: at the moemnt when you delete it just deletes from the Newline, need to delete the seq aswell -- DONE
+//TODO: when you go back into a loop and delclare a var, you can assing it a new value but you can't print it -- DONE
+//TODO: make it so you cannot declare a variable of the same name within the same scope -- DONE
 
 //TODO: add newline button
 
 
-
+//TODO: can't use move up buttons to get to first line
 //TODO: make it possible to save variable as null
-
-
-
-
-
-
-
-
 //TODO: make it so when you select a line, all the code that will be deleted is highlighted
-
-
-
-
-
-
 //TODO: editing
-
-//TODO: make it so you cannot declare a variable of the same name within the same scope
-
-
-
-
-
-
 
 //TODO: idea: give conditional operators a type eg Int string or bool
 
@@ -2200,7 +2189,7 @@ public class Main extends Activity {
 
 //TODO: Functions
 
-//TODO: check assigns in loops -- Need to implement scope
+
 
 //TODO: implement modulo operator
 //TODO: implement arrays
@@ -2208,7 +2197,7 @@ public class Main extends Activity {
 //TODO: optimize multiple calls to findCurNode
 //TODO: Implement Back functionality
 //TODO: Make it editable
-//TODO: deal with overflows with ints
+//TODO: deal with overflows with ints, deal with dividing by 0 and using null variables
 //TODO: Check that loops work properly
 //TODO: when writing up, talk about hwo you have only done ++ with for loops, not += 2 for example. Say it's further development
 
@@ -2354,3 +2343,4 @@ public class Main extends Activity {
 //TODO: can't delcare new var on first line in curly brackets - fix it -- DONE
 //TODO: make it so that you can only select a line if you have finished the current line -- DONE
 //TODO: justendedifstatement is a bit dodgy because what if you press logtree or some future button. Try and find solution that uses tree -- DONE
+//TODO when you move up using buttons to close if when there is an else close bracket shouldnt appear -- DONE

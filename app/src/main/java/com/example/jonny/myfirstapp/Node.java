@@ -257,14 +257,20 @@ public class Node extends Activity {
         }
         tree = tree.parent;
         tree = tree.parent;
-        if(tree.right != null) {
-            if (tree.right.nodeType == Type.NEWLINE) {
-                tree.right = null;
-            }
-        }
         if(tree.left != null) {
             if (tree.left.nodeType == Type.NEWLINE) {
                 tree.left = null;
+                tree.parent.right = tree.right;
+                tree.right.parent = tree.parent;
+                return tree;
+            }
+        }
+       if(tree.right != null) {
+            if (tree.right.nodeType == Type.NEWLINE) {
+                tree.right = null;
+                tree.left.parent = tree.parent;
+                tree.parent.left = tree.left;
+                return tree;
             }
         }
 
@@ -320,6 +326,10 @@ public class Node extends Activity {
                         }else {
                             if (function.equals("delete")) {
                                 tree.left = null;
+                                if(tree.right != null) {
+                                    tree.parent.right = tree.right;
+                                    tree.right.parent = tree.parent;
+                                }
                             } else if (function.equals("setCurrent")) {
                                 tree.isCurrentNode = true;
                             }
@@ -375,6 +385,10 @@ public class Node extends Activity {
                         } else {
                             if (function.equals("delete")) {
                                 tree.right = null;
+                                if(tree.left != null) {
+                                    tree.left.parent = tree.parent;
+                                    tree.parent.left = tree.left;
+                                }
                             } else if (function.equals("setCurrent")) {
                                 tree.isCurrentNode = true;
                             }
