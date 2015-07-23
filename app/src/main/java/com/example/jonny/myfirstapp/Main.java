@@ -230,7 +230,7 @@ public class Main extends Activity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     Node.Type currentNodeType = tree.findCurNode(tree).nodeType;
-                    if (!(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE)) {
+                    if (!(currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE || currentNodeType == Node.Type.STARTLOOP)) {
                         showInvalidAlert("Please finish current line before changing line");
                     } else {
                         btnDelete.setVisibility(View.VISIBLE);
