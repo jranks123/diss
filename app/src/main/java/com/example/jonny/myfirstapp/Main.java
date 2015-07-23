@@ -86,6 +86,8 @@ public class Main extends Activity {
 
     Button btnCloseCurly;
 
+    Button btnNewLine;
+
 
     Button btnEnterText;
     Button btnEquals;
@@ -146,7 +148,7 @@ public class Main extends Activity {
         variablesArray.add(new ArrayList<Variable>());
      //   variables = new ArrayList<Variable>();
 
-
+        btnNewLine = (Button) findViewById(R.id.btnNewLine);
 
         openBrackets = new ArrayList<Boolean>();
         openCurlysIndent = new ArrayList<Boolean>();
@@ -218,6 +220,7 @@ public class Main extends Activity {
         homeMenu.add(btnLoops);
         homeMenu.add(btnVar);
         homeMenu.add(btnIf);
+        homeMenu.add(btnNewLine);
         printMenu = new ArrayList<Button>();
         printMenu.add(btnPrintBack);
         printMenu.add(btnSemicolon);
@@ -281,41 +284,48 @@ public class Main extends Activity {
         btnElse.setVisibility(View.GONE);
         Integer lineNumber = tree.getLineNumberOfCurrentNode(tree) + lineDirection; //the minus 1 is because we have added a newline after root
         if(lineNumber < 1){
-            lineNumber = 1;
+            lineNumber = 0;
         }
-        lineJustPressed = lineNumber;
-        Integer offset = 0;
-        Integer numberOfLinesSoFar = 0;
-        Boolean endOfLine = false;
-        while(offset < code.getText().length() && endOfLine == false){
-            String codeChar = code.getText().toString().substring(offset, offset+1);
-            if(codeChar.equals("\n")){
-                numberOfLinesSoFar += 1;
-            }
-            if(numberOfLinesSoFar == lineNumber){
-                Boolean end = false;
-                while (offset < code.getText().length()-1 && end == false){
-                    offset += 1;
-                    codeChar = code.getText().toString().substring(offset, offset+1);
-                    if(codeChar.equals("\n")){
-                        end = true;
-                    }
+        if(lineNumber == 0){
+            tree = tree.clearCurrentNode(tree);
+            tree.isCurrentNode = true;
+            code.setSelection(0);
+            lineJustPressed = lineNumber;
+        }else {
+            lineJustPressed = lineNumber;
+            Integer offset = 0;
+            Integer numberOfLinesSoFar = 0;
+            Boolean endOfLine = false;
+            while (offset < code.getText().length() && endOfLine == false) {
+                String codeChar = code.getText().toString().substring(offset, offset + 1);
+                if (codeChar.equals("\n")) {
+                    numberOfLinesSoFar += 1;
                 }
-                endOfLine = true;
+                if (numberOfLinesSoFar == lineNumber) {
+                    Boolean end = false;
+                    while (offset < code.getText().length() - 1 && end == false) {
+                        offset += 1;
+                        codeChar = code.getText().toString().substring(offset, offset + 1);
+                        if (codeChar.equals("\n")) {
+                            end = true;
+                        }
+                    }
+                    endOfLine = true;
+                }
+                // Log.d("Next char is", codeChar);
+                offset += 1;
             }
-           // Log.d("Next char is", codeChar);
-            offset += 1;
-        }
-        if(endOfLine){
-            Log.d("Found end of", " line");
-        }else{
-            Log.d("Didn't find end of ", "line");
-        }
-        offset -= 1;
-        code.setSelection(offset, offset);
-        if(lineDirection != 0){
+            if (endOfLine) {
+                Log.d("Found end of", " line");
+            } else {
+                Log.d("Didn't find end of ", "line");
+            }
+            offset -= 1;
+            code.setSelection(offset, offset);
+            if (lineDirection != 0) {
                 tree = tree.changeCurrentNode(tree, lineNumber);
                 showElse();
+            }
         }
         Log.d("Line number = ", lineNumber.toString());
     }
@@ -1433,6 +1443,12 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
                 break;
 
+            case R.id.btnNewLine:
+               // tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+              //  tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "NEWLINE");
+              //  tree = tree.moveUpTreeLimit(tree, "SEQ");
+                break;
+
             case R.id.btnDelete:
                 Log.d("DEBUG", "PRESS PRINT");
                 tree = tree.delete(tree, lineJustPressed);
@@ -1928,7 +1944,7 @@ public class Main extends Activity {
         Node.Type currentNodeType = currentNode.nodeType;
 
         //  if((v.getId() == R.id.semicolon) || (v.getId() == R.id.btnForPlus)  || (v.getId() == R.id.btnForMinus || (v.getId() == R.id.run) || (v.getId() == R.id.clear))){
-        if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP)) {
+        if (currentNodeType == Node.Type.SEQ ||currentNodeType == Node.Type.NEWLINE || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP)) {
             showButtons(homeMenu);
         }
         if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE) {
@@ -2173,11 +2189,13 @@ public class Main extends Activity {
 //TODO: at the moemnt when you delete it just deletes from the Newline, need to delete the seq aswell -- DONE
 //TODO: when you go back into a loop and delclare a var, you can assing it a new value but you can't print it -- DONE
 //TODO: make it so you cannot declare a variable of the same name within the same scope -- DONE
+//TODO: can't use move up buttons to get to first line -- DONE
+
+
 
 //TODO: add newline button
 
-
-//TODO: can't use move up buttons to get to first line
+//TODO: Request focus when edt box comes up
 //TODO: make it possible to save variable as null
 //TODO: make it so when you select a line, all the code that will be deleted is highlighted
 //TODO: editing
