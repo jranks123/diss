@@ -5,7 +5,6 @@ package com.example.jonny.myfirstapp;
  */
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Layout;
@@ -14,7 +13,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.app.Activity;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.util.Log;
 
@@ -64,6 +62,7 @@ public class Main extends Activity {
     Button btnOperatorAdd;
     Button btnOperatorConcat;
     Button btnOperatorSub;
+    Button btnOperatorMod;
     Button btnOperatorMulti;
     Button btnOperatorDiv;
     Button btnOpenBracket;
@@ -88,6 +87,19 @@ public class Main extends Activity {
 
     Button btnNewLine;
 
+    Button btnFunctions;
+    Button btnExistingFunc;
+    Button btnNewFunc;
+    Button btnFuncInt;
+    Button btnFuncBool;
+    Button btnFuncString;
+    Button btnFuncVoid;
+    Button btnEnterFuncName;
+    Button btnEndFuncDec;
+    Button btnFuncAddParam;
+
+
+
 
     Button btnEnterText;
     Button btnEquals;
@@ -108,6 +120,7 @@ public class Main extends Activity {
     ArrayList<Button> varButtons;
   //  ArrayList<Variable> variables;
     ArrayList<ArrayList<Variable>> variablesArray;
+    ArrayList<String> functionsArray;
     ArrayList<Boolean> openBrackets;
     ArrayList<Boolean> openCurlysIndent;
     Integer numberOfNewLines;
@@ -135,6 +148,18 @@ public class Main extends Activity {
         btnSetEvalTypeString = (Button) findViewById(R.id.btnSetEvalTypeString);
         btnSetEvalTypeBool = (Button) findViewById(R.id.btnSetEvalTypeBool);
 
+        btnFunctions = (Button) findViewById(R.id.btnFunctions);
+        btnExistingFunc= (Button) findViewById(R.id.btnExistingFunc);
+        btnNewFunc = (Button) findViewById(R.id.btnNewFunc);
+        btnFuncInt = (Button) findViewById(R.id.btnFuncInt);
+        btnFuncString = (Button) findViewById(R.id.btnFuncString);
+        btnFuncBool = (Button) findViewById(R.id.btnFuncBool);
+        btnFuncVoid = (Button) findViewById(R.id.btnFuncVoid);
+        btnEnterFuncName = (Button) findViewById(R.id.btnEnterFuncName);
+        btnEndFuncDec = (Button) findViewById(R.id.btnEndFuncDec);
+        btnFuncAddParam = (Button) findViewById(R.id.btnFuncAddParam);
+
+
 
         btnLoops = (Button)findViewById(R.id.loops);
         btnVar = (Button)findViewById(R.id.var);
@@ -146,6 +171,9 @@ public class Main extends Activity {
         btnPrintText =  (Button) findViewById(R.id.btnPrintText);
         variablesArray = new ArrayList<ArrayList<Variable>>();
         variablesArray.add(new ArrayList<Variable>());
+
+        functionsArray = new ArrayList<String>();
+
      //   variables = new ArrayList<Variable>();
 
         btnNewLine = (Button) findViewById(R.id.btnNewLine);
@@ -181,6 +209,7 @@ public class Main extends Activity {
         btnOperator = (Button) findViewById(R.id.btnOperator);
         btnOperatorAdd = (Button) findViewById(R.id.btnOperatorAdd);
         btnOperatorSub = (Button) findViewById(R.id.btnOperatorSub);
+        btnOperatorMod = (Button) findViewById(R.id.btnOperatorMod);
         btnOperatorMulti = (Button) findViewById(R.id.btnOperatorMulti);
         btnOperatorDiv = (Button) findViewById(R.id.btnOperatorDiv);
         btnOperatorConcat = (Button) findViewById(R.id.btnOperatorConcat);
@@ -221,6 +250,7 @@ public class Main extends Activity {
         homeMenu.add(btnVar);
         homeMenu.add(btnIf);
         homeMenu.add(btnNewLine);
+        homeMenu.add(btnFunctions);
         printMenu = new ArrayList<Button>();
         printMenu.add(btnPrintBack);
         printMenu.add(btnSemicolon);
@@ -325,14 +355,40 @@ public class Main extends Activity {
             if (lineDirection != 0) {
                 tree = tree.changeCurrentNode(tree, lineNumber);
                 showElse();
+            }else {
+                showElse();
             }
         }
         Log.d("Line number = ", lineNumber.toString());
     }
+    public Boolean isOutsideAllBrackets(){
+        Node node = tree.findCurNode(tree);
+        while(node.nodeType != Node.Type.SEQ){
+            node = node.parent;
+        }
+        while(node.nodeType != Node.Type.ROOT){
+            if(node.nodeType != Node.Type.SEQ){
+                return false;
+            }
+            node = node.parent;
+        }
+        return true;
+    }
+
+
+
 
     public void showElse(){
         Node node = tree.findCurNode(tree);
         btnElse.setVisibility(View.GONE);
+        /*btnFunctions.setVisibility(View.VISIBLE);
+        while(node.nodeType != Node.Type.ROOT){
+            if(node.nodeType != Node.Type.SEQ){
+                btnFunctions.setVisibility(View.GONE);
+            }
+            node = node.parent;
+        }
+        node = tree.findCurNode(tree);*/
         if(node.nodeType == Node.Type.SEQ){
             if(node.left != null) {
                 if (node.left.left != null) {
@@ -398,6 +454,13 @@ public class Main extends Activity {
         return false;
     }
 
+    public Boolean checkIfAnyFunctionsExist(){
+        fillFunctionsArray();
+        if(functionsArray.size() > 0){
+            return true;
+        }
+        return false;
+    }
 
 
     public boolean checkVarExists(String var){
@@ -572,6 +635,51 @@ public class Main extends Activity {
                     break;
             }
         }
+        else if(nodeType == Node.Type.RETURN){
+            code.append(Html.fromHtml(getString(R.string.Return)));
+        }
+        else if(nodeType == Node.Type.FUNCTION){
+            if(((Function)tree).isDec) {
+                variablesArray.add(new ArrayList<Variable>());
+                if (((Function) tree).funcType != null) {
+                    code.append(Html.fromHtml(getString(R.string.function)));
+                    switch (((Function) tree).funcType) {
+                        case INT:
+                            code.append(Html.fromHtml(getString(R.string.integer)));
+                            break;
+
+                        case BOOL:
+                            code.append(Html.fromHtml(getString(R.string.bool)));
+                            break;
+
+                        case STRING:
+                            code.append(Html.fromHtml(getString(R.string.string)));
+                            break;
+
+                        case VOID:
+                            code.append(Html.fromHtml(getString(R.string.Void)));
+                            break;
+
+                    }
+
+                }
+                if (((Function) tree).name != null) {
+                    code.append(((Function) tree).name + " (");
+                }
+                if (((Function) tree).decFinished) {
+                    code.append(" ) {");
+                    openCurlysIndent.add(true);
+
+                }
+
+               /* if(!checkVarExists(((Loops) tree).limiter.toString())){
+                    String name = ((Loops) tree).limiter.toString();
+                    Variable v = new Variable(null, Variable.Type.INT, name, null );
+                    variablesArray.get(openCurlysIndent.size()).add(v);
+                    //    variables.add(v);
+                }*/
+            }
+        }
         else if(nodeType == Node.Type.FORLOOP){
             switch(((Loops)tree).varNodeType){
                 case FOR:
@@ -683,6 +791,8 @@ public class Main extends Activity {
                 code.append(" == ");
             }else if(op.equals("NOTEQUALS")){
                 code.append(" != ");
+            }else if(op.equals("MOD")){
+                code.append(" % ");
             }
         }
         else if(nodeType == Node.Type.IF){
@@ -732,6 +842,9 @@ public class Main extends Activity {
             if (node.nodeType == Node.Type.OP) {
                 if (((Operator) node).opNodeType == Operator.Type.DIV) {
                     value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) / Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
+                    removeOpFromArrayList(array, i, value);
+                }else if (((Operator) node).opNodeType == Operator.Type.MOD) {
+                    value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) % Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 } else if (((Operator) node).opNodeType == Operator.Type.MULTI) {
                     value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) * Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
@@ -1249,6 +1362,9 @@ public class Main extends Activity {
         return curNode;
     }
 
+
+
+
     public void visitNodeVar(Node tree){
         Node.Type nodeType = tree.nodeType;
         if (nodeType == Node.Type.SMCLN){
@@ -1298,6 +1414,9 @@ public class Main extends Activity {
 
     }
 
+
+
+
     public Boolean runFillVar(Node node, Boolean curNodeFound){
         if(node.isCurrentNode == true){
             curNodeFound = true;
@@ -1325,6 +1444,33 @@ public class Main extends Activity {
         runFillVar(tree, false);
     }
 
+    public void visitNodeFunc(Node tree){
+        Node.Type nodeType = tree.nodeType;
+        if(nodeType == Node.Type.FUNCTION ){
+            if(((Function)tree).name != null) {
+                String name = ((Function) tree).name;
+                functionsArray.add(name);
+            }
+        }
+    }
+
+    public Boolean runFillFunc(Node node, Boolean curNodeFound){
+        visitNodeFunc(node);
+        if (node.left != null) {
+            curNodeFound = runFillFunc(node.left, curNodeFound);
+        }
+        if (node.right != null && !curNodeFound) {
+            curNodeFound = runFillFunc(node.right, curNodeFound);
+        }
+        return curNodeFound;
+    }
+
+    public void fillFunctionsArray(){
+        functionsArray.clear();
+        functionsArray = new ArrayList<String>();
+        runFillFunc(tree, false);
+    }
+
 
     public void showVarButtons(Variable.Type varType){
         varButtons.clear();
@@ -1336,6 +1482,7 @@ public class Main extends Activity {
         }
         LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
         fillVariablesArray();
+        fillFunctionsArray();
         for(int j = 0; j < variablesArray.size(); j ++) {
             ArrayList<Variable> variables = variablesArray.get(j);
             for (int i = 0; i < variables.size(); i++) {
@@ -1443,6 +1590,83 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
                 break;
 
+            case R.id.btnFunctions:
+                tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "FUNCTION");
+              //  tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
+                tree = tree.addNode(tree, Node.Type.FUNCTION, "left", null);
+                break;
+
+            case R.id.btnFuncInt:
+                tree = tree.updateFuncType(tree, Function.Type.INT);
+                tree = tree.updateFuncIsDec(tree, true);
+
+                break;
+
+            case R.id.btnFuncBool:
+                tree = tree.updateFuncType(tree, Function.Type.BOOL);
+                tree = tree.updateFuncIsDec(tree, true);
+                break;
+
+            case R.id.btnFuncString:
+                tree = tree.updateFuncType(tree, Function.Type.STRING);
+                tree = tree.updateFuncIsDec(tree, true);
+                break;
+
+            case R.id.btnFuncVoid:
+                tree = tree.updateFuncType(tree, Function.Type.VOID);
+                tree = tree.updateFuncIsDec(tree, true);
+                break;
+
+            case R.id.btnEnterFuncName:
+                String name = edtEnterString.getText().toString().trim();
+                Boolean funcNameExists = false;
+                for(int i = 0; i < functionsArray.size(); i++){
+                    if(functionsArray.get(i).equals(name)){
+                        funcNameExists = true;
+                    }
+                }
+               if(funcNameExists){
+                    showInvalidAlert("Error: A function has already been declared with this name, please choose another name");
+                }else if(name.length() == 0) {
+                    showInvalidAlert("Error: please enter a name for the function");
+                } else {
+                   tree = tree.updateFuncName(tree, name);
+               }
+                break;
+
+            case R.id.btnEndFuncDec:
+                Node currentNode = (tree.findCurNode(tree));
+                tree = tree.addNode(tree, Node.Type.STARTFUNC, "right", null);
+                tree = tree.addNode(tree, Node.Type.NONE, "left", null);
+                if(((Function)currentNode).funcType != Function.Type.VOID){
+                    tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+                    tree = tree.addNode(tree, Node.Type.RETURN, "right", null);
+                    if(((Function)currentNode).funcType == Function.Type.BOOL){
+                        tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
+                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "String");
+                        tree = tree.updateVarVal(tree, "true");
+                        tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
+                        tree = tree.moveUpTreeLimit(tree, "RETURN");
+                    }
+                    if(((Function)currentNode).funcType == Function.Type.STRING){
+
+                    }
+                    if(((Function)currentNode).funcType == Function.Type.INT){
+
+                    }
+                }
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "FUNCEND");
+                tree = tree.addNode(tree, Node.Type.END, "right", null);
+                tree = tree.moveUpTreeLimit(tree, "FUNCTION");
+
+                Node functionNode =  tree.findCurNode(tree).parent.parent;
+                functionNode = tree.setFuncParamFinished(functionNode, true);
+                functionNode = tree.setFuncEndDec(functionNode, true);
+
+
+                break;
+
             case R.id.btnNewLine:
                // tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
               //  tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "NEWLINE");
@@ -1455,6 +1679,7 @@ public class Main extends Activity {
                 btnDelete.setVisibility(View.VISIBLE);
                 btnUpLine.setVisibility(View.VISIBLE);
                 btnDownLine.setVisibility(View.VISIBLE);
+                showElse();
                 break;
 
             case R.id.btnSetEvalTypeInt:
@@ -1667,6 +1892,8 @@ public class Main extends Activity {
                 // showButtons(homeMenu);
                 break;
 
+
+
             case R.id.var:
                 //    clearButtons();
                 Node curNode = tree.findCurNode(tree);
@@ -1797,6 +2024,10 @@ public class Main extends Activity {
 
             case R.id.btnOperatorSub:
                 tree = tree.updateOp(tree, Operator.Type.SUB);
+                break;
+
+            case R.id.btnOperatorMod:
+                tree = tree.updateOp(tree, Operator.Type.MOD);
                 break;
 
             case R.id.btnOperatorMulti:
@@ -1961,6 +2192,7 @@ public class Main extends Activity {
             if (evalType == Eval.Type.INT) {
                 btnOperatorAdd.setVisibility(View.VISIBLE);
                 btnOperatorSub.setVisibility(View.VISIBLE);
+                btnOperatorMod.setVisibility(View.VISIBLE);
                 btnOperatorMulti.setVisibility(View.VISIBLE);
                 btnOperatorDiv.setVisibility(View.VISIBLE);
             } else if (evalType == Eval.Type.STRING) {
@@ -2077,7 +2309,39 @@ public class Main extends Activity {
             }else{
                showTypeInput(currentNode);
             }
-        } else if (currentNodeType == Node.Type.CONDITION) {
+        } else if (currentNodeType == Node.Type.FUNCTION) {
+            if(!isOutsideAllBrackets()){
+                if(!checkIfAnyFunctionsExist()){
+                    showInvalidAlert("No functions to call, functions must be delcared outside any open curly brackets");
+                    tree = tree.moveUpTreeLimit(tree, "SEQ");
+                    Node node = tree.findCurNode(tree);
+                    node.left = null;
+                    node.parent.isCurrentNode = true;
+                    node.parent.right = node.right;
+                    code.setText("");
+                    printTree(tree);
+                    doButtonLogic();
+                }else{
+                    btnExistingFunc.setVisibility(View.VISIBLE);
+                }
+            }
+            else if(((Function)currentNode).funcType == null){
+                if(checkIfAnyFunctionsExist()){
+                    btnExistingFunc.setVisibility(View.VISIBLE);
+                }
+                btnFuncInt.setVisibility(View.VISIBLE);
+                btnFuncBool.setVisibility(View.VISIBLE);
+                btnFuncString.setVisibility(View.VISIBLE);
+                btnFuncVoid.setVisibility(View.VISIBLE);
+
+            }else if(((Function)currentNode).name == null){
+                edtEnterString.setVisibility(View.VISIBLE);
+                btnEnterFuncName.setVisibility(View.VISIBLE);
+            }else if(((Function)currentNode).paramsFinished == false){
+                btnEndFuncDec.setVisibility(View.VISIBLE);
+                btnFuncAddParam.setVisibility(View.VISIBLE);
+            }
+        }else if (currentNodeType == Node.Type.CONDITION) {
             // clearButtons();
             // btnEndIf.setVisibility(View.VISIBLE);
             // showButtons(homeMenu);
@@ -2095,6 +2359,7 @@ public class Main extends Activity {
             showButtons(homeMenu);
         } else if (currentNodeType == Node.Type.NEWLINE) {
             if (((Newline) currentNode).newlineNodeType == Newline.Type.FOR) {
+                clearButtons();
                 btnFor.setVisibility(View.VISIBLE);
             }
         }
@@ -2178,19 +2443,20 @@ public class Main extends Activity {
 }
 
 
+//Thursday 6th August
 
 
-//Thursday 23rd July
-//TODO: check assigns in loops -- Need to implement scope -- DONE
-//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it) -- DONE
-//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it) -- DONE
-//TODO: be able to add else condition afterwards -- DONE
-//TODO: when you delete an if statement in a for loop, the close bracket for the for loop gets deleted too -- DONE
-//TODO: at the moemnt when you delete it just deletes from the Newline, need to delete the seq aswell -- DONE
-//TODO: when you go back into a loop and delclare a var, you can assing it a new value but you can't print it -- DONE
-//TODO: make it so you cannot declare a variable of the same name within the same scope -- DONE
-//TODO: can't use move up buttons to get to first line -- DONE
+//TODO:
+//TODO: do new function button workflow
 
+
+//TODO: Functions
+
+//TODO: implement arrays
+
+
+
+//TODO: its a bit fucky when you go to top line, you can add in new stuff but if fucks up if you delete anything (ie you cant move down past 2nd line)
 
 
 //TODO: add newline button
@@ -2205,12 +2471,9 @@ public class Main extends Activity {
 //TODO: add option to add condition when you have choice to end condition
 
 
-//TODO: Functions
 
 
 
-//TODO: implement modulo operator
-//TODO: implement arrays
 //ToDO: make loops work properly (with ++ -- etc)
 //TODO: optimize multiple calls to findCurNode
 //TODO: Implement Back functionality
@@ -2225,7 +2488,8 @@ public class Main extends Activity {
 
 
 
-
+//TODO: when writing up, talk about how you initially thought it would be better to not have duplicate buttons (Ie var) but this actually
+//made things more confusing and if you were starting again you would have unique buttons more
 //TODO: When writing up, justify why you have used binary tree and long branches
 
 
@@ -2362,3 +2626,25 @@ public class Main extends Activity {
 //TODO: make it so that you can only select a line if you have finished the current line -- DONE
 //TODO: justendedifstatement is a bit dodgy because what if you press logtree or some future button. Try and find solution that uses tree -- DONE
 //TODO when you move up using buttons to close if when there is an else close bracket shouldnt appear -- DONE
+
+
+//Thursday 23rd July
+//TODO: check assigns in loops -- Need to implement scope -- DONE
+//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it) -- DONE
+//TODO: checknewlinenotdeleted doesnt always work (do 1 if statement then delete it) -- DONE
+//TODO: be able to add else condition afterwards -- DONE
+//TODO: when you delete an if statement in a for loop, the close bracket for the for loop gets deleted too -- DONE
+//TODO: at the moemnt when you delete it just deletes from the Newline, need to delete the seq aswell -- DONE
+//TODO: when you go back into a loop and delclare a var, you can assing it a new value but you can't print it -- DONE
+//TODO: make it so you cannot declare a variable of the same name within the same scope -- DONE
+//TODO: can't use move up buttons to get to first line -- DONE
+
+//Thursday 30th July
+
+//TODO: deleting else from bottom close bracket crashes -- DONE
+
+//TODO: else doesnt show when you delete an else -- DONE for deleting frop top brakcet, cant get bottom one to work
+
+//Wed 5th August
+//TODO: implement modulo operator -- DONE
+//TODO: make funcitons button appear at right time -- DONE

@@ -26,15 +26,18 @@ public class Node extends Activity {
         ASSIGN,
         FORLOOP,
         SMCLN,
+        FUNCTION,
         OP,
         BRACKET,
         NEWLINE,
         STARTLOOP,
+        STARTFUNC,
         END,
         IF,
         ELSE,
         STARTIF,
         ENDIF,
+        RETURN,
         ENDIFCONDITION,
         ENDPROGRAM,
         CONDITION;
@@ -129,6 +132,8 @@ public class Node extends Activity {
             }
             else if(type == Type.EVAL){
                 newNode = new Eval(node, Eval.Type.NONE);
+            }else if(type == Type.FUNCTION){
+                newNode = new Function(node);
             }
             else if (type == Type.FORLOOP) {
                 if (value == "For") {
@@ -151,6 +156,12 @@ public class Node extends Activity {
                     newNode = new Newline(node, Newline.Type.ELSE); //For indentation
                 }else if (value == "ELSEEND") {
                     newNode = new Newline(node, Newline.Type.ELSEEND); //For indentation
+                }else if (value == "FUNCEND") {
+                    newNode = new Newline(node, Newline.Type.FUNCEND); //For indentation
+                }else if (value == "FUNCTION") {
+                    newNode = new Newline(node, Newline.Type.FUNCTION); //For indentation
+                }else if (value == "NEWLINE") {
+                    newNode = new Newline(node, Newline.Type.NEWLINE); //For indentation
                 }else{
                     newNode = new Newline(node, Newline.Type.NONE);
                 }
@@ -204,6 +215,34 @@ public class Node extends Activity {
     public Node updateDec(Node tree, Dec.Type type){
         Node node = findCurNode(tree);
         ((Dec)node).varNodeType = type;
+        return tree;
+    }
+
+    public Node updateFuncType(Node tree, Function.Type type){
+        Node node = findCurNode(tree);
+        ((Function)node).funcType = type;
+        return tree;
+    }
+
+    public Node updateFuncName(Node tree, String name){
+        Node node = findCurNode(tree);
+        ((Function)node).name = name;
+        return tree;
+    }
+
+    public Node updateFuncIsDec(Node tree, Boolean isDec){
+        Node node = findCurNode(tree);
+        ((Function)node).isDec = isDec;
+        return tree;
+    }
+
+    public Node setFuncEndDec(Node tree, Boolean decFinished){
+        ((Function)tree).decFinished = decFinished;
+        return tree;
+    }
+
+    public Node setFuncParamFinished(Node tree, Boolean paramsFinished){
+        ((Function)tree).paramsFinished = paramsFinished;
         return tree;
     }
 
@@ -267,9 +306,11 @@ public class Node extends Activity {
         }
        if(tree.right != null) {
             if (tree.right.nodeType == Type.NEWLINE) {
+                if(((Newline)tree.right).newlineNodeType != Newline.Type.ELSE) { //Fix problem when you couldn't delete else from close bracket
+                    tree.left.parent = tree.parent;
+                    tree.parent.left = tree.left;
+                }
                 tree.right = null;
-                tree.left.parent = tree.parent;
-                tree.parent.left = tree.left;
                 return tree;
             }
         }
@@ -293,7 +334,7 @@ public class Node extends Activity {
                     numberOfNewLines += 1;
                     if (numberOfNewLines ==
                             lineNumber) {
-                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND) {
+                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND  || newLineType == Newline.Type.FUNCEND) {
                             if (function.equals("delete")) {
                                 tree = tree.deleteEnd(tree.left);
                             } else if (function.equals("setCurrent")) {
@@ -315,6 +356,12 @@ public class Node extends Activity {
                                   //  ((If)node).cameFromElse = false;
                                     ((Newline)newLineNode).stop = false;
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                                }else if (newLineType == Newline.Type.FUNCEND) {
+                                    tree = tree.moveUpTreeLimitNode(tree, "FUNCTION");
+                                    //  Node node = tree.findCurNode(tree);
+                                    //  ((If)node).cameFromElse = false;
+                                   // ((Newline)newLineNode).stop = false;
+                                    tree = tree.moveUpTreeLimitNode(tree, "SEQ");
                                 }
                             }
                         } else if (newLineType == Newline.Type.FOR && function.equals("setCurrent")) {
@@ -323,6 +370,8 @@ public class Node extends Activity {
                             tree.left.right.isCurrentNode = true;
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
                             tree.left.left.left.right.left.isCurrentNode = true;
+                        }else if (newLineType == Newline.Type.FUNCTION && function.equals("setCurrent")) {
+                            tree.left.left.right.left.isCurrentNode = true;
                         }else {
                             if (function.equals("delete")) {
                                 tree.left = null;
@@ -349,7 +398,7 @@ public class Node extends Activity {
                     numberOfNewLines += 1;
                     if (numberOfNewLines ==
                             lineNumber) {
-                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND) {
+                        if (newLineType == Newline.Type.ELSEEND || newLineType == Newline.Type.IFEND || newLineType == Newline.Type.FOREND  || newLineType == Newline.Type.FUNCEND) {
                             if (function.equals("delete")) {
                                 tree = tree.deleteEnd(tree.right);
                             } else if (function.equals("setCurrent")) {
@@ -374,6 +423,12 @@ public class Node extends Activity {
                                  //   Node node = tree.findCurNode(tree);
                                  //   ((If)node).cameFromElse = false;
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
+                                }else if (newLineType == Newline.Type.FUNCEND) {
+                                    tree = tree.moveUpTreeLimitNode(tree, "FUNCTION");
+                                    //  Node node = tree.findCurNode(tree);
+                                    //  ((If)node).cameFromElse = false;
+                                    // ((Newline)newLineNode).stop = false;
+                                    tree = tree.moveUpTreeLimitNode(tree, "SEQ");
                                 }
                             }
                         }else if (newLineType == Newline.Type.FOR && function.equals("setCurrent")) {
@@ -382,6 +437,8 @@ public class Node extends Activity {
                             tree.right.right.isCurrentNode = true;
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
                             tree.left.left.left.right.left.isCurrentNode = true;
+                        } else if (newLineType == Newline.Type.FUNCTION && function.equals("setCurrent")) {
+                            tree.left.left.right.left.isCurrentNode = true;
                         } else {
                             if (function.equals("delete")) {
                                 tree.right = null;
@@ -476,8 +533,10 @@ public class Node extends Activity {
                 if(tree.left != null) {
                     numberOfNewLinesBeforeCurNode += 1;
                     Log.d("added new one ", tree.nodeType.toString());
-                    if(tree.left.left.nodeType == Node.Type.IF){
-                        isIf = true;
+                    if(tree.left.left != null) {
+                        if (tree.left.left.nodeType == Node.Type.IF) {
+                            isIf = true;
+                        }
                     }
                     doCurrentNodeLineNumberCount(tree.left, false, isIf);
                 }

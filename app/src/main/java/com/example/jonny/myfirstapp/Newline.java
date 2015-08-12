@@ -15,7 +15,10 @@ public class Newline extends Node  {
         IF,
         IFEND,
         ELSE,
+        FUNCTION,
+        FUNCEND,
         ELSEEND,
+        NEWLINE,
         NONE
     }
 
@@ -26,7 +29,7 @@ public class Newline extends Node  {
         this.newlineNodeType = type;
         isEnd = false;
         stop = false;
-        if(type == Type.FOREND || type == Type.IFEND || type == Type.ELSEEND){
+        if(type == Type.FOREND || type == Type.IFEND || type == Type.ELSEEND || type == Type.FUNCEND){
             isEnd = true;
         }
     }

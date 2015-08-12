@@ -336,6 +336,14 @@
             android:onClick="onBtnClicked"/>
 
         <Button
+            android:id="@+id/btnOperatorMod"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="%"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
             android:id="@+id/btnOperatorMulti"
             android:layout_width="141dp"
             android:layout_height="60dp"
@@ -475,6 +483,89 @@
             android:text="For"
             android:visibility="gone"
             android:onClick="onBtnClicked"/>
+
+        <!-- Functions menu -->
+
+        <Button
+            android:id="@+id/btnFunctions"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Functions"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnExistingFunc"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Existing Function"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnNewFunc"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="New Function"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnFuncInt"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="New Integer Function"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnFuncString"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="New String Function"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnFuncBool"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="New Bool Function"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnFuncVoid"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="New Void Function"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnEnterFuncName"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Enter Function Name"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnEndFuncDec"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Finish Declaration"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnFuncAddParam"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Add Parameter"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+
 
 
         <!--Print menu -->
@@ -624,6 +715,13 @@
             android:layout_height="60dp"
             android:text="}"
             android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnNewLine"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Newline"
             android:onClick="onBtnClicked"/>
 
 

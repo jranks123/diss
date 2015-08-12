@@ -14,7 +14,11 @@
     <string name="string"><![CDATA[<b>String </b>]]></string>
     <string name="integer"><![CDATA[<b>int </b>]]></string>
     <string name="bool"><![CDATA[<b>Boolean </b>]]></string>
+    <string name="Void"><![CDATA[<b>void </b>]]></string>
+    <string name="Return"><![CDATA[<b>return </b>]]></string>
+
     <string name="forLoop"><![CDATA[<b>for</b>( <b>int  </b>]]></string>
+    <string name="function"><![CDATA[<b>public </b>]]></string>
     <string name="ifString"><![CDATA[<b>if</b>&#40; ]]></string>
     <string name="elseString"><![CDATA[<b>else</b>&#123; ]]></string>
     <string name="endIfConditionString"><![CDATA[ &#41; &#123;]]></string>
