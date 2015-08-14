@@ -19,6 +19,7 @@ public class Newline extends Node  {
         FUNCEND,
         ELSEEND,
         NEWLINE,
+        RETURN,
         NONE
     }
 

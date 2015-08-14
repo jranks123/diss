@@ -1,6 +1,7 @@
 package com.example.jonny.myfirstapp;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -68,7 +69,6 @@ public class Node extends Activity {
 
 
 
-
     public Node findCurNode(Node tree){
         Log.e("LOOKING AT NODE",  tree.nodeType.toString());
         if(tree.nodeType == Node.Type.VAR){
@@ -131,7 +131,16 @@ public class Node extends Activity {
                 newNode = new VarVal(node, VarVal.Type.STRING, value);
             }
             else if(type == Type.EVAL){
-                newNode = new Eval(node, Eval.Type.NONE);
+                if(value == "STRING"){
+                    newNode = new Eval(node, Eval.Type.STRING);
+                }else if(value == "BOOL"){
+                    newNode = new Eval(node, Eval.Type.BOOL);
+                }
+                else if(value == "INT"){
+                    newNode = new Eval(node, Eval.Type.INT);
+                }else {
+                    newNode = new Eval(node, Eval.Type.NONE);
+                }
             }else if(type == Type.FUNCTION){
                 newNode = new Function(node);
             }
@@ -162,6 +171,8 @@ public class Node extends Activity {
                     newNode = new Newline(node, Newline.Type.FUNCTION); //For indentation
                 }else if (value == "NEWLINE") {
                     newNode = new Newline(node, Newline.Type.NEWLINE); //For indentation
+                }else if (value == "RETURN") {
+                    newNode = new Newline(node, Newline.Type.RETURN); //For indentation
                 }else{
                     newNode = new Newline(node, Newline.Type.NONE);
                 }
@@ -171,6 +182,13 @@ public class Node extends Activity {
                     newNode =  new Bracket(node, Bracket.Type.OPEN);
                 }else if(value == "Close"){
                     newNode =  new Bracket(node, Bracket.Type.CLOSE);
+                }
+            }
+            else if(type == Type.RETURN){
+                if(value == "true"){
+                    newNode =  new Return(node, true);
+                }else{
+                    newNode =  new Return(node, false);
                 }
             }
             else if(type == Type.IF){
@@ -534,7 +552,7 @@ public class Node extends Activity {
                     numberOfNewLinesBeforeCurNode += 1;
                     Log.d("added new one ", tree.nodeType.toString());
                     if(tree.left.left != null) {
-                        if (tree.left.left.nodeType == Node.Type.IF) {
+                        if (tree.left.left.nodeType == Node.Type.IF || tree.left.left.nodeType == Node.Type.FUNCTION) {
                             isIf = true;
                         }
                     }

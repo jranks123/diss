@@ -87,6 +87,8 @@ public class Main extends Activity {
 
     Button btnNewLine;
 
+    Button btnEditReturn;
+
     Button btnFunctions;
     Button btnExistingFunc;
     Button btnNewFunc;
@@ -235,6 +237,7 @@ public class Main extends Activity {
 
         btnCloseCurly = (Button) findViewById(R.id.btnCloseCurly);
 
+        btnEditReturn = (Button) findViewById(R.id.btnEditReturn);
 
         lineJustPressed = 0;
         Button btnConditionalIf;
@@ -290,7 +293,9 @@ public class Main extends Activity {
                             code.setSelection(offset, offset);
                         }
                         tree = tree.changeCurrentNode(tree, lineJustPressed);
+                        doButtonLogic();
                         showElse();
+
 
                     }
                 }
@@ -1365,15 +1370,15 @@ public class Main extends Activity {
 
 
 
-    public void visitNodeVar(Node tree){
+    public void visitNodeVar(Node tree) {
         Node.Type nodeType = tree.nodeType;
-        if (nodeType == Node.Type.SMCLN){
+        if (nodeType == Node.Type.SMCLN) {
             Variable.Type type = null;
-            if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)){
+            if (tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)) {
                 Variable v;// = new Variable(null, null, null, null);
-                if(tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)) {
+                if (tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)) {
                     v = tree.returnAssignVar(tree);
-                }else{
+                } else {
                     v = tree.returnDecVar(tree);
                 }
                 type = v.varNodeType;
@@ -1383,35 +1388,37 @@ public class Main extends Activity {
                 }
             }
 
-        }
-        else if(nodeType == Node.Type.FORLOOP){
-            switch(((Loops)tree).varNodeType){
+        } else if (nodeType == Node.Type.FORLOOP) {
+            switch (((Loops) tree).varNodeType) {
                 case FOR:
-                    if(((Loops) tree).limiter != null){
+                    if (((Loops) tree).limiter != null) {
                         openCurlysIndent.add(true);
                         variablesArray.add(new ArrayList<Variable>());
-                        if(!checkVarExists(((Loops) tree).limiter.toString())){
+                        if (!checkVarExists(((Loops) tree).limiter.toString())) {
                             String name = ((Loops) tree).limiter.toString();
-                            Variable v = new Variable(null, Variable.Type.INT, name, null );
+                            Variable v = new Variable(null, Variable.Type.INT, name, null);
                             variablesArray.get(openCurlysIndent.size()).add(v);
                         }
                     }
                     break;
             }
-        }
-        else if(nodeType == Node.Type.END){
+        } else if (nodeType == Node.Type.END) {
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
             variablesArray.remove(variablesArray.size() - 1);
-        }
-        else if(nodeType == Node.Type.ELSE){
+        } else if (nodeType == Node.Type.ELSE) {
             openCurlysIndent.add(true);
             variablesArray.add(new ArrayList<Variable>());
-        }
-        else if(nodeType == Node.Type.ENDIFCONDITION){
+        } else if (nodeType == Node.Type.ENDIFCONDITION) {
             openCurlysIndent.add(true);
             variablesArray.add(new ArrayList<Variable>());
+        } else if (nodeType == Node.Type.FUNCTION) {
+            if (((Function) tree).isDec) {
+                if (((Function) tree).decFinished) {
+                    variablesArray.add(new ArrayList<Variable>());
+                    openCurlysIndent.add(true);
+                }
+            }
         }
-
     }
 
 
@@ -1638,27 +1645,38 @@ public class Main extends Activity {
             case R.id.btnEndFuncDec:
                 Node currentNode = (tree.findCurNode(tree));
                 tree = tree.addNode(tree, Node.Type.STARTFUNC, "right", null);
-                tree = tree.addNode(tree, Node.Type.NONE, "left", null);
-                if(((Function)currentNode).funcType != Function.Type.VOID){
-                    tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
-                    tree = tree.addNode(tree, Node.Type.RETURN, "right", null);
-                    if(((Function)currentNode).funcType == Function.Type.BOOL){
-                        tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
-                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "String");
-                        tree = tree.updateVarVal(tree, "true");
-                        tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
-                        tree = tree.moveUpTreeLimit(tree, "RETURN");
-                    }
-                    if(((Function)currentNode).funcType == Function.Type.STRING){
-
-                    }
-                    if(((Function)currentNode).funcType == Function.Type.INT){
-
-                    }
-                }
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "FUNCEND");
                 tree = tree.addNode(tree, Node.Type.END, "right", null);
-                tree = tree.moveUpTreeLimit(tree, "FUNCTION");
+                tree = tree.moveUpTreeLimit(tree, "STARTFUNC");
+                tree = tree.addNode(tree, Node.Type.NONE, "left", null);
+                if(((Function)currentNode).funcType != Function.Type.VOID){
+                    tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                    tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "NEWLINE");
+                    tree = tree.moveUpTreeLimit(tree, "SEQ");
+                    tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                    tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "RETURN");
+                    tree = tree.addNode(tree, Node.Type.RETURN, "left", "true");
+                    if(((Function)currentNode).funcType == Function.Type.BOOL){
+                        tree = tree.addNode(tree, Node.Type.EVAL, "left", "BOOL");
+                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "<empty Boolean>");
+                        tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
+                        tree = tree.moveUpTreeLimit(tree, "SEQ");
+                    }
+                    if(((Function)currentNode).funcType == Function.Type.STRING){
+                        tree = tree.addNode(tree, Node.Type.EVAL, "left", "STRING");
+                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "<empty String>");
+                        tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
+                        tree = tree.moveUpTreeLimit(tree, "SEQ");
+                    }
+                    if(((Function)currentNode).funcType == Function.Type.INT){
+                        tree = tree.addNode(tree, Node.Type.EVAL, "left", "INT");
+                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "<empty Integer>");
+                        tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
+                        tree = tree.moveUpTreeLimit(tree, "SEQ");
+                    }
+                    tree = tree.moveUpTreeLimit(tree, "NONE");
+                }
+
 
                 Node functionNode =  tree.findCurNode(tree).parent.parent;
                 functionNode = tree.setFuncParamFinished(functionNode, true);
@@ -1667,15 +1685,41 @@ public class Main extends Activity {
 
                 break;
 
+            case R.id.btnEditReturn:
+                tree = tree.moveDownDirectionLimit(tree, "left", "EVAL");
+                Node n = tree.findCurNode(tree);
+                if(n.left != null) {
+                    n.left = null;
+                }
+                if(n.right != null) {
+                    n.right = null;
+                }
+                break;
+
             case R.id.btnNewLine:
-               // tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
-              //  tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "NEWLINE");
-              //  tree = tree.moveUpTreeLimit(tree, "SEQ");
+                tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "NEWLINE");
+                tree = tree.moveUpTreeLimit(tree, "SEQ");
                 break;
 
             case R.id.btnDelete:
                 Log.d("DEBUG", "PRESS PRINT");
-                tree = tree.delete(tree, lineJustPressed);
+                Node currentN = tree.findCurNode(tree);
+                Node.Type currentNodeType = currentN.nodeType;
+                Boolean canDelete = true;
+                if(currentNodeType == Node.Type.SEQ) {
+                    if(currentN.left.nodeType == Node.Type.NEWLINE){
+                        if(((Newline)currentN.left).newlineNodeType == Newline.Type.RETURN){
+                            if(((Return)currentN.left.left).isInitialReturn){
+                                showInvalidAlert("Cannot delete this return, every none void function must return a value");
+                                canDelete = false;
+                            }
+                        }
+                    }
+                }
+                if(canDelete) {
+                    tree = tree.delete(tree, lineJustPressed);
+                }
                 btnDelete.setVisibility(View.VISIBLE);
                 btnUpLine.setVisibility(View.VISIBLE);
                 btnDownLine.setVisibility(View.VISIBLE);
@@ -1895,7 +1939,7 @@ public class Main extends Activity {
 
 
             case R.id.var:
-                //    clearButtons();
+                    clearButtons();
                 Node curNode = tree.findCurNode(tree);
                 if ((curNode.nodeType == Node.Type.SEQ) || curNode.nodeType == Node.Type.NONE || (curNode.nodeType == Node.Type.ROOT) || (curNode.nodeType == Node.Type.STARTLOOP) || (curNode.nodeType == Node.Type.STARTIF) || (curNode.nodeType == Node.Type.ELSE)) { //TODO: make this more efficient by making isValidResting property of Node
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", "none");
@@ -2175,7 +2219,7 @@ public class Main extends Activity {
         Node.Type currentNodeType = currentNode.nodeType;
 
         //  if((v.getId() == R.id.semicolon) || (v.getId() == R.id.btnForPlus)  || (v.getId() == R.id.btnForMinus || (v.getId() == R.id.run) || (v.getId() == R.id.clear))){
-        if (currentNodeType == Node.Type.SEQ ||currentNodeType == Node.Type.NEWLINE || currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP)) {
+        if (currentNodeType == Node.Type.SEQ ||/*currentNodeType == Node.Type.NEWLINE ||*/ currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP)) {
             showButtons(homeMenu);
         }
         if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE) {
@@ -2187,6 +2231,8 @@ public class Main extends Activity {
         } else {
             btnRun.setVisibility(View.GONE);
         }
+
+
         if (currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType == null) {
             Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
             if (evalType == Eval.Type.INT) {
@@ -2411,6 +2457,17 @@ public class Main extends Activity {
         if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.VAR) && (currentNodeType != Node.Type.BRACKET)) {
             btnOperator.setVisibility(View.GONE);
         }
+
+        if(currentNodeType == Node.Type.SEQ) {
+            if(currentNode.left.nodeType == Node.Type.NEWLINE){
+                if(((Newline)currentNode.left).newlineNodeType == Newline.Type.RETURN){
+                    if(((Return)currentNode.left.left).isInitialReturn) {
+                        clearButtons();
+                    }
+                    btnEditReturn.setVisibility(View.VISIBLE);
+                }
+            }
+        }
     }
 
     public void showTypeInput(Node currentNode){
@@ -2443,12 +2500,21 @@ public class Main extends Activity {
 }
 
 
-//Thursday 6th August
+//Friday 14th August
 
 
 //TODO:
-//TODO: do new function button workflow
+//TODO: do new function button workflow -- DONE
+//TODO: implement return functionality
+//TODO: make it so you can't delete return if its the default one -- DONE
 
+//TODO: make it so you can add a return value
+//TODO: make button logic work when you press line -- DONE
+//TODO: make it so that you can't write any code after the initial return -- DONE
+//TODO: make it so that you can edit return value -- DONE
+
+//TODO: fix menu when you press variables -- DONE by taking out NEWLINE in opetions to show home menu
+//TODO: make it so you can't declare a var with same name (only works if var is decalred outside all loops)
 
 //TODO: Functions
 

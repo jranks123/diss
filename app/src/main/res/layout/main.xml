@@ -108,6 +108,13 @@
 
 
 
+        <Button
+            android:id="@+id/btnEditReturn"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Edit Return Value"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
 
 
         <!--Home menu -->
