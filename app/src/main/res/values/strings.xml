@@ -21,6 +21,7 @@
     <string name="function"><![CDATA[<b>public </b>]]></string>
     <string name="ifString"><![CDATA[<b>if</b>&#40; ]]></string>
     <string name="elseString"><![CDATA[<b>else</b>&#123; ]]></string>
+    <string name="nullReturn"><![CDATA[<b><font color="red">-Please Enter Return Value-</font><b>]]></string>
     <string name="endIfConditionString"><![CDATA[ &#41; &#123;]]></string>
     <string name="endIfString"><![CDATA[&#125;]]></string>
     <string name="lessThan"><![CDATA[<]]></string>

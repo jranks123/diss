@@ -41,6 +41,7 @@ public class Node extends Activity {
         RETURN,
         ENDIFCONDITION,
         ENDPROGRAM,
+        GO,
         CONDITION;
     }
 
@@ -57,6 +58,8 @@ public class Node extends Activity {
     Integer numberOfNewLines;
     Integer numberOfNewLinesPostDelete;
     Integer numberOfNewLinesBeforeCurNode;
+    Integer currentNodeNumber;
+    Integer position;
 
 
 
@@ -285,9 +288,24 @@ public class Node extends Activity {
         return ((Eval)node);
     }
 
+    public Node doRenumbering(Node tree){
+        tree.position = currentNodeNumber;
+        currentNodeNumber += 1;
+        if (tree.left != null){
+            doRenumbering(tree.left);
+        }
+        if (tree.right != null){
+            doRenumbering(tree.right);
+        }
+        return tree;
+    }
 
 
-
+    public Node renumberNodes(Node tree){
+        currentNodeNumber = 0;
+        doRenumbering(tree);
+        return tree;
+    }
 
     public Node updatePrint(Node tree, Print.Type type){
         Node node = findCurNode(tree);
@@ -317,8 +335,10 @@ public class Node extends Activity {
         if(tree.left != null) {
             if (tree.left.nodeType == Type.NEWLINE) {
                 tree.left = null;
-                tree.parent.right = tree.right;
-                tree.right.parent = tree.parent;
+                if(tree.right != null) {
+                    tree.parent.right = tree.right;
+                    tree.right.parent = tree.parent;
+                }
                 return tree;
             }
         }
@@ -651,7 +671,34 @@ public class Node extends Activity {
     }
 
 
+    public Boolean isInFunction(Node tree){
+        Node node = findCurNode(tree);
+        while(node.nodeType != Node.Type.ROOT){
+            if(node.nodeType == Type.FUNCTION){
+                if(((Function)node).isDec && ((Function)node).decFinished) {
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+            node = node.parent;
+        }
+        return false;
+    }
 
+    public Function.Type getCurrentFuncType(Node tree){
+        Node node = findCurNode(tree);
+        while(node.nodeType != Node.Type.ROOT){
+            if(node.nodeType == Type.FUNCTION){
+                if(((Function)node).isDec && ((Function)node).decFinished) {
+                    return ((Function)node).funcType;
+                }
+            }
+            node = node.parent;
+        }
+        return null;
+    }
 
     public Boolean isXbeforeY(Node node, Node.Type x, Node.Type y){
       //  Node node = findCurNode(tree);

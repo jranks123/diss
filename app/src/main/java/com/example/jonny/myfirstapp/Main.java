@@ -99,7 +99,7 @@ public class Main extends Activity {
     Button btnEnterFuncName;
     Button btnEndFuncDec;
     Button btnFuncAddParam;
-
+    Button btnFuncReturn;
 
 
 
@@ -160,7 +160,7 @@ public class Main extends Activity {
         btnEnterFuncName = (Button) findViewById(R.id.btnEnterFuncName);
         btnEndFuncDec = (Button) findViewById(R.id.btnEndFuncDec);
         btnFuncAddParam = (Button) findViewById(R.id.btnFuncAddParam);
-
+        btnFuncReturn = (Button) findViewById(R.id.btnFuncReturn);
 
 
         btnLoops = (Button)findViewById(R.id.loops);
@@ -1133,10 +1133,14 @@ public class Main extends Activity {
                        }
                }
                else  if(tree.nodeType == Node.Type.FORLOOP){
+                 //  openCurlysIndent.add(true);
+                 //  variablesArray.add(new ArrayList<Variable>());
                    String varValue = ((Loops) tree).lowerLim.toString();
                    String varName = ((Loops) tree).limiter;
                    updateVariableValue(varValue, varName, Variable.Type.INT);
                }else if(tree.nodeType == Node.Type.ENDIFCONDITION){
+                   openCurlysIndent.add(true);
+                   variablesArray.add(new ArrayList<Variable>());
                    String value = evaluate(tree.returnEvalNode(tree), Node.Type.ENDIFCONDITION);
                    if(value.equals("true")){
                        setConditionValue(tree, "true");
@@ -1144,6 +1148,19 @@ public class Main extends Activity {
                        setConditionValue(tree, "false");
                    }
                    Log.d("STATEMENT IS", value);
+               }else if (tree.nodeType == Node.Type.ELSE) {
+                   openCurlysIndent.add(true);
+                   variablesArray.add(new ArrayList<Variable>());
+               } else if (tree.nodeType == Node.Type.FUNCTION) {
+                   if (((Function) tree).isDec) {
+                       if (((Function) tree).decFinished) {
+                           variablesArray.add(new ArrayList<Variable>());
+                           openCurlysIndent.add(true);
+                       }
+                   }
+               }else if (tree.nodeType == Node.Type.END) {
+                   openCurlysIndent.remove(openCurlysIndent.size() - 1);
+                   variablesArray.remove(variablesArray.size() - 1);
                }
     }
 
@@ -1200,6 +1217,8 @@ public class Main extends Activity {
         visitNodeRun(tree);
         if (tree.left != null) {
             if(tree.left.nodeType == Node.Type.FORLOOP){
+                openCurlysIndent.add(true);
+                variablesArray.add(new ArrayList<Variable>());
                 Integer loopAmount = Math.abs(((Loops) tree.left).upperLim - ((Loops) tree.left).lowerLim);
                 String varValue = ((Loops) tree.left).lowerLim.toString();
                 String varName = ((Loops) tree.left).limiter;
@@ -1211,7 +1230,7 @@ public class Main extends Activity {
                     updateVariableValue(varValue, varName, Variable.Type.INT);
                 }
                 for (int i = 0; i < loopAmount; i++) {
-                    runCode(tree.left.left.right); //TODO:clear this up
+                    runCode(tree.left.left); //TODO:clear this up
                     if(i != loopAmount-1) {
                         if (((Loops) tree.left).plusOrMinus == "--") {
                             String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
@@ -1222,6 +1241,7 @@ public class Main extends Activity {
                         }
                     }
                 }
+                runCode(tree.left.right);
 
             }else{
                 runCode(tree.left);
@@ -1231,8 +1251,10 @@ public class Main extends Activity {
             if(tree.nodeType == Node.Type.NONE){
                 //check if if statement condition is true
               //  if(((If)tree.parent.parent).isTrue){
-                if(checkIfTrue(tree)){
-                    runCode(tree.right);
+                if(tree.parent.nodeType == Node.Type.STARTIF) { //To distinguish from IF and FUNCTIONS
+                    if (checkIfTrue(tree)) {
+                        runCode(tree.right);
+                    }
                 }
             }else if(tree.nodeType == Node.Type.ELSE) {
                 if(!checkIfTrue(tree)){
@@ -1658,7 +1680,7 @@ public class Main extends Activity {
                     tree = tree.addNode(tree, Node.Type.RETURN, "left", "true");
                     if(((Function)currentNode).funcType == Function.Type.BOOL){
                         tree = tree.addNode(tree, Node.Type.EVAL, "left", "BOOL");
-                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "<empty Boolean>");
+                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "true");
                         tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                         tree = tree.moveUpTreeLimit(tree, "SEQ");
                     }
@@ -1670,7 +1692,7 @@ public class Main extends Activity {
                     }
                     if(((Function)currentNode).funcType == Function.Type.INT){
                         tree = tree.addNode(tree, Node.Type.EVAL, "left", "INT");
-                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "<empty Integer>");
+                        tree = tree.addNode(tree, Node.Type.VARVAL, "left", "0");
                         tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                         tree = tree.moveUpTreeLimit(tree, "SEQ");
                     }
@@ -1693,6 +1715,21 @@ public class Main extends Activity {
                 }
                 if(n.right != null) {
                     n.right = null;
+                }
+                break;
+
+            case R.id.btnFuncReturn:
+                tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
+                tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "RETURN");
+                tree = tree.addNode(tree, Node.Type.RETURN, "left", "false");
+                Function.Type funcType = tree.getCurrentFuncType(tree);
+                if(funcType == Function.Type.BOOL) {
+                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "BOOL");
+                }else if(funcType == Function.Type.STRING) {
+                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "STRING");
+                }
+                else if(funcType == Function.Type.INT) {
+                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "INT");
                 }
                 break;
 
@@ -1750,6 +1787,10 @@ public class Main extends Activity {
 
             case R.id.run:
                 output.setText("");
+                tree.renumberNodes(tree);
+                variablesArray.clear();
+                variablesArray.add(new ArrayList<Variable>());
+                openCurlysIndent.clear();
                 runCode(tree);
                 clearVar();
                 break;
@@ -1769,6 +1810,8 @@ public class Main extends Activity {
                 //    openCurlys.add(true);
                 //  clearButtons();
                 tree = tree.addNode(tree, Node.Type.FORLOOP, "left", "For");
+
+
                 //LogTree(tree);
                 //  btnForNewVar.setVisibility(View.VISIBLE);
                 break;
@@ -1782,6 +1825,10 @@ public class Main extends Activity {
             case R.id.btnForNewVarEnter:
                 String varName = edtEnterString.getText().toString().trim();
                 clearButtons();
+                variablesArray.clear();
+                variablesArray.add(new ArrayList<Variable>());
+                openCurlysIndent.clear();
+                runFillVar(tree, false);
                 if(checkVarExists(varName)){
                     showInvalidAlert("Error: A variable has already been declared with this name");
                 }else if(varName.length() == 0) {
@@ -1838,73 +1885,30 @@ public class Main extends Activity {
             case R.id.btnForPlus:
                 //   clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "++";
-                tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
                 tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
                 tree.addNode(tree, Node.Type.END, "right", null);
-                tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
+                tree = tree.moveUpTreeLimit(tree, "FORLOOP");
+                tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
+          //      tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
+           //     tree.addNode(tree, Node.Type.END, "right", null);
+            //    tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
                 // showButtons(homeMenu);
                 break;
 
             case R.id.btnForMinus:
                 //   clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "--";
-                tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
                 tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
                 tree.addNode(tree, Node.Type.END, "right", null);
-                tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
+                tree = tree.moveUpTreeLimit(tree, "FORLOOP");
+                tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
+            //    tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
+            //    tree.addNode(tree, Node.Type.END, "right", null);
+             //   tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
                 //   showButtons(homeMenu);
                 break;
 
-            case R.id.btnForEndLoop:
-                //    clearButtons();
-                //openLoops.remove(openLoops.size() - 1);
-                //openLoops.remove(openLoops.size() - 1);
-                //  removeOpenCurly();
-                //  openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
-                // tree.addNode(tree, Node.Type.NEWLINE, "right", null); TODO:Check this
-                //   tree.addNode(tree, Node.Type.NEWLINE, "right", null);
-                tree.addNode(tree, Node.Type.END, "right", null);
-                tree = tree.moveUpToStartOfForLoop(tree);
-                tree = tree.moveUpOneStep(tree);
-                tree = tree.moveUpOneStep(tree);
-                //  btnRun.setVisibility(View.VISIBLE);
-                //  showButtons(homeMenu);
-                break;
 
-            case R.id.btnCloseCurly:
-                //   removeOpenCurly();
-                // openCurlys.remove(openCurlys.size() - 1);  //TODO: THIS COULD BE FOR LOOP BRACKET PROBLEM, WHY TWICE?
-
-                if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.FORLOOP, Node.Type.NEWLINE)) {
-                    tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
-                    tree.addNode(tree, Node.Type.END, "right", null);
-                    tree = tree.moveUpTreeLimit(tree, "FORLOOP");
-                    tree = tree.moveUpTreeLimit(tree, "SEQ");
-                } else if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.IF, Node.Type.ELSE)) {
-                    tree = tree.moveUpTreeLimit(tree, "STARTIF");
-                    tree.addNode(tree, Node.Type.NEWLINE, "right", "IFEND");
-                    tree.addNode(tree, Node.Type.END, "right", null);
-                    tree = tree.moveUpTreeLimit(tree, "IF");
-                    tree = tree.moveUpTreeLimit(tree, "SEQ");
-                } else if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.ELSE, Node.Type.IF)) {
-                    tree.addNode(tree, Node.Type.NEWLINE, "right", "ELSEEND");
-                    tree.addNode(tree, Node.Type.END, "right", null);
-                    tree = tree.moveUpTreeLimit(tree, "IF");
-                    tree = tree.moveUpTreeLimit(tree, "SEQ");
-                }
-                //  showButtons(homeMenu);
-
-                break;
-
-
-
-        /*    case R.id.btnEndIf:
-                openIfs.remove(openIfs.size() - 1);
-                tree = tree.moveUpTreeLimit(tree, "SEQ");
-                tree.addNode(tree, Node.Type.ENDIF, "right", null);
-                tree = tree.moveUpTreeLimit(tree, "IF");
-                break;
-        }*/
 
 
             case R.id.clear:
@@ -1980,8 +1984,9 @@ public class Main extends Activity {
 
             case R.id.btnEnterVarName:
                 String vName = edtEnterString.getText().toString().trim();
+                runFillVar(tree, false);
                 if(checkVarExists(vName)){
-                    showInvalidAlert("Error: A variable has already been declared with this name");
+                    showInvalidAlert("Error: A variable has already been declared with this name in this scope");
                 }else if(vName.length() == 0) {
                     showInvalidAlert("Error: please enter a name for the variable");
 
@@ -2029,6 +2034,7 @@ public class Main extends Activity {
 
 
             case R.id.btnEnterVarValue:
+               // getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 if ((tree.returnEvalNode(tree.findCurNode(tree)).evalNodeType == Eval.Type.INT)) {
                     text = edtEnterString.getText().toString();
                     try {
@@ -2458,6 +2464,16 @@ public class Main extends Activity {
             btnOperator.setVisibility(View.GONE);
         }
 
+
+
+        if(tree.isInFunction(tree)) {
+            if ((currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.ROOT || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE || currentNodeType == Node.Type.STARTLOOP)) {
+               if(tree.getCurrentFuncType(tree) != Function.Type.VOID) {
+                   btnFuncReturn.setVisibility(View.VISIBLE);
+               }
+            }
+        }
+
         if(currentNodeType == Node.Type.SEQ) {
             if(currentNode.left.nodeType == Node.Type.NEWLINE){
                 if(((Newline)currentNode.left).newlineNodeType == Newline.Type.RETURN){
@@ -2468,6 +2484,7 @@ public class Main extends Activity {
                 }
             }
         }
+
     }
 
     public void showTypeInput(Node currentNode){
@@ -2500,23 +2517,34 @@ public class Main extends Activity {
 }
 
 
-//Friday 14th August
+//Friday 14th August & Sunday
+
+//TODO: fix for loops so that they run properly
 
 
-//TODO:
+
+//TODO: can't delete for within an IF without it crashing -- DONE
+//TODO: make it so you can add a return value -- DONE
 //TODO: do new function button workflow -- DONE
-//TODO: implement return functionality
 //TODO: make it so you can't delete return if its the default one -- DONE
-
-//TODO: make it so you can add a return value
 //TODO: make button logic work when you press line -- DONE
 //TODO: make it so that you can't write any code after the initial return -- DONE
 //TODO: make it so that you can edit return value -- DONE
-
 //TODO: fix menu when you press variables -- DONE by taking out NEWLINE in opetions to show home menu
+
+//TODO: get openCurylsIndent and correct variables working when you run -- DONE
+
+//TODO: function calls
+
+
+//TODO: implement return functionality
+//TODO: warning when you delete function declaration or variable that is used later
+
+
 //TODO: make it so you can't declare a var with same name (only works if var is decalred outside all loops)
 
 //TODO: Functions
+//TODO: finish editing
 
 //TODO: implement arrays
 
