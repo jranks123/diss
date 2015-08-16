@@ -174,6 +174,7 @@ public class Main extends Activity {
         variablesArray = new ArrayList<ArrayList<Variable>>();
         variablesArray.add(new ArrayList<Variable>());
 
+
         functionsArray = new ArrayList<String>();
 
      //   variables = new ArrayList<Variable>();
@@ -706,7 +707,11 @@ public class Main extends Activity {
                         code.append(((Loops) tree).lowerLim.toString() + "; " + Html.fromHtml(s));
                     }
                     if(((Loops) tree).operator != null){
-                        code.append(" " + ((Loops) tree).operator.toString() + " ");
+                        if(((Loops) tree).operator == Operator.Type.LESSTHAN) {
+                            code.append(" < ");
+                        }else if(((Loops) tree).operator == Operator.Type.MORETHAN) {
+                            code.append(" > ");
+                        }
                     }
                     if(((Loops) tree).upperLim != null){
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
@@ -831,7 +836,8 @@ public class Main extends Activity {
 
     public ArrayList<Node> removeOpFromArrayList(ArrayList<Node> array, Integer i, String value){
         int pos = i;
-        array.set(pos, new VarVal(array.get(pos).parent.parent, VarVal.Type.STRING, value));
+      //  array.set(pos, new VarVal(array.get(pos).parent.parent, VarVal.Type.STRING, value));
+        array.set(pos, new VarVal(null, VarVal.Type.STRING, value));
         array.remove(pos-1);
         array.remove(pos);
         return array;
@@ -1229,7 +1235,41 @@ public class Main extends Activity {
                 }else{
                     updateVariableValue(varValue, varName, Variable.Type.INT);
                 }
-                for (int i = 0; i < loopAmount; i++) {
+                ArrayList<Node> condition = new ArrayList<Node>();
+                Variable loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
+                Operator.Type opType = ((Loops)tree.left).operator;
+                Operator op = new Operator(null, opType);
+                VarVal limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
+                condition.add(loopInt);
+                condition.add(op);
+                condition.add(limit);
+                Integer count = 0;
+                Boolean loopLimitReached = false;
+                while(getVarOrVarValValue(evaluateArray(condition).get(0)) == "true" && !loopLimitReached){
+                    count++;
+                    runCode(tree.left.left);
+                    if (((Loops) tree.left).plusOrMinus == "--") {
+                        String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
+                        updateVariableValue(newValue, varName, Variable.Type.INT);
+                    } else {
+                        String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) + 1);
+                        updateVariableValue(newValue, varName, Variable.Type.INT);
+                    }
+                    loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
+                    opType = ((Loops)tree.left).operator;
+                    op = new Operator(null, opType);
+                    limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
+                    condition.clear();
+                    condition.add(loopInt);
+                    condition.add(op);
+                    condition.add(limit);
+                    if(count > 10000){
+                        loopLimitReached = true;
+                        output.setText("<ERROR: loop repeated for more than 10,000 iterations>");
+                    }
+                }
+
+              /*  for (int i = 0; i < loopAmount; i++) {
                     runCode(tree.left.left); //TODO:clear this up
                     if(i != loopAmount-1) {
                         if (((Loops) tree.left).plusOrMinus == "--") {
@@ -1240,7 +1280,7 @@ public class Main extends Activity {
                             updateVariableValue(newValue, ((Loops) tree.left).limiter, Variable.Type.INT);
                         }
                     }
-                }
+                }*/
                 runCode(tree.left.right);
 
             }else{
@@ -1856,14 +1896,14 @@ public class Main extends Activity {
 
             case R.id.btnForLess:
                 //     clearButtons();
-                ((Loops) tree.findCurNode(tree)).operator = "<";
+                ((Loops) tree.findCurNode(tree)).operator = Operator.Type.LESSTHAN;
                 //    edtEnterString.setVisibility(View.VISIBLE);
                 //  btnForNewVarValueUpperEnter.setVisibility(View.VISIBLE);
                 break;
 
             case R.id.btnForGreater:
                 //  clearButtons();
-                ((Loops) tree.findCurNode(tree)).operator = ">";
+                ((Loops) tree.findCurNode(tree)).operator = Operator.Type.MORETHAN;
                 //     edtEnterString.setVisibility(View.VISIBLE);
                 //   btnForNewVarValueUpperEnter.setVisibility(View.VISIBLE);
                 break;
@@ -2519,7 +2559,7 @@ public class Main extends Activity {
 
 //Friday 14th August & Sunday
 
-//TODO: fix for loops so that they run properly
+
 
 
 
@@ -2531,12 +2571,11 @@ public class Main extends Activity {
 //TODO: make it so that you can't write any code after the initial return -- DONE
 //TODO: make it so that you can edit return value -- DONE
 //TODO: fix menu when you press variables -- DONE by taking out NEWLINE in opetions to show home menu
-
 //TODO: get openCurylsIndent and correct variables working when you run -- DONE
+//TODO: fix for loops so that they run properly -- DONE
+
 
 //TODO: function calls
-
-
 //TODO: implement return functionality
 //TODO: warning when you delete function declaration or variable that is used later
 

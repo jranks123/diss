@@ -8,7 +8,7 @@ public class Loops extends Node {
     Integer lowerLim;
     Integer upperLim;
     String limiter;
-    String operator;
+    Operator.Type operator;
     String plusOrMinus;
 
     public enum Type {
