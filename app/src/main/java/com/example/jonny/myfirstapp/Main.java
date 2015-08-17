@@ -122,7 +122,7 @@ public class Main extends Activity {
     ArrayList<Button> varButtons;
   //  ArrayList<Variable> variables;
     ArrayList<ArrayList<ArrayList<Variable>>> variablesArray;
-    ArrayList<String> functionsArray;
+    ArrayList<Function> functionsArray;
     ArrayList<Boolean> openBrackets;
     ArrayList<Boolean> openCurlysIndent;
 
@@ -178,7 +178,7 @@ public class Main extends Activity {
         variablesArray.add(new ArrayList<ArrayList<Variable>>());
 
 
-        functionsArray = new ArrayList<String>();
+        functionsArray = new ArrayList<Function>();
         functionDimensions = new ArrayList<Boolean>();
 
      //   variables = new ArrayList<Variable>();
@@ -1515,7 +1515,7 @@ public class Main extends Activity {
 
     public void removeFunctionDimension(){
         functionDimensions.remove(functionDimensions.size() - 1);
-        variablesArray.remove(variablesArray.size() -1 );
+        variablesArray.remove(variablesArray.size() - 1);
     }
 
 
@@ -1552,8 +1552,8 @@ public class Main extends Activity {
         Node.Type nodeType = tree.nodeType;
         if(nodeType == Node.Type.FUNCTION ){
             if(((Function)tree).name != null) {
-                String name = ((Function) tree).name;
-                functionsArray.add(name);
+                //String name = ((Function) tree).name;
+                functionsArray.add((Function)tree);
             }
         }
     }
@@ -1571,10 +1571,83 @@ public class Main extends Activity {
 
     public void fillFunctionsArray(){
         functionsArray.clear();
-        functionsArray = new ArrayList<String>();
+        functionsArray = new ArrayList<Function>();
         runFillFunc(tree, false);
     }
 
+
+    public void showFunctionButtons(Function.Type funcType){
+       /* varButtons.clear();
+        Node.Type nodeType = tree.findCurNode(tree).nodeType;
+        LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
+        fillFunctionsArray();
+            for (int i = 0; i < functionsArray.size(); i++) {
+                if (funcType == null || Function.get(i).varNodeType == funcType) {
+                    final Button b = new Button(this);
+                    s = "<b><i>" + variables.get(i).name + "</i></b>";
+                    b.setText(Html.fromHtml(s));
+                    b.setId(i);
+                    b.setContentDescription(variables.get(i).varNodeType.toString());
+                    if (variables.get(i).varNodeType == Variable.Type.STRING) {
+                        b.setBackgroundColor(0x9933FF0);
+                    } else if (variables.get(i).varNodeType == Variable.Type.INT) {
+                        b.setBackgroundColor(0xFFFF0000);
+                    } else if (variables.get(i).varNodeType == Variable.Type.BOOL) {
+                        b.setBackgroundColor(0x9966FF0);
+                    }
+                    if (true) {
+
+                    } else {
+
+                    }
+                    b.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View view) {
+                            btnDelete.setVisibility(View.GONE);
+                            btnUpLine.setVisibility(View.GONE);
+                            btnDownLine.setVisibility(View.GONE);
+                            Node curNode = tree.findCurNode(tree);
+                            clearButtons();
+                            if (b.getContentDescription().equals(Variable.Type.STRING.toString())) {
+                                curNode = doButtonLogic(b, curNode, Variable.Type.STRING, "String");
+                            } else if (b.getContentDescription().equals(Variable.Type.INT.toString())) {
+                                curNode = doButtonLogic(b, curNode, Variable.Type.INT, "Int");
+                            } else if (b.getContentDescription().equals(Variable.Type.BOOL.toString())) {
+                                curNode = doButtonLogic(b, curNode, Variable.Type.BOOL, "Bool");
+                            }
+                            btnNewVar.setVisibility(View.GONE);
+                            if (tree.isXbeforeY(curNode, Node.Type.EVAL, Node.Type.SEQ) || tree.isXbeforeY(curNode, Node.Type.IF, Node.Type.SEQ)) {
+                                endIfCondition(curNode);
+                                btnOperator.setVisibility(View.VISIBLE);
+                                showBracketButtons(curNode);
+                            }
+                            if (tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.EVAL) && tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.IF)) {
+                                btnEquals.setVisibility(View.VISIBLE);
+                            } else {
+                                showSemicolonButton();
+                            }
+                            code.setText("");
+                            if (tree != null) {
+                                //  openLoopsIndent.clear();
+                                //  openIfsIndent.clear();
+                                variablesArray.clear();
+                                functionDimensions.clear();
+                                addToVariablesArray();
+                                openCurlysIndent.clear();
+                                tree = checkNewLineNotDeleted();
+                                printTree(tree);
+                                setCursorToEndOfCurrentLine(0);
+                                //code.setSelection(code.getText().length());
+                            }
+                            varButtons.add(b);
+                            hideVarButtons();
+
+                        }
+                    });
+                    ll.addView(b);
+                }
+            }*/
+
+    }
 
     public void showVarButtons(Variable.Type varType){
         varButtons.clear();
@@ -1732,7 +1805,7 @@ public class Main extends Activity {
                 String name = edtEnterString.getText().toString().trim();
                 Boolean funcNameExists = false;
                 for(int i = 0; i < functionsArray.size(); i++){
-                    if(functionsArray.get(i).equals(name)){
+                    if(functionsArray.get(i).name.equals(name)){
                         funcNameExists = true;
                     }
                 }
@@ -2448,7 +2521,24 @@ public class Main extends Activity {
             }else{
                showTypeInput(currentNode);
             }
-        } else if (currentNodeType == Node.Type.FUNCTION) {
+        }else if(currentNodeType == Node.Type.FUNCCALL) {
+            if(((FunctionCall)currentNode).type == FunctionCall.Type.NONE){
+                if(!checkIfAnyFunctionsExist()){
+                    showInvalidAlert("No functions to call");
+                    tree = tree.moveUpTreeLimit(tree, "SEQ");
+                    Node node = tree.findCurNode(tree);
+                    node.left = null;
+                    node.parent.isCurrentNode = true;
+                    node.parent.right = node.right;
+                    code.setText("");
+                    printTree(tree);
+                    doButtonLogic();
+                }else{
+                   showFunctionButtons(null);
+                }
+            }
+        }
+        else if (currentNodeType == Node.Type.FUNCTION) {
             if(!isOutsideAllBrackets()){
                 if(!checkIfAnyFunctionsExist()){
                     showInvalidAlert("No functions to call, functions must be delcared outside any open curly brackets");
