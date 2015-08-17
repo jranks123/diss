@@ -650,7 +650,7 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.FUNCTION){
             if(((Function)tree).isDec) {
-                //addFunctionDimension();
+                addFunctionDimension();
                 addToVariablesArray();
                 if (((Function) tree).funcType != null) {
                     code.append(Html.fromHtml(getString(R.string.function)));
@@ -746,9 +746,13 @@ public class Main extends Activity {
             //addToVariablesArray();
         }
         else if(nodeType == Node.Type.END){
-           // openLoopsIndent.remove(openLoopsIndent.size() - 1);
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
-            variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
+            if(((Newline)tree.parent).newlineNodeType == Newline.Type.FUNCEND){
+                removeFunctionDimension();
+            }else {
+                // openLoopsIndent.remove(openLoopsIndent.size() - 1);
+                variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
+            }
             //indent();
             //String codeText = code.getText().toString();
             //code.setText(codeText.substring(0, codeText.length() - 3));
@@ -1471,7 +1475,11 @@ public class Main extends Activity {
             }
         } else if (nodeType == Node.Type.END) {
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
-            variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
+            if(((Newline)tree.parent).newlineNodeType == Newline.Type.FUNCEND){
+                removeFunctionDimension();
+            }else {
+                variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
+            }
         } else if (nodeType == Node.Type.ELSE) {
             openCurlysIndent.add(true);
             addToVariablesArray();
@@ -1480,6 +1488,7 @@ public class Main extends Activity {
             addToVariablesArray();
         } else if (nodeType == Node.Type.FUNCTION) {
             if (((Function) tree).isDec) {
+                addFunctionDimension();
                 if (((Function) tree).decFinished) {
                     addToVariablesArray();
                     openCurlysIndent.add(true);
@@ -1502,6 +1511,11 @@ public class Main extends Activity {
         variablesArray.add(new ArrayList<ArrayList<Variable>>());
         ArrayList<Variable> globals = variablesArray.get(0).get(0);
         variablesArray.get(functionDimensions.size()).add(globals);
+    }
+
+    public void removeFunctionDimension(){
+        functionDimensions.remove(functionDimensions.size() - 1);
+        variablesArray.remove(variablesArray.size() -1 );
     }
 
 
