@@ -700,6 +700,19 @@ public class Main extends Activity {
                 }*/
             }
         }
+        else if(nodeType == Node.Type.FUNCCALL){
+            if(((FunctionCall)tree).functionName != null){
+                code.append(((FunctionCall)tree).functionName + " (");
+            }
+            for(int i = 0; i < ((FunctionCall)tree).parameters.size(); i++){
+                String value = getVarOrVarValValue(((FunctionCall)tree).parameters.get(i));
+                code.append(value + ", ");
+            }
+            if(((FunctionCall)tree).paramsFinished) {
+                code.append(" )");
+            }
+
+        }
         else if(nodeType == Node.Type.FORLOOP){
             switch(((Loops)tree).varNodeType){
                 case FOR:
