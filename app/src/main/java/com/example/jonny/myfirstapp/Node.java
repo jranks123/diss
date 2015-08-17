@@ -71,6 +71,31 @@ public class Node extends Activity {
     }
 
 
+    public Node getFunctionNodeByName(Node tree, String name){
+        if(tree.nodeType == Type.FUNCTION){
+            if(((Function)tree).isDec){
+                if(((Function)tree).name.equals(name)){
+                    return tree;
+                }
+            }
+        }
+        Node newTree = null;
+        if (tree.left != null) {
+            newTree = getFunctionNodeByName(tree.left, name);
+            if(newTree != null){
+                return newTree;
+            }
+
+        }
+        if (tree.right != null) {
+            newTree = getFunctionNodeByName(tree.right, name);
+            if(newTree != null){
+                return newTree;
+            }
+        }
+        return newTree;
+
+    }
 
 
     public Node findCurNode(Node tree){
@@ -430,8 +455,8 @@ public class Node extends Activity {
                             tree.left.right.isCurrentNode = true;
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
                             tree.left.left.left.right.left.isCurrentNode = true;
-                        }else if (newLineType == Newline.Type.FUNCTION && function.equals("setCurrent")) {
-                            tree.left.left.right.left.isCurrentNode = true;
+                        }else if ((newLineType == Newline.Type.FUNCTION) && (function.equals("setCurrent")) && (((Function)tree.left.left).isDec)) {
+                                tree.left.left.right.left.isCurrentNode = true;
                         }else {
                             if (function.equals("delete")) {
                                 tree.left = null;

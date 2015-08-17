@@ -1136,11 +1136,11 @@ public class Main extends Activity {
 
 
 
-    public void visitNodeRun(Node tree){
+    public void visitNodeRun(Node treeNode){
          //  try {
-               if (tree.nodeType == Node.Type.SMCLN) {
-                       if(tree.isXbeforeY(tree, Node.Type.DEC, Node.Type.SEQ)) {
-                           Variable v = tree.returnDecVar(tree);
+               if (treeNode.nodeType == Node.Type.SMCLN) {
+                       if(treeNode.isXbeforeY(treeNode, Node.Type.DEC, Node.Type.SEQ)) {
+                           Variable v = treeNode.returnDecVar(treeNode);
                            Variable.Type type = v.varNodeType;
                            String name = v.name;
                            if (!checkVarExists(name)) {
@@ -1149,56 +1149,65 @@ public class Main extends Activity {
                                //variables.add(var);
                            }
                            //evaluate if user assigns a value while declaring
-                           if(tree.isXbeforeY(tree, Node.Type.EVAL, Node.Type.SEQ)){
-                               String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
+                           if(treeNode.isXbeforeY(treeNode, Node.Type.EVAL, Node.Type.SEQ)){
+                               String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                                updateVariableValue(value, name, type);
                                Log.d("Value is ", value);
                            }
                        }
-                       else if(tree.isXbeforeY(tree, Node.Type.ASSIGN, Node.Type.SEQ)){
-                           Variable v = tree.returnAssignVar(tree);
+                       else if(treeNode.isXbeforeY(treeNode, Node.Type.ASSIGN, Node.Type.SEQ)){
+                           Variable v = treeNode.returnAssignVar(treeNode);
                            Variable.Type type = v.varNodeType;
                            String name = v.name;
                            //evaluate
-                           String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
+                           String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                            updateVariableValue(value, name, type);
                         //   Log.d("Value is ", value);
                        }
-                      else if(tree.isXbeforeY(tree, Node.Type.PRINT, Node.Type.SEQ)){
-                           String value = evaluate(tree.returnEvalNode(tree), Node.Type.SMCLN);
+                      else if(treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)){
+                           String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                            output.append(value + "\n");
                        }
                }
-               else  if(tree.nodeType == Node.Type.FORLOOP){
+               else  if(treeNode.nodeType == Node.Type.FORLOOP){
                  //  openCurlysIndent.add(true);
                  //  addToVariablesArray();
-                   String varValue = ((Loops) tree).lowerLim.toString();
-                   String varName = ((Loops) tree).limiter;
+                   String varValue = ((Loops) treeNode).lowerLim.toString();
+                   String varName = ((Loops) treeNode).limiter;
                    updateVariableValue(varValue, varName, Variable.Type.INT);
-               }else if(tree.nodeType == Node.Type.ENDIFCONDITION){
+               }else if(treeNode.nodeType == Node.Type.ENDIFCONDITION){
                    openCurlysIndent.add(true);
                    addToVariablesArray();
-                   String value = evaluate(tree.returnEvalNode(tree), Node.Type.ENDIFCONDITION);
+                   String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.ENDIFCONDITION);
                    if(value.equals("true")){
-                       setConditionValue(tree, "true");
+                       setConditionValue(treeNode, "true");
                    }else if(value.equals("false")){
-                       setConditionValue(tree, "false");
+                       setConditionValue(treeNode, "false");
                    }
                    Log.d("STATEMENT IS", value);
-               }else if (tree.nodeType == Node.Type.ELSE) {
+               }else if (treeNode.nodeType == Node.Type.ELSE) {
                    openCurlysIndent.add(true);
                    addToVariablesArray();
-               } else if (tree.nodeType == Node.Type.FUNCTION) {
-                   if (((Function) tree).isDec) {
-                       if (((Function) tree).decFinished) {
+               } else if (treeNode.nodeType == Node.Type.FUNCTION) {
+                   if (((Function) treeNode).isDec) {
+                       addFunctionDimension();
+                       if (((Function) treeNode).decFinished) {
                            addToVariablesArray();
                            openCurlysIndent.add(true);
                        }
                    }
-               }else if (tree.nodeType == Node.Type.END) {
+               }else if (treeNode.nodeType == Node.Type.END) {
                    openCurlysIndent.remove(openCurlysIndent.size() - 1);
-                   variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
+                   if(((Newline)treeNode.parent).newlineNodeType == Newline.Type.FUNCEND){
+                       removeFunctionDimension();
+                   }else {
+                       variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
+                   }
+               }else if(treeNode.nodeType == Node.Type.FUNCCALL){
+                   Node n = treeNode.getFunctionNodeByName(tree, ((FunctionCall)treeNode).functionName);
+                   runCode(n);
                }
+
     }
 
 
@@ -1326,6 +1335,8 @@ public class Main extends Activity {
                     if (checkIfTrue(tree)) {
                         runCode(tree.right);
                     }
+                }else if(tree.parent.nodeType == Node.Type.STARTFUNC){
+                    runCode(tree.right);
                 }
             }else if(tree.nodeType == Node.Type.ELSE) {
                 if(!checkIfTrue(tree)){
@@ -1393,7 +1404,7 @@ public class Main extends Activity {
         if(!leftChild) {
             Log.d("CdTc no l children for ", tree.nodeType.toString());
         }
-        if(!rightChild){
+        if(!rightChild) {
             Log.d("CdTc No r children for ", tree.nodeType.toString());
 
         }
@@ -1741,6 +1752,9 @@ public class Main extends Activity {
             }
         }
     }
+
+
+
 
     public Function getFunctionFromName(String name){
         for(int i = 0; i < functionsArray.size(); i++){
