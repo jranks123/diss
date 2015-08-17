@@ -2557,23 +2557,11 @@ public class Main extends Activity {
 }
 
 
-//Friday 14th August & Sunday
 
 
+//Monday 17th August
 
-
-
-//TODO: can't delete for within an IF without it crashing -- DONE
-//TODO: make it so you can add a return value -- DONE
-//TODO: do new function button workflow -- DONE
-//TODO: make it so you can't delete return if its the default one -- DONE
-//TODO: make button logic work when you press line -- DONE
-//TODO: make it so that you can't write any code after the initial return -- DONE
-//TODO: make it so that you can edit return value -- DONE
-//TODO: fix menu when you press variables -- DONE by taking out NEWLINE in opetions to show home menu
-//TODO: get openCurylsIndent and correct variables working when you run -- DONE
-//TODO: fix for loops so that they run properly -- DONE
-
+//TODO: functions: might have to make varaibles array 3d?
 
 //TODO: function calls
 //TODO: implement return functionality
@@ -2592,7 +2580,6 @@ public class Main extends Activity {
 //TODO: its a bit fucky when you go to top line, you can add in new stuff but if fucks up if you delete anything (ie you cant move down past 2nd line)
 
 
-//TODO: add newline button
 
 //TODO: Request focus when edt box comes up
 //TODO: make it possible to save variable as null
@@ -2781,3 +2768,19 @@ public class Main extends Activity {
 //Wed 5th August
 //TODO: implement modulo operator -- DONE
 //TODO: make funcitons button appear at right time -- DONE
+
+
+
+
+//Friday 14th August & Sunday
+//TODO: add newline button --DONE
+//TODO: can't delete for within an IF without it crashing -- DONE
+//TODO: make it so you can add a return value -- DONE
+//TODO: do new function button workflow -- DONE
+//TODO: make it so you can't delete return if its the default one -- DONE
+//TODO: make button logic work when you press line -- DONE
+//TODO: make it so that you can't write any code after the initial return -- DONE
+//TODO: make it so that you can edit return value -- DONE
+//TODO: fix menu when you press variables -- DONE by taking out NEWLINE in opetions to show home menu
+//TODO: get openCurylsIndent and correct variables working when you run -- DONE
+//TODO: fix for loops so that they run properly -- DONE
