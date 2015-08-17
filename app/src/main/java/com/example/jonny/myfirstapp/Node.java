@@ -104,6 +104,12 @@ public class Node extends Activity {
         return newTree;
     }
 
+    public Node setFunctionCallNameAndType(Node node, FunctionCall.Type type, String name){
+        ((FunctionCall)node).type = type;
+        ((FunctionCall)node).functionName = name;
+        return node;
+    }
+
 
     public Node addNode(Node tree, Type type, String direction, String value) {
         Node node = findCurNode(tree);

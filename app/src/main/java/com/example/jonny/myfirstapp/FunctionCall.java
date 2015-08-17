@@ -11,11 +11,13 @@ public class FunctionCall extends Node{
     Type type;
     String functionName;
     ArrayList<Node> parameters;
+    Boolean paramsFinished;
 
     public enum Type {
         STRING,
         INT,
         BOOL,
+        VOID,
         NONE
     }
 
@@ -26,6 +28,7 @@ public class FunctionCall extends Node{
         this.type = type;
         this.functionName = null;
         this.parameters = new ArrayList<Node>();
+        paramsFinished = false;
     }
 
 
