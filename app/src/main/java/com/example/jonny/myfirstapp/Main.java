@@ -1695,6 +1695,11 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.EVAL, "left", null);
                 break;
 
+
+            case R.id.btnExistingFunc:
+                tree = tree.addNode(tree, Node.Type.FUNCCALL, "left", null);
+
+
             case R.id.btnFunctions:
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "FUNCTION");

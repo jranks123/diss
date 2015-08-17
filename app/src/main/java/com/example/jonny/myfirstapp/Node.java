@@ -42,6 +42,7 @@ public class Node extends Activity {
         ENDIFCONDITION,
         ENDPROGRAM,
         GO,
+        FUNCCALL,
         CONDITION;
     }
 
@@ -151,7 +152,22 @@ public class Node extends Activity {
                 if (value == "For") {
                     newNode = new Loops(node, Loops.Type.FOR);
                 }
+            }else if (type == Type.FUNCCALL) {
+                Node n = tree.findCurNode(tree);
+                if (tree.isXbeforeY(n, Type.EVAL, Type.SEQ)) {
+                    Eval.Type evalType = ((Eval)returnEvalNode(n)).evalNodeType;
+                    if(evalType == Eval.Type.BOOL){
+                        newNode = new FunctionCall(node, FunctionCall.Type.BOOL);
+                    }else if(evalType == Eval.Type.INT){
+                        newNode = new FunctionCall(node, FunctionCall.Type.INT);
+                    }else if(evalType == Eval.Type.STRING){
+                        newNode = new FunctionCall(node, FunctionCall.Type.STRING);
+                    }
+                }else{
+                    newNode = new FunctionCall(node, FunctionCall.Type.NONE);
+                }
             }
+
             else if (type == Type.OP) {
                 newNode = new Operator(node, null);
             }
