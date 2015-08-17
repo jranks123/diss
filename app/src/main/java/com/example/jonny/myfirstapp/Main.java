@@ -121,10 +121,13 @@ public class Main extends Activity {
     ArrayList<Button> homeMenu;
     ArrayList<Button> varButtons;
   //  ArrayList<Variable> variables;
-    ArrayList<ArrayList<Variable>> variablesArray;
+    ArrayList<ArrayList<ArrayList<Variable>>> variablesArray;
     ArrayList<String> functionsArray;
     ArrayList<Boolean> openBrackets;
     ArrayList<Boolean> openCurlysIndent;
+
+    ArrayList<Boolean> functionDimensions;
+
     Integer numberOfNewLines;
     String tempString1;
     String s;
@@ -171,11 +174,12 @@ public class Main extends Activity {
         btnNewVarBool = (Button) findViewById(R.id.btnVarNewBool);
         btnPrintVar =  (Button) findViewById(R.id.btnPrintVar);
         btnPrintText =  (Button) findViewById(R.id.btnPrintText);
-        variablesArray = new ArrayList<ArrayList<Variable>>();
-        variablesArray.add(new ArrayList<Variable>());
+        variablesArray = new ArrayList<ArrayList<ArrayList<Variable>>>();
+        variablesArray.add(new ArrayList<ArrayList<Variable>>());
 
 
         functionsArray = new ArrayList<String>();
+        functionDimensions = new ArrayList<Boolean>();
 
      //   variables = new ArrayList<Variable>();
 
@@ -447,7 +451,7 @@ public class Main extends Activity {
         /*for(int i = 0; i < variables.size(); i++)
             variables.get(i).value = null;*/
       //  variables = new ArrayList<Variable>();
-        variablesArray = new ArrayList<ArrayList<Variable>>();
+        variablesArray = new ArrayList<ArrayList<ArrayList<Variable>>>();
     }
 
     public Boolean checkIfAnyVarsExist(){
@@ -470,8 +474,8 @@ public class Main extends Activity {
 
 
     public boolean checkVarExists(String var){
-        for(int j = 0; j < variablesArray.size(); j++) {
-            ArrayList<Variable> variables = variablesArray.get(j);
+        for(int j = 0; j < variablesArray.get(functionDimensions.size()).size(); j++) {
+            ArrayList<Variable> variables = variablesArray.get(functionDimensions.size()).get(j);
             for (int i = 0; i < variables.size(); i++) {
                 Variable v = variables.get(i);
                 if (v.name.equals(var)) {
@@ -486,8 +490,8 @@ public class Main extends Activity {
     public boolean checkVarTypeExistence(Variable.Type type){
         fillVariablesArray();
         if(variablesArray != null){
-            for(int j = 0; j < variablesArray.size(); j++){
-                ArrayList<Variable> variables = variablesArray.get(j);
+            for(int j = 0; j < variablesArray.get(functionDimensions.size()).size(); j++){
+                ArrayList<Variable> variables = variablesArray.get(functionDimensions.size()).get(j);
                 for (int i = 0; i < variables.size(); i++) {
                     if (variables.get(i).varNodeType == type) {
                         return true;
@@ -511,8 +515,8 @@ public class Main extends Activity {
 
 
     public void updateVariableValue(String value, String name, Variable.Type type){
-        for(int j = 0; j < variablesArray.size(); j++) {
-            ArrayList<Variable> variables = variablesArray.get(j);
+        for(int j = 0; j < variablesArray.get(functionDimensions.size()).size(); j++) {
+            ArrayList<Variable> variables = variablesArray.get(functionDimensions.size()).get(j);
             for (int i = 0; i < variables.size(); i++) {
                 Variable v = variables.get(i);
                 if (v.name.equals(name) && v.varNodeType == type) {
@@ -523,8 +527,8 @@ public class Main extends Activity {
     }
 
     public String getVariableValue(String name, Variable.Type type){
-        for(int j = 0; j < variablesArray.size(); j++) {
-            ArrayList<Variable> variables = variablesArray.get(j);
+        for(int j = 0; j < variablesArray.get(functionDimensions.size()).size(); j++) {
+            ArrayList<Variable> variables = variablesArray.get(functionDimensions.size()).get(j);
             for (int i = 0; i < variables.size(); i++) {
                 Variable v = variables.get(i);
                 if (v.name.equals(name) && v.varNodeType == type) {
@@ -621,7 +625,7 @@ public class Main extends Activity {
                     type = v.varNodeType;
                     if (!checkVarExists(v.name)) {
                             Variable var = new Variable(null, type, v.name, null);
-                            variablesArray.get(openCurlysIndent.size()).add(var);
+                            variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
                         }
                 }
 
@@ -646,7 +650,8 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.FUNCTION){
             if(((Function)tree).isDec) {
-                variablesArray.add(new ArrayList<Variable>());
+                //addFunctionDimension();
+                addToVariablesArray();
                 if (((Function) tree).funcType != null) {
                     code.append(Html.fromHtml(getString(R.string.function)));
                     switch (((Function) tree).funcType) {
@@ -692,13 +697,13 @@ public class Main extends Activity {
                     code.append(Html.fromHtml(getString(R.string.forLoop)));
                     if(((Loops) tree).limiter != null){
                         openCurlysIndent.add(true);
-                        variablesArray.add(new ArrayList<Variable>());
+                        addToVariablesArray();
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
                         code.append(Html.fromHtml(s) + " = ");
                         if(!checkVarExists(((Loops) tree).limiter.toString())){
                             String name = ((Loops) tree).limiter.toString();
                             Variable v = new Variable(null, Variable.Type.INT, name, null );
-                            variablesArray.get(openCurlysIndent.size()).add(v);
+                            variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(v);
                         //    variables.add(v);
                         }
                     }
@@ -738,12 +743,12 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.STARTLOOP){
             //openLoopsIndent.add(true);
             //openCurlysIndent.add(true);
-            //variablesArray.add(new ArrayList<Variable>());
+            //addToVariablesArray();
         }
         else if(nodeType == Node.Type.END){
            // openLoopsIndent.remove(openLoopsIndent.size() - 1);
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
-            variablesArray.remove(variablesArray.size() - 1);
+            variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
             //indent();
             //String codeText = code.getText().toString();
             //code.setText(codeText.substring(0, codeText.length() - 3));
@@ -815,13 +820,13 @@ public class Main extends Activity {
 
 
             openCurlysIndent.add(true);
-            variablesArray.add(new ArrayList<Variable>());
+            addToVariablesArray();
         }
         else if(nodeType == Node.Type.ENDIFCONDITION){
             code.append(Html.fromHtml(getString(R.string.endIfConditionString)));
             //openIfsIndent.add(true);
             openCurlysIndent.add(true);
-            variablesArray.add(new ArrayList<Variable>());
+            addToVariablesArray();
         }
 
     }
@@ -1114,7 +1119,7 @@ public class Main extends Activity {
                            String name = v.name;
                            if (!checkVarExists(name)) {
                                Variable var = new Variable(null, type, name, null);
-                               variablesArray.get(openCurlysIndent.size()).add(var);
+                               variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
                                //variables.add(var);
                            }
                            //evaluate if user assigns a value while declaring
@@ -1140,13 +1145,13 @@ public class Main extends Activity {
                }
                else  if(tree.nodeType == Node.Type.FORLOOP){
                  //  openCurlysIndent.add(true);
-                 //  variablesArray.add(new ArrayList<Variable>());
+                 //  addToVariablesArray();
                    String varValue = ((Loops) tree).lowerLim.toString();
                    String varName = ((Loops) tree).limiter;
                    updateVariableValue(varValue, varName, Variable.Type.INT);
                }else if(tree.nodeType == Node.Type.ENDIFCONDITION){
                    openCurlysIndent.add(true);
-                   variablesArray.add(new ArrayList<Variable>());
+                   addToVariablesArray();
                    String value = evaluate(tree.returnEvalNode(tree), Node.Type.ENDIFCONDITION);
                    if(value.equals("true")){
                        setConditionValue(tree, "true");
@@ -1156,17 +1161,17 @@ public class Main extends Activity {
                    Log.d("STATEMENT IS", value);
                }else if (tree.nodeType == Node.Type.ELSE) {
                    openCurlysIndent.add(true);
-                   variablesArray.add(new ArrayList<Variable>());
+                   addToVariablesArray();
                } else if (tree.nodeType == Node.Type.FUNCTION) {
                    if (((Function) tree).isDec) {
                        if (((Function) tree).decFinished) {
-                           variablesArray.add(new ArrayList<Variable>());
+                           addToVariablesArray();
                            openCurlysIndent.add(true);
                        }
                    }
                }else if (tree.nodeType == Node.Type.END) {
                    openCurlysIndent.remove(openCurlysIndent.size() - 1);
-                   variablesArray.remove(variablesArray.size() - 1);
+                   variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
                }
     }
 
@@ -1224,12 +1229,12 @@ public class Main extends Activity {
         if (tree.left != null) {
             if(tree.left.nodeType == Node.Type.FORLOOP){
                 openCurlysIndent.add(true);
-                variablesArray.add(new ArrayList<Variable>());
+                addToVariablesArray();
                 Integer loopAmount = Math.abs(((Loops) tree.left).upperLim - ((Loops) tree.left).lowerLim);
                 String varValue = ((Loops) tree.left).lowerLim.toString();
                 String varName = ((Loops) tree.left).limiter;
                 if(!checkVarExists(varName)) {
-                    variablesArray.get(openCurlysIndent.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
+                    variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
 
                     //variables.add(new Variable(null, Variable.Type.INT, varName, varValue));
                 }else{
@@ -1446,7 +1451,7 @@ public class Main extends Activity {
                 type = v.varNodeType;
                 if (!checkVarExists(v.name)) {
                     Variable var = new Variable(null, type, v.name, null);
-                    variablesArray.get(openCurlysIndent.size()).add(var);
+                    variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
                 }
             }
 
@@ -1455,34 +1460,49 @@ public class Main extends Activity {
                 case FOR:
                     if (((Loops) tree).limiter != null) {
                         openCurlysIndent.add(true);
-                        variablesArray.add(new ArrayList<Variable>());
+                        addToVariablesArray();
                         if (!checkVarExists(((Loops) tree).limiter.toString())) {
                             String name = ((Loops) tree).limiter.toString();
                             Variable v = new Variable(null, Variable.Type.INT, name, null);
-                            variablesArray.get(openCurlysIndent.size()).add(v);
+                            variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(v);
                         }
                     }
                     break;
             }
         } else if (nodeType == Node.Type.END) {
             openCurlysIndent.remove(openCurlysIndent.size() - 1);
-            variablesArray.remove(variablesArray.size() - 1);
+            variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
         } else if (nodeType == Node.Type.ELSE) {
             openCurlysIndent.add(true);
-            variablesArray.add(new ArrayList<Variable>());
+            addToVariablesArray();
         } else if (nodeType == Node.Type.ENDIFCONDITION) {
             openCurlysIndent.add(true);
-            variablesArray.add(new ArrayList<Variable>());
+            addToVariablesArray();
         } else if (nodeType == Node.Type.FUNCTION) {
             if (((Function) tree).isDec) {
                 if (((Function) tree).decFinished) {
-                    variablesArray.add(new ArrayList<Variable>());
+                    addToVariablesArray();
                     openCurlysIndent.add(true);
                 }
             }
         }
     }
 
+    public void addToVariablesArray(){
+        try {
+            variablesArray.get(functionDimensions.size()).add(new ArrayList<Variable>());
+        } catch (IndexOutOfBoundsException e){
+            variablesArray.add(new ArrayList<ArrayList<Variable>>());
+            variablesArray.get(functionDimensions.size()).add(new ArrayList<Variable>());
+        }
+    }
+
+    public void addFunctionDimension(){
+        functionDimensions.add(true);
+        variablesArray.add(new ArrayList<ArrayList<Variable>>());
+        ArrayList<Variable> globals = variablesArray.get(0).get(0);
+        variablesArray.get(functionDimensions.size()).add(globals);
+    }
 
 
 
@@ -1507,8 +1527,9 @@ public class Main extends Activity {
 
     public void fillVariablesArray(){
         variablesArray.clear();
-        variablesArray = new ArrayList<ArrayList<Variable>>();
-        variablesArray.add(new ArrayList<Variable>());
+        functionDimensions.clear();
+        variablesArray = new ArrayList<ArrayList<ArrayList<Variable>>>();
+        addToVariablesArray();
         openCurlysIndent.clear();
         runFillVar(tree, false);
     }
@@ -1552,8 +1573,8 @@ public class Main extends Activity {
         LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
         fillVariablesArray();
         fillFunctionsArray();
-        for(int j = 0; j < variablesArray.size(); j ++) {
-            ArrayList<Variable> variables = variablesArray.get(j);
+        for(int j = 0; j < variablesArray.get(functionDimensions.size()).size(); j ++) {
+            ArrayList<Variable> variables = variablesArray.get(functionDimensions.size()).get(j);
             for (int i = 0; i < variables.size(); i++) {
                 if (varType == null || variables.get(i).varNodeType == varType) {
                     final Button b = new Button(this);
@@ -1568,7 +1589,7 @@ public class Main extends Activity {
                     } else if (variables.get(i).varNodeType == Variable.Type.BOOL) {
                         b.setBackgroundColor(0x9966FF0);
                     }
-                    if (true) {
+                      if (true) {
 
                     } else {
 
@@ -1603,7 +1624,8 @@ public class Main extends Activity {
                                 //  openLoopsIndent.clear();
                                 //  openIfsIndent.clear();
                                 variablesArray.clear();
-                                variablesArray.add(new ArrayList<Variable>());
+                                functionDimensions.clear();
+                                addToVariablesArray();
                                 openCurlysIndent.clear();
                                 tree = checkNewLineNotDeleted();
                                 printTree(tree);
@@ -1829,7 +1851,8 @@ public class Main extends Activity {
                 output.setText("");
                 tree.renumberNodes(tree);
                 variablesArray.clear();
-                variablesArray.add(new ArrayList<Variable>());
+                functionDimensions.clear();
+                addToVariablesArray();
                 openCurlysIndent.clear();
                 runCode(tree);
                 clearVar();
@@ -1866,7 +1889,8 @@ public class Main extends Activity {
                 String varName = edtEnterString.getText().toString().trim();
                 clearButtons();
                 variablesArray.clear();
-                variablesArray.add(new ArrayList<Variable>());
+                functionDimensions.clear();
+                addToVariablesArray();
                 openCurlysIndent.clear();
                 runFillVar(tree, false);
                 if(checkVarExists(varName)){
@@ -1960,7 +1984,8 @@ public class Main extends Activity {
                 output.setText("");
                 //   variables.clear();
                 variablesArray.clear();
-                variablesArray.add(new ArrayList<Variable>());
+                functionDimensions.clear();
+                addToVariablesArray();
                 showButtons(homeMenu);
                 break;
 
@@ -2024,6 +2049,8 @@ public class Main extends Activity {
 
             case R.id.btnEnterVarName:
                 String vName = edtEnterString.getText().toString().trim();
+                variablesArray.clear();
+                addToVariablesArray();
                 runFillVar(tree, false);
                 if(checkVarExists(vName)){
                     showInvalidAlert("Error: A variable has already been declared with this name in this scope");
@@ -2250,8 +2277,9 @@ public class Main extends Activity {
             // openLoopsIndent.clear();
             // openIfsIndent.clear();
             openCurlysIndent.clear();
+            functionDimensions.clear();
             variablesArray.clear();
-            variablesArray.add(new ArrayList<Variable>());
+            addToVariablesArray();
             tree = checkNewLineNotDeleted();
             printTree(tree);
             setCursorToEndOfCurrentLine(move);
@@ -2561,7 +2589,8 @@ public class Main extends Activity {
 
 //Monday 17th August
 
-//TODO: functions: might have to make varaibles array 3d?
+//TODO: functions: might have to make varaibles array 3d? -- MADE IT 3D, NOW TO MAKE IT ADD MORE DIMENSIONS WHEN NEW FUNCTION OPENED
+//
 
 //TODO: function calls
 //TODO: implement return functionality
