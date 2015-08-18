@@ -1,11 +1,7 @@
 package com.example.jonny.myfirstapp;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
 
 /**
@@ -17,6 +13,7 @@ public class Node extends Activity {
     public enum Type{
         NONE,
         ROOT,
+        BLANK,
         SEQ,
         EVAL,
         STRING,
@@ -43,6 +40,7 @@ public class Node extends Activity {
         ENDPROGRAM,
         GO,
         FUNCCALL,
+        RESETRETURN,
         CONDITION;
     }
 
@@ -61,6 +59,7 @@ public class Node extends Activity {
     Integer numberOfNewLinesBeforeCurNode;
     Integer currentNodeNumber;
     Integer position;
+    Boolean run;
 
 
 
@@ -68,6 +67,7 @@ public class Node extends Activity {
         this.parent = parent;
         this.nodeType = type;
         this.isCurrentNode = true;
+        this.run = true;
     }
 
 
@@ -243,10 +243,17 @@ public class Node extends Activity {
             }
             else if(type == Type.IF){
                 newNode = new If(node);
+            }else if(type == Type.SMCLN){
+                if(value == null) {
+                    newNode = new Semicolon(node, Semicolon.Type.NONE);
+                }else if(value == "RETURN"){
+                    newNode = new Semicolon(node, Semicolon.Type.RETURN);
+                }
             }
             else {
                 newNode = new Node(type, node);
             }
+            newNode.run = true;
             if(direction == "left"){
                 if(node.left != null){
                     newNode.left = node.left;
@@ -456,7 +463,7 @@ public class Node extends Activity {
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
                             tree.left.left.left.right.left.isCurrentNode = true;
                         }else if ((newLineType == Newline.Type.FUNCTION) && (function.equals("setCurrent")) && (((Function)tree.left.left).isDec)) {
-                                tree.left.left.right.left.isCurrentNode = true;
+                                tree.left.left.left.right.left.isCurrentNode = true;
                         }else {
                             if (function.equals("delete")) {
                                 tree.left = null;
@@ -698,6 +705,23 @@ public class Node extends Activity {
         return ((Variable)node).varNodeType;
     }
 
+    public Node returnStartFuncNode(Node node){
+        while(node.nodeType != Type.STARTFUNC){
+            node = node.parent;
+        }
+        return node;
+    }
+
+    public Node setRunForAllChildren(Node n, Boolean run){
+        n.run = run;
+        if(n.left != null){
+            setRunForAllChildren(n.left, run);
+        }
+        if(n.right != null){
+            setRunForAllChildren(n.right, run);
+        }
+        return n;
+    }
 
     public Variable returnAssignVar(Node node){
         while(node.nodeType != Node.Type.ASSIGN){

@@ -1168,6 +1168,13 @@ public class Main extends Activity {
                            String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                            output.append(value + "\n");
                        }
+                       else if(treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)){
+                           Node startFuncNode = treeNode.returnStartFuncNode(treeNode);
+                           startFuncNode.left = startFuncNode.setRunForAllChildren(startFuncNode.left, false);
+                       }
+               }
+               else if (treeNode.nodeType == Node.Type.RESETRETURN) {
+                    treeNode.parent = treeNode.setRunForAllChildren(treeNode.parent, true);
                }
                else  if(treeNode.nodeType == Node.Type.FORLOOP){
                  //  openCurlysIndent.add(true);
@@ -1262,80 +1269,86 @@ public class Main extends Activity {
         try {
             visitNodeRun(tree);
             if (tree.left != null) {
-                if (tree.left.nodeType == Node.Type.FUNCTION) {
-                    if (((Function) tree.left).isDec == false) {
-                        runCode(tree.left);
-                    }
-                } else if (tree.left.nodeType == Node.Type.FORLOOP) {
-                    openCurlysIndent.add(true);
-                    addToVariablesArray();
-                    Integer loopAmount = Math.abs(((Loops) tree.left).upperLim - ((Loops) tree.left).lowerLim);
-                    String varValue = ((Loops) tree.left).lowerLim.toString();
-                    String varName = ((Loops) tree.left).limiter;
-                    if (!checkVarExists(varName)) {
-                        variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
-
-                        //variables.add(new Variable(null, Variable.Type.INT, varName, varValue));
-                    } else {
-                        updateVariableValue(varValue, varName, Variable.Type.INT);
-                    }
-                    ArrayList<Node> condition = new ArrayList<Node>();
-                    Variable loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
-                    Operator.Type opType = ((Loops) tree.left).operator;
-                    Operator op = new Operator(null, opType);
-                    VarVal limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
-                    condition.add(loopInt);
-                    condition.add(op);
-                    condition.add(limit);
-                    Integer count = 0;
-                    Boolean loopLimitReached = false;
-                    while (getVarOrVarValValue(evaluateArray(condition).get(0)) == "true" && !loopLimitReached) {
-                        count++;
-                        runCode(tree.left.left);
-                        if (((Loops) tree.left).plusOrMinus == "--") {
-                            String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
-                            updateVariableValue(newValue, varName, Variable.Type.INT);
-                        } else {
-                            String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) + 1);
-                            updateVariableValue(newValue, varName, Variable.Type.INT);
+                if(tree.left.run){
+                    if (tree.left.nodeType == Node.Type.FUNCTION) {
+                        if (((Function) tree.left).isDec == false) {
+                            runCode(tree.left);
                         }
-                        loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
-                        opType = ((Loops) tree.left).operator;
-                        op = new Operator(null, opType);
-                        limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
-                        condition.clear();
+                    } else if (tree.left.nodeType == Node.Type.FORLOOP) {
+                        openCurlysIndent.add(true);
+                        addToVariablesArray();
+                        Integer loopAmount = Math.abs(((Loops) tree.left).upperLim - ((Loops) tree.left).lowerLim);
+                        String varValue = ((Loops) tree.left).lowerLim.toString();
+                        String varName = ((Loops) tree.left).limiter;
+                        if (!checkVarExists(varName)) {
+                            variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
+
+                            //variables.add(new Variable(null, Variable.Type.INT, varName, varValue));
+                        } else {
+                            updateVariableValue(varValue, varName, Variable.Type.INT);
+                        }
+                        ArrayList<Node> condition = new ArrayList<Node>();
+                        Variable loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
+                        Operator.Type opType = ((Loops) tree.left).operator;
+                        Operator op = new Operator(null, opType);
+                        VarVal limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
                         condition.add(loopInt);
                         condition.add(op);
                         condition.add(limit);
-                        if (count > 10000) {
-                            loopLimitReached = true;
-                            output.setText("<ERROR: loop repeated for more than 10,000 iterations>");
+                        Integer count = 0;
+                        Boolean loopLimitReached = false;
+                        while (getVarOrVarValValue(evaluateArray(condition).get(0)) == "true" && !loopLimitReached) {
+                            count++;
+                            runCode(tree.left.left);
+                            if (((Loops) tree.left).plusOrMinus == "--") {
+                                String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
+                                updateVariableValue(newValue, varName, Variable.Type.INT);
+                            } else {
+                                String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) + 1);
+                                updateVariableValue(newValue, varName, Variable.Type.INT);
+                            }
+                            loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
+                            opType = ((Loops) tree.left).operator;
+                            op = new Operator(null, opType);
+                            limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
+                            condition.clear();
+                            condition.add(loopInt);
+                            condition.add(op);
+                            condition.add(limit);
+                            if (count > 10000) {
+                                loopLimitReached = true;
+                                output.setText("<ERROR: loop repeated for more than 10,000 iterations>");
+                            }
                         }
-                    }
-                    runCode(tree.left.right);
+                        runCode(tree.left.right);
 
-                } else {
-                    runCode(tree.left);
+                    } else {
+                        runCode(tree.left);
+                    }
                 }
             }
             if (tree.right != null) {
-                if (tree.nodeType == Node.Type.NONE) {
-                    //check if if statement condition is true
-                    //  if(((If)tree.parent.parent).isTrue){
-                    if (tree.parent.nodeType == Node.Type.STARTIF) { //To distinguish from IF and FUNCTIONS
-                        if (checkIfTrue(tree)) {
+                if(tree.right.run){
+
+                    if (tree.nodeType == Node.Type.NONE) {
+                        //check if if statement condition is true
+                        //  if(((If)tree.parent.parent).isTrue){
+                        if (tree.parent.nodeType == Node.Type.STARTIF) { //To distinguish from IF and FUNCTIONS
+                            if (checkIfTrue(tree)) {
+                                runCode(tree.right);
+                            }
+                        } else if (tree.parent.nodeType == Node.Type.STARTFUNC) {
                             runCode(tree.right);
                         }
-                    } else if (tree.parent.nodeType == Node.Type.STARTFUNC) {
+                    } else if (tree.nodeType == Node.Type.ELSE) {
+                        if (!checkIfTrue(tree)) {
+                            runCode(tree.right);
+                        }
+                    } else {
                         runCode(tree.right);
                     }
-                } else if (tree.nodeType == Node.Type.ELSE) {
-                    if (!checkIfTrue(tree)) {
-                        runCode(tree.right);
-                    }
-                } else {
-                    runCode(tree.right);
                 }
+
             }
         }catch (StackOverflowError e){
             Log.e("THer werew a problem", "Yup");
@@ -1812,6 +1825,7 @@ public class Main extends Activity {
             case R.id.btnFunctions:
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "FUNCTION");
+
               //  tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
                 tree = tree.addNode(tree, Node.Type.FUNCTION, "left", null);
                 break;
@@ -1856,6 +1870,9 @@ public class Main extends Activity {
 
             case R.id.btnEndFuncDec:
                 Node currentNode = (tree.findCurNode(tree));
+                tree = tree.addNode(tree, Node.Type.BLANK, "left", null);
+                tree = tree.addNode(tree, Node.Type.RESETRETURN, "right", null);
+                tree = tree.moveUpOneStep(tree);
                 tree = tree.addNode(tree, Node.Type.STARTFUNC, "right", null);
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "right", "FUNCEND");
                 tree = tree.addNode(tree, Node.Type.END, "right", null);
@@ -1890,7 +1907,7 @@ public class Main extends Activity {
                 }
 
 
-                Node functionNode =  tree.findCurNode(tree).parent.parent;
+                Node functionNode =  tree.findCurNode(tree).parent.parent.parent;
                 functionNode = tree.setFuncParamFinished(functionNode, true);
                 functionNode = tree.setFuncEndDec(functionNode, true);
 
@@ -2127,7 +2144,11 @@ public class Main extends Activity {
 
             case R.id.semicolon:
                 Log.d("DEBUG", "PRESS ;");
-                tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
+                if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.RETURN, Node.Type.SEQ)) {
+                    tree = tree.addNode(tree, Node.Type.SMCLN, "right", "RETURN");
+                }else{
+                    tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
+                }
                 tree = tree.moveUpTreeLimit(tree, "SEQ");
                 clearButtons();
                 // showButtons(homeMenu);
@@ -2753,12 +2774,7 @@ public class Main extends Activity {
 
 
 
-//Monday 17th August
-
-//TODO: functions: might have to make varaibles array 3d? -- MADE IT 3D, NOW TO MAKE IT ADD MORE DIMENSIONS WHEN NEW FUNCTION OPENED
-//
-
-//TODO: function calls -- DONE for no parameters and no return
+//Tuesday 18th August
 //TODO: implement return functionality
 //TODO: warning when you delete function declaration or variable that is used later
 //TODO: don't allow var or func names with spaces etc
@@ -2980,3 +2996,9 @@ public class Main extends Activity {
 //TODO: fix menu when you press variables -- DONE by taking out NEWLINE in opetions to show home menu
 //TODO: get openCurylsIndent and correct variables working when you run -- DONE
 //TODO: fix for loops so that they run properly -- DONE
+
+//Monday 17th August
+
+//TODO: functions: might have to make varaibles array 3d? -- MADE IT 3D, NOW TO MAKE IT ADD MORE DIMENSIONS WHEN NEW FUNCTION OPENED
+//
+//TODO: function calls -- DONE for no parameters and no return
