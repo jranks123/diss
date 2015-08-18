@@ -697,7 +697,7 @@ public class Main extends Activity {
 
                 }
                 if (((Function) tree).name != null) {
-                    code.append(((Function) tree).name + " (");
+                    code.append(((Function) tree).name + "(");
                 }
                 if (((Function) tree).decFinished) {
                     code.append(" ) {");
@@ -715,7 +715,7 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.FUNCCALL){
             if(((FunctionCall)tree).functionName != null){
-                code.append(((FunctionCall)tree).functionName + " (");
+                code.append(((FunctionCall)tree).functionName + "(");
             }
             for(int i = 0; i < ((FunctionCall)tree).parameters.size(); i++){
                 String value = getVarOrVarValValue(((FunctionCall)tree).parameters.get(i));
@@ -1243,7 +1243,7 @@ public class Main extends Activity {
                 btnCloseBracket.setVisibility(View.GONE);
             }
         }
-        if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL){
+        if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL || node.nodeType == Node.Type.FUNCCALL){
             btnOpenBracket.setVisibility(View.GONE);
         }
         if(node.nodeType == Node.Type.OP){
@@ -1256,10 +1256,12 @@ public class Main extends Activity {
     }
 
     public void showSemicolonButton(){
-
+        Node n = tree.findCurNode(tree);
         if(openBrackets.size() == 0){
-            if(!tree.isXbeforeY(tree.findCurNode(tree), Node.Type.IF, Node.Type.NEWLINE)) {
-                btnSemicolon.setVisibility(View.VISIBLE);
+            if(!tree.isXbeforeY(n, Node.Type.IF, Node.Type.NEWLINE)) {
+            //    if(n.nodeType == Node.Type.FUNCCALL && n.parent.nodeType != Node.Type.EVAL) {
+                    btnSemicolon.setVisibility(View.VISIBLE);
+              //  }
             }
         }
     }
@@ -2632,12 +2634,27 @@ public class Main extends Activity {
                 //situation where function call is in expression
                 if (tree.isXbeforeY(currentNode, Node.Type.EVAL, Node.Type.SEQ)) {
                     //if(((FunctionCall)currentNode).type == FunctionCall.Type.INT){
-                    if (((FunctionCall) currentNode).paramsFinished) {
-                        btnOperator.setVisibility(View.VISIBLE);
-                        showBracketButtons(currentNode);
+                    if(((FunctionCall)currentNode).functionName == null) {
+                        Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
+                        if (evalType == Eval.Type.STRING) {
+                            showFunctionButtons(null);
+                        } else if (evalType == Eval.Type.INT) {
+                            showFunctionButtons(Function.Type.INT);
+                        } else if (evalType == Eval.Type.BOOL) {
+                            showFunctionButtons(Function.Type.BOOL);
+                        }
+                    }else if (!((FunctionCall) currentNode).paramsFinished) {
+                        doFunctionCallParams(currentNode);
+                        if (((FunctionCall) currentNode).paramsFinished) {
+                            btnOperator.setVisibility(View.VISIBLE);
+                            showBracketButtons(currentNode);
+                            showSemicolonButton();
+                        }
                     }
 
-                    showSemicolonButton();
+
+
+                    //
 
                 } else {
 
@@ -2649,6 +2666,8 @@ public class Main extends Activity {
                     }
 
                 }
+                code.setText("");
+                printTree(tree);
             }
         }
         else if (currentNodeType == Node.Type.FUNCTION) {
@@ -2754,7 +2773,7 @@ public class Main extends Activity {
             }
 
         }
-        if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.VAR) && (currentNodeType != Node.Type.BRACKET)) {
+        if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.FUNCCALL)&& (currentNodeType != Node.Type.VAR) && (currentNodeType != Node.Type.BRACKET)) {
             btnOperator.setVisibility(View.GONE);
         }
 
