@@ -505,6 +505,19 @@ public class Main extends Activity {
 
     }
 
+    public boolean checkFuncTypeExistence(Function.Type type){
+        fillFunctionsArrayUpToCurrentNode();
+        if(functionsArray != null){
+            for (int i = 0; i < functionsArray.size(); i++) {
+                if (functionsArray.get(i).funcType == type) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
+
 
 
 
@@ -1576,6 +1589,22 @@ public class Main extends Activity {
         return curNodeFound;
     }
 
+    public Boolean runFillFuncUpToCurrentNode(Node node, Boolean curNodeFound){
+        if(node.isCurrentNode == true){
+            curNodeFound = true;
+        }
+        if(!curNodeFound) {
+            visitNodeFunc(node);
+            if (node.left != null) {
+                curNodeFound = runFillFuncUpToCurrentNode(node.left, curNodeFound);
+            }
+            if (node.right != null && !curNodeFound) {
+                curNodeFound = runFillFuncUpToCurrentNode(node.right, curNodeFound);
+            }
+        }
+        return curNodeFound;
+    }
+
 
 
 
@@ -1613,6 +1642,12 @@ public class Main extends Activity {
         functionsArray.clear();
         functionsArray = new ArrayList<Function>();
         runFillFunc(tree, false);
+    }
+
+    public void fillFunctionsArrayUpToCurrentNode(){
+        functionsArray.clear();
+        functionsArray = new ArrayList<Function>();
+        runFillFuncUpToCurrentNode(tree, false);
     }
 
 
@@ -2692,8 +2727,9 @@ public class Main extends Activity {
                         showVarButtons(null);
                     }*/
             } else {
-                showBracketButtons(currentNode);
-                if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.STRING) {
+               // showBracketButtons(currentNode);
+                showTypeInput(currentNode);
+               /* if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.STRING) {
                     btnTypeInput.setVisibility(View.VISIBLE);
                     if (checkIfAnyVarsExist()) {
                         btnVar.setVisibility(View.VISIBLE);
@@ -2711,7 +2747,10 @@ public class Main extends Activity {
                     if (checkVarTypeExistence(Variable.Type.BOOL)) {
                         btnVar.setVisibility(View.VISIBLE);
                     }
-                }
+                    if (checkFuncTypeExistence(Function.Type.BOOL)) {
+                        btnExistingFunc.setVisibility(View.VISIBLE);
+                    }
+                }*/
             }
 
         }
@@ -2749,10 +2788,16 @@ public class Main extends Activity {
             if (checkIfAnyVarsExist()) {
                 btnVar.setVisibility(View.VISIBLE);
             }
+            if (checkFuncTypeExistence(Function.Type.STRING)) {
+                btnExistingFunc.setVisibility(View.VISIBLE);
+            }
         } else if (evalType == Eval.Type.INT) {
             btnTypeInput.setVisibility(View.VISIBLE);
             if (checkVarTypeExistence(Variable.Type.INT)) {
                 btnVar.setVisibility(View.VISIBLE);
+            }
+            if (checkFuncTypeExistence(Function.Type.INT)) {
+                btnExistingFunc.setVisibility(View.VISIBLE);
             }
 
         } else if (evalType == Eval.Type.BOOL) {
@@ -2760,6 +2805,9 @@ public class Main extends Activity {
             btnBoolFalse.setVisibility(View.VISIBLE);
             if (checkVarTypeExistence(Variable.Type.BOOL)) {
                 btnVar.setVisibility(View.VISIBLE);
+            }
+            if (checkFuncTypeExistence(Function.Type.BOOL)) {
+                btnExistingFunc.setVisibility(View.VISIBLE);
             }
         } else if (evalType == Eval.Type.NONE) {
             btnTypeInput.setVisibility(View.VISIBLE);
