@@ -126,6 +126,7 @@ public class Main extends Activity {
     ArrayList<Function> functionsArray;
     ArrayList<Boolean> openBrackets;
     ArrayList<Boolean> openCurlysIndent;
+    ArrayList<String> returnValueStack;
 
     ArrayList<Boolean> functionDimensions;
 
@@ -253,6 +254,7 @@ public class Main extends Activity {
         btnRun = (Button) findViewById(R.id.run);
         varButtons = new ArrayList<Button>();
         funcButtons = new ArrayList<Button>();
+        returnValueStack = new ArrayList<String>();
         btnPrintTextMenu = (Button) findViewById(R.id.btnPrintTextMenu);
         homeMenu = new ArrayList<Button>();
         homeMenu.add(btnPrint);
@@ -718,7 +720,7 @@ public class Main extends Activity {
                 code.append(((FunctionCall)tree).functionName + "(");
             }
             for(int i = 0; i < ((FunctionCall)tree).parameters.size(); i++){
-                String value = getVarOrVarValValue(((FunctionCall)tree).parameters.get(i));
+                String value = getValueOfExpressionNode(((FunctionCall) tree).parameters.get(i));
                 code.append(value + ", ");
             }
             if(((FunctionCall)tree).paramsFinished) {
@@ -870,11 +872,19 @@ public class Main extends Activity {
 
     }
 
-    public String getVarOrVarValValue(Node node){
-         try {
-                return (((VarVal) node).value);
-            }catch (ClassCastException e){
-                return getVariableValue(((Variable) node).name, ((Variable) node).varNodeType);
+    public String getValueOfExpressionNode(Node node){
+            if(node.nodeType == Node.Type.FUNCCALL) {
+                Node n = node.getFunctionNodeByName(tree, ((FunctionCall) node).functionName);
+                runCode(n);
+                String value = returnValueStack.get(returnValueStack.size() - 1);
+                returnValueStack.remove(returnValueStack.size() - 1);
+                return value;
+            }else {
+                try {
+                    return (((VarVal) node).value);
+                } catch (ClassCastException e) {
+                    return getVariableValue(((Variable) node).name, ((Variable) node).varNodeType);
+                }
             }
     }
 
@@ -896,13 +906,13 @@ public class Main extends Activity {
             node = array.get(i);
             if (node.nodeType == Node.Type.OP) {
                 if (((Operator) node).opNodeType == Operator.Type.DIV) {
-                    value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) / Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
+                    value = String.valueOf((Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))) / Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 }else if (((Operator) node).opNodeType == Operator.Type.MOD) {
-                    value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) % Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
+                    value = String.valueOf((Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))) % Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 } else if (((Operator) node).opNodeType == Operator.Type.MULTI) {
-                    value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) * Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
+                    value = String.valueOf((Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))) * Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 }else{
                     i++;
@@ -923,10 +933,10 @@ public class Main extends Activity {
             node = array.get(i);
             if (node.nodeType == Node.Type.OP) {
                 if (((Operator) node).opNodeType == Operator.Type.ADD) {
-                    value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) + Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
+                    value = String.valueOf((Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))) + Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 } else if (((Operator) node).opNodeType == Operator.Type.SUB) {
-                    value = String.valueOf((Integer.parseInt(getVarOrVarValValue(array.get(i - 1))) - Integer.parseInt(getVarOrVarValValue(array.get(i + 1)))));
+                    value = String.valueOf((Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))) - Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 }else{
                     i++;
@@ -946,10 +956,10 @@ public class Main extends Activity {
             node = array.get(i);
             if (node.nodeType == Node.Type.OP) {
                 if (((Operator) node).opNodeType == Operator.Type.AND) {
-                    value = String.valueOf((Boolean.valueOf(getVarOrVarValValue(array.get(i - 1))) && Boolean.valueOf(getVarOrVarValValue(array.get(i + 1)))));
+                    value = String.valueOf((Boolean.valueOf(getValueOfExpressionNode(array.get(i - 1))) && Boolean.valueOf(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 } else if (((Operator) node).opNodeType == Operator.Type.OR) {
-                    value = String.valueOf((Boolean.valueOf(getVarOrVarValValue(array.get(i - 1))) || Boolean.valueOf(getVarOrVarValValue(array.get(i + 1)))));
+                    value = String.valueOf((Boolean.valueOf(getValueOfExpressionNode(array.get(i - 1))) || Boolean.valueOf(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 }else{
                     i++;
@@ -968,8 +978,8 @@ public class Main extends Activity {
         while(i < array.size()) {
             node = array.get(i);
             if (node.nodeType == Node.Type.OP) {
-                String leftValString = String.valueOf(getVarOrVarValValue(array.get(i - 1)));
-                String rightValString = String.valueOf(getVarOrVarValValue(array.get(i + 1)));
+                String leftValString = String.valueOf(getValueOfExpressionNode(array.get(i - 1)));
+                String rightValString = String.valueOf(getValueOfExpressionNode(array.get(i + 1)));
                 if (((Operator) node).opNodeType == Operator.Type.EQUALS) {
                     if(leftValString.equals(rightValString)){
                         value = "true";
@@ -987,8 +997,8 @@ public class Main extends Activity {
                     removeOpFromArrayList(array, i, value);
                 }
                 else if (((Operator) node).opNodeType == Operator.Type.LESSTHAN) {
-                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
-                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    Integer leftValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)));
                     if(leftValInt < rightValInt){
                         value = "true";
                     }else{
@@ -997,8 +1007,8 @@ public class Main extends Activity {
                     removeOpFromArrayList(array, i, value);
                 }
                 else if (((Operator) node).opNodeType == Operator.Type.MORETHAN) {
-                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
-                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    Integer leftValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)));
                     if(leftValInt > rightValInt){
                         value = "true";
                     }else{
@@ -1007,8 +1017,8 @@ public class Main extends Activity {
                     removeOpFromArrayList(array, i, value);
                 }
                 else if (((Operator) node).opNodeType == Operator.Type.LESSTHANEQUALS) {
-                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
-                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    Integer leftValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)));
                     if(leftValInt <= rightValInt){
                         value = "true";
                     }else{
@@ -1017,8 +1027,8 @@ public class Main extends Activity {
                     removeOpFromArrayList(array, i, value);
                 }
                 else if (((Operator) node).opNodeType == Operator.Type.MORETHANEQUALS) {
-                    Integer leftValInt = Integer.parseInt(getVarOrVarValValue(array.get(i - 1)));
-                    Integer rightValInt = Integer.parseInt(getVarOrVarValValue(array.get(i + 1)));
+                    Integer leftValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i - 1)));
+                    Integer rightValInt = Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)));
                     if(leftValInt >= rightValInt){
                         value = "true";
                     }else{
@@ -1044,7 +1054,7 @@ public class Main extends Activity {
             node = array.get(i);
             if (node.nodeType == Node.Type.OP) {
                 if (((Operator) node).opNodeType == Operator.Type.CONCAT) {
-                    value = getVarOrVarValValue(array.get(i - 1)) + getVarOrVarValValue(array.get(i + 1));
+                    value = getValueOfExpressionNode(array.get(i - 1)) + getValueOfExpressionNode(array.get(i + 1));
                     removeOpFromArrayList(array, i, value);
                 }else{
                     i++;
@@ -1133,7 +1143,7 @@ public class Main extends Activity {
                 node = node.right;
             }
         }
-        return getVarOrVarValValue(evaluateArray(array).get(0));
+        return getValueOfExpressionNode(evaluateArray(array).get(0));
     }
 
     public void setConditionValue(Node tree, String value){
@@ -1184,6 +1194,8 @@ public class Main extends Activity {
                        else if(treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)){
                            Node startFuncNode = treeNode.returnStartFuncNode(treeNode);
                            startFuncNode.left = startFuncNode.setRunForAllChildren(startFuncNode.left, false);
+                           String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                           returnValueStack.add(value);
                        }
                }
                else if (treeNode.nodeType == Node.Type.RESETRETURN) {
@@ -1224,8 +1236,13 @@ public class Main extends Activity {
                        variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
                    }
                }else if(treeNode.nodeType == Node.Type.FUNCCALL){
-                   Node n = treeNode.getFunctionNodeByName(tree, ((FunctionCall)treeNode).functionName);
-                   runCode(n);
+                   if(!(tree.isXbeforeY(treeNode, Node.Type.EVAL, Node.Type.SEQ))) {
+                       Node n = treeNode.getFunctionNodeByName(tree, ((FunctionCall) treeNode).functionName);
+                       runCode(n);
+                       if(((FunctionCall)treeNode).type != FunctionCall.Type.VOID) {
+                           returnValueStack.remove(returnValueStack.size() - 1);
+                       }
+                   }
                }
 
     }
@@ -1312,7 +1329,7 @@ public class Main extends Activity {
                         condition.add(limit);
                         Integer count = 0;
                         Boolean loopLimitReached = false;
-                        while (getVarOrVarValValue(evaluateArray(condition).get(0)) == "true" && !loopLimitReached) {
+                        while (getValueOfExpressionNode(evaluateArray(condition).get(0)) == "true" && !loopLimitReached) {
                             count++;
                             runCode(tree.left.left);
                             if (((Loops) tree.left).plusOrMinus == "--") {
