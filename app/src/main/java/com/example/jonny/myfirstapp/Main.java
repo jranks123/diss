@@ -5,6 +5,7 @@ package com.example.jonny.myfirstapp;
  */
 
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Layout;
@@ -13,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.app.Activity;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import android.util.Log;
 
@@ -129,6 +131,7 @@ public class Main extends Activity {
     ArrayList<String> returnValueStack;
 
     ArrayList<Boolean> functionDimensions;
+    ArrayList<String> errorStack;
 
     Integer numberOfNewLines;
     String tempString1;
@@ -166,7 +169,7 @@ public class Main extends Activity {
         btnEndFuncDec = (Button) findViewById(R.id.btnEndFuncDec);
         btnFuncAddParam = (Button) findViewById(R.id.btnFuncAddParam);
         btnFuncReturn = (Button) findViewById(R.id.btnFuncReturn);
-
+        errorStack = new ArrayList<String>();
 
         btnLoops = (Button)findViewById(R.id.loops);
         btnVar = (Button)findViewById(R.id.var);
@@ -1349,7 +1352,7 @@ public class Main extends Activity {
                             condition.add(limit);
                             if (count > 10000) {
                                 loopLimitReached = true;
-                                output.setText("<ERROR: loop repeated for more than 10,000 iterations>");
+                                errorStack.add("<ERROR: loop repeated for more than 10,000 iterations>");
                             }
                         }
                         runCode(tree.left.right);
@@ -1383,8 +1386,7 @@ public class Main extends Activity {
 
             }
         }catch (StackOverflowError e){
-            Log.e("THer werew a problem", "Yup");
-            output.append("A recursive function caused an error as it looped forever");
+            errorStack.add("A recursive function caused an error as it looped forever");
         }
     }
 
@@ -1733,6 +1735,11 @@ public class Main extends Activity {
 
     }
 
+    public void hideKeyboard(){
+        InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
     public void showVarButtons(Variable.Type varType){
         varButtons.clear();
         Node.Type nodeType = tree.findCurNode(tree).nodeType;
@@ -1907,6 +1914,7 @@ public class Main extends Activity {
 
             case R.id.btnEnterFuncName:
                 String name = edtEnterString.getText().toString().trim();
+                hideKeyboard();
                 Boolean funcNameExists = false;
                 for(int i = 0; i < functionsArray.size(); i++){
                     if(functionsArray.get(i).name.equals(name)){
@@ -2047,6 +2055,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.run:
+                errorStack = new ArrayList<String>();
                 output.setText("");
                 tree.renumberNodes(tree);
                 variablesArray.clear();
@@ -2055,6 +2064,12 @@ public class Main extends Activity {
                 openCurlysIndent.clear();
                 runCode(tree);
                 clearVar();
+                if(errorStack.size() > 0 ){
+                    output.setText(" ");
+                    for(int i = 0; i < errorStack.size(); i++){
+                        output.append(errorStack.get(i));
+                    }
+                }
                 break;
 
 
@@ -2086,6 +2101,7 @@ public class Main extends Activity {
 
             case R.id.btnForNewVarEnter:
                 String varName = edtEnterString.getText().toString().trim();
+                hideKeyboard();
                 clearButtons();
                 variablesArray.clear();
                 functionDimensions.clear();
@@ -2106,6 +2122,7 @@ public class Main extends Activity {
 
             case R.id.btnForNewVarValueEnter:
                 text = edtEnterString.getText().toString().trim();
+                hideKeyboard();
                 try {
                     int num = Integer.parseInt(text);
                     clearButtons();
@@ -2134,6 +2151,7 @@ public class Main extends Activity {
 
             case R.id.btnForNewVarValueUpperEnter:
                 text = edtEnterString.getText().toString().trim();
+                hideKeyboard();
                 try {
                     int num = Integer.parseInt(text);
                     clearButtons();
@@ -2251,7 +2269,10 @@ public class Main extends Activity {
 
 
             case R.id.btnEnterVarName:
+
                 String vName = edtEnterString.getText().toString().trim();
+                hideKeyboard();
+
                 variablesArray.clear();
                 addToVariablesArray();
                 runFillVar(tree, false);
@@ -2304,6 +2325,7 @@ public class Main extends Activity {
 
 
             case R.id.btnEnterVarValue:
+                hideKeyboard();
                // getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
                 if ((tree.returnEvalNode(tree.findCurNode(tree)).evalNodeType == Eval.Type.INT)) {
                     text = edtEnterString.getText().toString();
@@ -2321,6 +2343,7 @@ public class Main extends Activity {
 
 
             case R.id.btnEnterTextString:
+                hideKeyboard();
                 if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.VARVAL, Node.Type.SEQ)) {
                     tree = tree.updateVarVal(tree, edtEnterString.getText().toString());
                 } else {
@@ -2805,6 +2828,7 @@ public class Main extends Activity {
         }
 
         if(currentNodeType == Node.Type.SEQ) {
+            btnEditReturn.setVisibility(View.GONE);
             if(currentNode.left.nodeType == Node.Type.NEWLINE){
                 if(((Newline)currentNode.left).newlineNodeType == Newline.Type.RETURN){
                     if(((Return)currentNode.left.left).isInitialReturn) {
@@ -2859,14 +2883,23 @@ public class Main extends Activity {
 
 
 //Tuesday 18th August
-//TODO: implement return functionality
+//ToDO: make loops work properly (with ++ -- etc) -- DONE
+//TODO: implement return functionality -- DONE
+
+//TODO: editReturn button still shows when you press on another line -- DONE
+
+//TODO: having problems with for loops within functions
+
+
+//TODO: have better error reporting, so basically if there is an error, add the error message to an array list, at the end if there are any errors, output them instead of code
+
+
+
+
 //TODO: warning when you delete function declaration or variable that is used later
 //TODO: don't allow var or func names with spaces etc
-
-
 //TODO: make it so you can't declare a var with same name (only works if var is decalred outside all loops)
 
-//TODO: Functions
 //TODO: finish editing
 
 //TODO: implement arrays
@@ -2890,18 +2923,14 @@ public class Main extends Activity {
 
 
 
-//ToDO: make loops work properly (with ++ -- etc)
+
 //TODO: optimize multiple calls to findCurNode
 //TODO: Implement Back functionality
 //TODO: Make it editable
 //TODO: deal with overflows with ints, deal with dividing by 0 and using null variables
-//TODO: Check that loops work properly
 //TODO: when writing up, talk about hwo you have only done ++ with for loops, not += 2 for example. Say it's further development
-
 //TODO: Idea - when modifying, to see if you can delete a line, run the code up to the end of that scope (i.e while opencurlies is >= to what it is for that line
 // and check that that variable is not used anywhere else in the scope. if it is, make them delete that line first
-
-
 
 
 //TODO: when writing up, talk about how you initially thought it would be better to not have duplicate buttons (Ie var) but this actually
