@@ -3,7 +3,7 @@ package com.example.jonny.myfirstapp;
 import android.app.Activity;
 import android.util.Log;
 
-
+//TEST
 /**
  * Created by Jonny on 20/03/2015.
  */
