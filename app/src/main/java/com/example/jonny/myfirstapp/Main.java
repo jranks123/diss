@@ -514,18 +514,7 @@ public class Main extends Activity {
     }
 
 
-    public boolean checkVarExists(String var){
-        for(int j = 0; j < variablesArray.get(functionDimensions.size()).size(); j++) {
-            ArrayList<Variable> variables = variablesArray.get(functionDimensions.size()).get(j);
-            for (int i = 0; i < variables.size(); i++) {
-                Variable v = variables.get(i);
-                if (v.name.equals(var)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+
 
     public boolean checkVarExistsParents(VarTree currentScope, String name){
         do {
@@ -558,7 +547,7 @@ public class Main extends Activity {
     }
 
 
-    public boolean checkVarExistsNew(String name){
+    public boolean checkVarExists(String name){
         fillVariablesArrayFull();
         VarTree currentScope = varTree.findCurVarNode(varTree);
         if(checkVarExistsParents(currentScope, name)){
@@ -678,7 +667,7 @@ public class Main extends Activity {
         return doGetVariableValue(currentScope, name);
     }
 
-    public void updateVariableValueNew(String name, String value){
+    public void updateVariableValueNew(String value, String name){
         VarTree currentScope = varTree.findTempCurVarNode(varTree);
         doUpdateVariableValue(currentScope, value, name);
     }
@@ -2346,7 +2335,7 @@ public class Main extends Activity {
                 varTree = new VarTree(null);
                 openCurlysIndent.clear();
               //  runFillVar(tree, false);
-                if(checkVarExistsNew(varName)){
+                if(checkVarExists(varName)){
                     showInvalidAlert("Error: A variable has already been declared with this name");
                 }else if(varName.length() == 0) {
                     showInvalidAlert("Error: please enter a name for the variable");
@@ -2517,7 +2506,7 @@ public class Main extends Activity {
                 varTree = new VarTree(null);
               //  runFillVar(tree, false);
 
-                if(checkVarExistsNew(vName)){
+                if(checkVarExists(vName)){
                     showInvalidAlert("Error: A variable has already been declared with this name in this scope");
                 }else if(vName.length() == 0) {
                     showInvalidAlert("Error: please enter a name for the variable");
