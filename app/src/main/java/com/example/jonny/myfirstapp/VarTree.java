@@ -50,7 +50,7 @@ public class VarTree extends Activity {
             return tree;
         }
         for(int i = 0; i < tree.children.size(); i++){
-            newTree = findTempCurVarNode(tree.children.get(i));
+            newTree = findCurVarNode(tree.children.get(i));
             if(newTree != null){
                 return newTree;
             }

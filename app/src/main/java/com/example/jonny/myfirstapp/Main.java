@@ -527,10 +527,7 @@ public class Main extends Activity {
         return false;
     }
 
-
-
-    public boolean checkVarExistsNew(String name, VarTree currentScope){
-        fillVariablesArrayToCurrentNode();
+    public boolean checkVarExistsParents(VarTree currentScope, String name){
         do {
             for(int i = 0; i < currentScope.variables.size(); i++) {
                 if (currentScope.variables.get(i).name.equals(name)) {
@@ -544,6 +541,33 @@ public class Main extends Activity {
             }
 
         }while(true);
+    }
+
+    public boolean checkVarExistsChildren(VarTree currentScope, String name){
+        for(int i = 0; i < currentScope.variables.size(); i++) {
+            if (currentScope.variables.get(i).name.equals(name)) {
+                return true;
+            }
+        }
+        for(int i = 0; i < currentScope.children.size(); i++){
+            if(checkVarExistsChildren(currentScope.children.get(i), name)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public boolean checkVarExistsNew(String name){
+        fillVariablesArrayFull();
+        VarTree currentScope = varTree.findCurVarNode(varTree);
+        if(checkVarExistsParents(currentScope, name)){
+            return true;
+        }
+        if(checkVarExistsChildren(currentScope, name)){
+            return true;
+        }
+        return false;
     }
 
 
@@ -2322,9 +2346,7 @@ public class Main extends Activity {
                 varTree = new VarTree(null);
                 openCurlysIndent.clear();
               //  runFillVar(tree, false);
-                fillVariablesArrayFull();
-                VarTree currentScope = varTree.findTempCurVarNode(varTree);
-                if(checkVarExistsNew(varName, varTree)){
+                if(checkVarExistsNew(varName)){
                     showInvalidAlert("Error: A variable has already been declared with this name");
                 }else if(varName.length() == 0) {
                     showInvalidAlert("Error: please enter a name for the variable");
@@ -2494,9 +2516,8 @@ public class Main extends Activity {
              //   addToVariablesArray();
                 varTree = new VarTree(null);
               //  runFillVar(tree, false);
-                fillVariablesArrayFull();
-                VarTree currentS = varTree.findTempCurVarNode(varTree);
-                if(checkVarExistsNew(vName, currentS)){
+
+                if(checkVarExistsNew(vName)){
                     showInvalidAlert("Error: A variable has already been declared with this name in this scope");
                 }else if(vName.length() == 0) {
                     showInvalidAlert("Error: please enter a name for the variable");
