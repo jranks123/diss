@@ -854,10 +854,10 @@ public class Main extends Activity {
                 String value = getValueOfExpressionNode(((FunctionCall) tree).parameters.get(i));
                 code.append(value + ", ");
             }*/
-            if(((FunctionCall)tree).paramsFinished) {
-                code.append(" )");
-            }
 
+        }
+        else if(nodeType == Node.Type.ENDFUNCCALL){
+                code.append(" )");
         }
         else if(nodeType == Node.Type.FORLOOP){
             switch(((Loops)tree).varNodeType){
@@ -2159,8 +2159,22 @@ public class Main extends Activity {
 
         if(f.parameters.size() == 0){
             ((FunctionCall)currentNode).paramsFinished = true;
+            tree = tree.addNode(tree, Node.Type.ENDFUNCCALL, "right", null);
         }
     }
+
+    public Boolean checkIfFunctionHasParameters(Node n){
+        fillVariablesArrayFull();
+        Node functionCallNode = tree.returnFunctionCallNode(n);
+        String name = ((FunctionCall)functionCallNode).functionName;
+        Node functionNode = getFunctionFromName(name);
+        ArrayList<Variable> functionParams = ((Function)functionNode).parameters;
+        if(functionParams.size() == 0){
+            return false;
+        }
+        return true;
+    }
+
 
     public Boolean checkIfFunctionCallParametersFinished(Node n){
         fillVariablesArrayFull();
@@ -2205,6 +2219,19 @@ public class Main extends Activity {
                 break;
 
 
+            case R.id.btnFuncFinishFuncCall:
+                Node currentN = tree.findCurNode(tree);
+                if(!checkIfFunctionCallParametersFinished(currentN)){
+                    showInvalidAlert("You have not added enough parameters yet");
+                }
+                else{
+                    tree = tree.moveUpTreeLimit(tree, "FUNCCALL");
+                    currentN = tree.findCurNode(tree);
+                    ((FunctionCall)currentN).paramsFinished = true;
+                    tree = tree.addNode(tree, Node.Type.ENDFUNCCALL, "right", null);
+                }
+                break;
+
             case R.id.btnExistingFunc:
                 tree = tree.addNode(tree, Node.Type.FUNCCALL, "right", null);
                 break;
@@ -2216,62 +2243,41 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnFuncAddParam:
-                Node currentN = tree.findCurNode(tree);
-                if (currentN.nodeType == Node.Type.FUNCTION || currentN.nodeType == Node.Type.FUNCCALL) {
-                    tree = tree.addNode(tree, Node.Type.STARTPARAM, "left", null);
-                    tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
-
-                } else {
-                    if (!tree.isXbeforeY(currentN, Node.Type.FUNCCALL, Node.Type.FUNCTION)) {
-                        tree = tree.addNode(tree, Node.Type.ENDPARAM, "left", null);
-                        tree = tree.moveUpTreeLimit(tree, "PARAMETER");
-                        tree = tree.addNode(tree, Node.Type.COMMA, "right", null);
+                currentN = tree.findCurNode(tree);
+                if(currentN.nodeType == Node.Type.FUNCCALL){
+                    if(((FunctionCall)currentN).paramsFinished) {
+                        showInvalidAlert("This function takes no parameters");
+                    }
+                }else {
+                    if (currentN.nodeType == Node.Type.FUNCTION || currentN.nodeType == Node.Type.FUNCCALL) {
+                        tree = tree.addNode(tree, Node.Type.STARTPARAM, "left", null);
                         tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
-                    } else {
-                        //This is for functioncalls
-                        if (currentN.nodeType == Node.Type.PARAMETER) {
-                            if(checkIfFunctionCallParametersFinished(currentN)){
-                                showInvalidAlert("You have already added the correct ammount of parameters");
-                            }else{
-                                tree = tree.addNode(tree, Node.Type.COMMA, "right", null);
-                                tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
-                                tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
-                            }
 
+                    } else {
+                        if (!tree.isXbeforeY(currentN, Node.Type.FUNCCALL, Node.Type.FUNCTION)) {
+                            tree = tree.addNode(tree, Node.Type.ENDPARAM, "left", null);
+                            tree = tree.moveUpTreeLimit(tree, "PARAMETER");
+                            tree = tree.addNode(tree, Node.Type.COMMA, "right", null);
+                            tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
+                        } else {
+                            //This is for functioncalls
+                            if (currentN.nodeType == Node.Type.PARAMETER) {
+                                if (checkIfFunctionCallParametersFinished(currentN)) {
+                                    showInvalidAlert("You have already added the correct ammount of parameters");
+                                } else {
+                                    tree = tree.addNode(tree, Node.Type.COMMA, "right", null);
+                                    tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
+                                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
+                                }
+                            }
                         }
+                    }
+                    if (currentN.nodeType == Node.Type.FUNCCALL) {
+                        tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
+                    } else if (currentN.nodeType != Node.Type.PARAMETER) {
+                        tree = tree.addNode(tree, Node.Type.DEC, "left", "none");
 
                     }
-                }
-                if (currentN.nodeType == Node.Type.FUNCCALL) {
-                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
-                    /*fillVariablesArrayFull();
-                    Node functionNode = tree.getFunctionNodeByName(tree, ((FunctionCall)currentN).functionName);
-                    ArrayList<Variable> functionParams = ((Function)functionNode).parameters;
-                    ArrayList<VarVal> functionCallParams = ((FunctionCall)currentN).parameters;
-                    Boolean paramFound = false;
-                    Boolean foundEmptyParam = false;
-                    for(int i = 0; i < functionParams.size(); i++){
-                        if(foundEmptyParam == false) {
-                            try {
-                                functionCallParams.get(i);
-                            } catch (IndexOutOfBoundsException p) {
-                                //     Function.Type functionParams.get(i))
-                                if(functionParams.get(i).varNodeType == Variable.Type.INT) {
-                                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "INT");
-                                }
-                                else if(functionParams.get(i).varNodeType == Variable.Type.BOOL) {
-                                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "BOOL");
-                                }
-                                else if(functionParams.get(i).varNodeType == Variable.Type.STRING) {
-                                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "STRING");
-                                }
-                                foundEmptyParam = true;
-                            }
-                        }
-                    }*/
-                } else if (currentN.nodeType != Node.Type.PARAMETER) {
-                    tree = tree.addNode(tree, Node.Type.DEC, "left", "none");
-
                 }
 
                 break;
@@ -3077,7 +3083,11 @@ public class Main extends Activity {
             }else{
                showTypeInput(currentNode);
             }
-        }else if(currentNodeType == Node.Type.FUNCCALL) {
+        }
+        else if(currentNodeType == Node.Type.ENDFUNCCALL){
+            showSemicolonButton();
+        }
+        else if(currentNodeType == Node.Type.FUNCCALL) {
             if(((FunctionCall)currentNode).type == FunctionCall.Type.NONE){
                 if(!checkIfAnyFunctionsExist()){
                     showInvalidAlert("No functions to call");
@@ -3105,23 +3115,14 @@ public class Main extends Activity {
                         } else if (evalType == Eval.Type.BOOL) {
                             showFunctionButtons(Function.Type.BOOL);
                         }
-                    }else if (!((FunctionCall) currentNode).paramsFinished) {
-                        doFunctionCallParams(currentNode);
-                        if (((FunctionCall) currentNode).paramsFinished) {
-                            btnOperator.setVisibility(View.VISIBLE);
-                            showBracketButtons(currentNode);
-                            showSemicolonButton();
-                        }
                     }
                 } else {
-                    doFunctionCallParams(currentNode);
-                    if (!((FunctionCall) currentNode).paramsFinished) {
+                    if (!checkIfFunctionHasParameters(currentNode)) {
+                        ((FunctionCall)currentNode).paramsFinished = true;
                         btnFuncAddParam.setVisibility(View.VISIBLE);
+                        btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
+                    }
 
-                    }
-                    if (((FunctionCall) currentNode).paramsFinished) {
-                        showSemicolonButton();
-                    }
 
                 }
                 code.setText("");

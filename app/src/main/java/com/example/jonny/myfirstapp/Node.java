@@ -48,6 +48,7 @@ public class Node extends Activity {
         COMMA,
         ENDPARAM,
         ENDPARAMFUNCCALL,
+        ENDFUNCCALL,
         CONDITION;
     }
 
