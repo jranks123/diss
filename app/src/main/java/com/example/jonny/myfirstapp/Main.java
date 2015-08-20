@@ -1868,6 +1868,21 @@ public class Main extends Activity {
         }
     }
 
+    public boolean areThereAnyUnfinishedFuncCalls(Node node){
+        while(node.nodeType != Node.Type.SEQ){
+            if(node.nodeType == Node.Type.FUNCCALL){
+                if(((FunctionCall)node).paramsFinished != true){
+                    tree.clearCurrentNode(tree);
+                    node.isCurrentNode = true;
+                    return true;
+                }
+            }
+            node = node.parent;
+        }
+
+        return false;
+    }
+
 
 
     public void addToVariablesArray(){
@@ -2228,6 +2243,9 @@ public class Main extends Activity {
                     currentN = tree.findCurNode(tree);
                     ((FunctionCall)currentN.returnFunctionCallNode(currentN)).paramsFinished = true;
                     tree = tree.addNode(tree, Node.Type.ENDFUNCCALL, "right", null);
+                    if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.PARAMETER)){
+                        tree = tree.moveUpTreeLimit(tree, "FUNCCALL");
+                    }
                 }
                 break;
 
@@ -3091,9 +3109,23 @@ public class Main extends Activity {
             }
         }
         else if(currentNodeType == Node.Type.ENDFUNCCALL){
+            if(areThereAnyUnfinishedFuncCalls(currentNode)){
 
+            }else {
+                tree.moveUpTreeLimit(currentNode, "STARTFUNCCALL");
+            }
+            doButtonLogic();
+        }
+        else if(currentNodeType == Node.Type.FUNCCALL) {
+            btnOperator.setVisibility(View.VISIBLE);
+            showBracketButtons(currentNode);
+            endIfCondition(currentNode); //TODO
+            if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ) && openBrackets.size() == 0){
+                btnFuncFinishParam.setVisibility(View.VISIBLE);
+            }else{
+                showSemicolonButton();
+            }
 
-            showSemicolonButton();
         }
         else if(currentNodeType == Node.Type.STARTFUNCCALL) {
             if(((FunctionCall)currentNode.returnFunctionCallNode(currentNode)).type == FunctionCall.Type.NONE){
