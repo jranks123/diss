@@ -843,12 +843,12 @@ public class Main extends Activity {
             }
         }
         else if(nodeType == Node.Type.STARTFUNC){
-            code.append(") {");
+            code.append(" ) {");
             openCurlysIndent.add(true);
         }
         else if(nodeType == Node.Type.FUNCCALL){
             if(((FunctionCall)tree).functionName != null){
-                code.append(((FunctionCall)tree).functionName + "(");
+                code.append(((FunctionCall)tree).functionName + "( ");
             }
            /* for(int i = 0; i < ((FunctionCall)tree).parameters.size(); i++){
                 String value = getValueOfExpressionNode(((FunctionCall) tree).parameters.get(i));
@@ -1427,6 +1427,13 @@ public class Main extends Activity {
                     btnSemicolon.setVisibility(View.VISIBLE);
               //  }
             }
+            if(tree.isXbeforeY(n, Node.Type.FUNCCALL, Node.Type.NEWLINE)) {
+                Node fNode = tree.returnFunctionCallNode(n);
+                if(!((FunctionCall)fNode).paramsFinished) {
+                    btnSemicolon.setVisibility(View.GONE);
+                }
+            }
+
         }
     }
 
@@ -2153,15 +2160,7 @@ public class Main extends Activity {
         return null;
     }
 
-    public void doFunctionCallParams(Node currentNode){
-        fillVariablesArrayFull();
-        Function f = getFunctionFromName(((FunctionCall)currentNode).functionName);
 
-        if(f.parameters.size() == 0){
-            ((FunctionCall)currentNode).paramsFinished = true;
-            tree = tree.addNode(tree, Node.Type.ENDFUNCCALL, "right", null);
-        }
-    }
 
     public Boolean checkIfFunctionHasParameters(Node n){
         fillVariablesArrayFull();
@@ -2244,11 +2243,14 @@ public class Main extends Activity {
 
             case R.id.btnFuncAddParam:
                 currentN = tree.findCurNode(tree);
+                Boolean noParams= false;
                 if(currentN.nodeType == Node.Type.FUNCCALL){
                     if(((FunctionCall)currentN).paramsFinished) {
+                        noParams = true;
                         showInvalidAlert("This function takes no parameters");
                     }
-                }else {
+                }
+                if(!noParams) {
                     if (currentN.nodeType == Node.Type.FUNCTION || currentN.nodeType == Node.Type.FUNCCALL) {
                         tree = tree.addNode(tree, Node.Type.STARTPARAM, "left", null);
                         tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
@@ -3044,7 +3046,7 @@ public class Main extends Activity {
                 btnOperator.setVisibility(View.VISIBLE);
                 showBracketButtons(currentNode);
                 endIfCondition(currentNode); //TODO
-                if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ)){
+                if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ) && openBrackets.size() == 0){
                     btnFuncFinishParam.setVisibility(View.VISIBLE);
                 }else{
                     showSemicolonButton();
@@ -3075,6 +3077,9 @@ public class Main extends Activity {
             btnOperator.setVisibility(View.VISIBLE);
         } else if (currentNodeType == Node.Type.BRACKET) {
             showBracketButtons(currentNode);
+            if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ) && openBrackets.size() == 0){
+                btnFuncFinishParam.setVisibility(View.VISIBLE);
+            }
             if (((Bracket) currentNode).bracketType == Bracket.Type.CLOSE) {
                 btnOperator.setVisibility(View.VISIBLE);
                 btnOpenBracket.setVisibility(View.GONE);
@@ -3085,6 +3090,8 @@ public class Main extends Activity {
             }
         }
         else if(currentNodeType == Node.Type.ENDFUNCCALL){
+
+
             showSemicolonButton();
         }
         else if(currentNodeType == Node.Type.FUNCCALL) {
@@ -3115,13 +3122,21 @@ public class Main extends Activity {
                         } else if (evalType == Eval.Type.BOOL) {
                             showFunctionButtons(Function.Type.BOOL);
                         }
-                    }
-                } else {
-                    if (!checkIfFunctionHasParameters(currentNode)) {
-                        ((FunctionCall)currentNode).paramsFinished = true;
+                    }else {
+                        if (!checkIfFunctionHasParameters(currentNode)) {
+                            ((FunctionCall) currentNode).paramsFinished = true;
+                        }
+
                         btnFuncAddParam.setVisibility(View.VISIBLE);
                         btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
                     }
+                } else {
+                    if (!checkIfFunctionHasParameters(currentNode)) {
+                        ((FunctionCall) currentNode).paramsFinished = true;
+                    }
+                    btnFuncAddParam.setVisibility(View.VISIBLE);
+                    btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
+
 
 
                 }
