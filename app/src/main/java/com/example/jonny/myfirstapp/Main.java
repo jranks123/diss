@@ -846,9 +846,9 @@ public class Main extends Activity {
             code.append(" ) {");
             openCurlysIndent.add(true);
         }
-        else if(nodeType == Node.Type.FUNCCALL){
-            if(((FunctionCall)tree).functionName != null){
-                code.append(((FunctionCall)tree).functionName + "( ");
+        else if(nodeType == Node.Type.STARTFUNCCALL){
+            if(((FunctionCall)tree.returnFunctionCallNode(tree)).functionName != null){
+                code.append(((FunctionCall)tree.returnFunctionCallNode(tree)).functionName + "( ");
             }
            /* for(int i = 0; i < ((FunctionCall)tree).parameters.size(); i++){
                 String value = getValueOfExpressionNode(((FunctionCall) tree).parameters.get(i));
@@ -1407,7 +1407,7 @@ public class Main extends Activity {
                 btnCloseBracket.setVisibility(View.GONE);
             }
         }
-        if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL || node.nodeType == Node.Type.FUNCCALL){
+        if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL || node.nodeType == Node.Type.STARTFUNCCALL){
             btnOpenBracket.setVisibility(View.GONE);
         }
         if(node.nodeType == Node.Type.OP){
@@ -2224,9 +2224,9 @@ public class Main extends Activity {
                     showInvalidAlert("You have not added enough parameters yet");
                 }
                 else{
-                    tree = tree.moveUpTreeLimit(tree, "FUNCCALL");
+                    tree = tree.moveUpTreeLimit(tree, "STARTFUNCCALL");
                     currentN = tree.findCurNode(tree);
-                    ((FunctionCall)currentN).paramsFinished = true;
+                    ((FunctionCall)currentN.returnFunctionCallNode(currentN)).paramsFinished = true;
                     tree = tree.addNode(tree, Node.Type.ENDFUNCCALL, "right", null);
                 }
                 break;
@@ -2245,14 +2245,14 @@ public class Main extends Activity {
             case R.id.btnFuncAddParam:
                 currentN = tree.findCurNode(tree);
                 Boolean noParams= false;
-                if(currentN.nodeType == Node.Type.FUNCCALL){
-                    if(((FunctionCall)currentN).paramsFinished) {
+                if(currentN.nodeType == Node.Type.STARTFUNCCALL){
+                    if(((FunctionCall)currentN.returnFunctionCallNode(currentN)).paramsFinished) {
                         noParams = true;
                         showInvalidAlert("This function takes no parameters");
                     }
                 }
                 if(!noParams) {
-                    if (currentN.nodeType == Node.Type.FUNCTION || currentN.nodeType == Node.Type.FUNCCALL) {
+                    if (currentN.nodeType == Node.Type.FUNCTION || currentN.nodeType == Node.Type.STARTFUNCCALL) {
                         tree = tree.addNode(tree, Node.Type.STARTPARAM, "left", null);
                         tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
 
@@ -2275,7 +2275,7 @@ public class Main extends Activity {
                             }
                         }
                     }
-                    if (currentN.nodeType == Node.Type.FUNCCALL) {
+                    if (currentN.nodeType == Node.Type.STARTFUNCCALL) {
                         tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
                     } else if (currentN.nodeType != Node.Type.PARAMETER) {
                         tree = tree.addNode(tree, Node.Type.DEC, "left", "none");
@@ -3095,8 +3095,8 @@ public class Main extends Activity {
 
             showSemicolonButton();
         }
-        else if(currentNodeType == Node.Type.FUNCCALL) {
-            if(((FunctionCall)currentNode).type == FunctionCall.Type.NONE){
+        else if(currentNodeType == Node.Type.STARTFUNCCALL) {
+            if(((FunctionCall)currentNode.returnFunctionCallNode(currentNode)).type == FunctionCall.Type.NONE){
                 if(!checkIfAnyFunctionsExist()){
                     showInvalidAlert("No functions to call");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
@@ -3114,7 +3114,7 @@ public class Main extends Activity {
                 //situation where function call is in expression
                 if (tree.isXbeforeY(currentNode, Node.Type.EVAL, Node.Type.SEQ)) {
                     //if(((FunctionCall)currentNode).type == FunctionCall.Type.INT){
-                    if(((FunctionCall)currentNode).functionName == null) {
+                    if(((FunctionCall)currentNode.returnFunctionCallNode(currentNode)).functionName == null) {
                         Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
                         if (evalType == Eval.Type.STRING) {
                             showFunctionButtons(null);
@@ -3125,7 +3125,7 @@ public class Main extends Activity {
                         }
                     }else {
                         if (!checkIfFunctionHasParameters(currentNode)) {
-                            ((FunctionCall) currentNode).paramsFinished = true;
+                            ((FunctionCall) currentNode.returnFunctionCallNode(currentNode)).paramsFinished = true;
                         }
 
                         btnFuncAddParam.setVisibility(View.VISIBLE);
@@ -3133,7 +3133,7 @@ public class Main extends Activity {
                     }
                 } else {
                     if (!checkIfFunctionHasParameters(currentNode)) {
-                        ((FunctionCall) currentNode).paramsFinished = true;
+                        ((FunctionCall) currentNode.returnFunctionCallNode(currentNode)).paramsFinished = true;
                     }
                     btnFuncAddParam.setVisibility(View.VISIBLE);
                     btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
@@ -3274,13 +3274,19 @@ public class Main extends Activity {
 }
 
 
+//Thurs
+
+//TODO: make code scrollable across, messes up line number otherwise
+
+
+//TODO: make it so you can call a function as a parameter in a function call
+
 
 //Wed
 //TODO: redo variable scope -- DONE
 //TODO: Parameters
 //TODO: add parameters into function definitions -- DONE
-//TODO: add parameters into function calls
-//TODO: make code scrollable across, messes up line number otherwise
+//TODO: add parameters into function calls -- DONE
 
 
 

@@ -161,8 +161,8 @@ public class Node extends Activity {
     }
 
     public Node setFunctionCallNameAndType(Node node, FunctionCall.Type type, String name){
-        ((FunctionCall)node).type = type;
-        ((FunctionCall)node).functionName = name;
+        ((FunctionCall)node.returnFunctionCallNode(node)).type = type;
+        ((FunctionCall)node.returnFunctionCallNode(node)).functionName = name;
         return node;
     }
 
