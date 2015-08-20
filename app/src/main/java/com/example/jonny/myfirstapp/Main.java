@@ -103,8 +103,8 @@ public class Main extends Activity {
     Button btnEndFuncDec;
     Button btnFuncAddParam;
     Button btnFuncReturn;
-
-
+    Button btnFuncFinishParam;
+    Button btnFuncFinishFuncCall;
 
     Button btnEnterText;
     Button btnEquals;
@@ -172,6 +172,9 @@ public class Main extends Activity {
         btnFuncAddParam = (Button) findViewById(R.id.btnFuncAddParam);
         btnFuncReturn = (Button) findViewById(R.id.btnFuncReturn);
         errorStack = new ArrayList<String>();
+        btnFuncFinishParam = (Button) findViewById(R.id.btnFuncFinishParam);
+        btnFuncFinishFuncCall = (Button) findViewById(R.id.btnFuncFinishFuncCall);
+
 
         btnLoops = (Button)findViewById(R.id.loops);
         btnVar = (Button)findViewById(R.id.var);
@@ -721,16 +724,16 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.STRING){
             text = "\"" + ((Str)tree).value + "\"";
-         //   addToCode(code, text, 0, false);
             code.append("\"" + ((Str) tree).value + "\"");
+        }
+        else if(nodeType == Node.Type.COMMA){
+            code.append(", ");
         }
         else if(nodeType == Node.Type.VARVAL) {
             Boolean isString = false;
             if(tree.returnEvalVar(tree).evalNodeType == Eval.Type.STRING){
                 isString = true;
             }
-            //(((Variable)node.parent.parent).value) = value;
-          //  Variable.Type type = null;
             if (((VarVal) tree).value != null) {
                 if(isString) {
                     code.append("\"");
@@ -777,6 +780,21 @@ public class Main extends Activity {
                     break;
             }
         }
+        else if(nodeType == Node.Type.PARAMETER){
+            switch(((Parameter)tree).type){
+                case STRING:
+                    code.append(Html.fromHtml(getString(R.string.string)));
+                    break;
+                case INT:
+                    code.append(Html.fromHtml(getString(R.string.integer)));
+                    break;
+                case BOOL:
+                    code.append(Html.fromHtml(getString(R.string.bool)));
+                    break;
+                case NONE:
+                    break;
+            }
+        }
         else if(nodeType == Node.Type.RETURN){
             code.append(Html.fromHtml(getString(R.string.Return)));
         }
@@ -808,11 +826,11 @@ public class Main extends Activity {
 
                 }
                 if (((Function) tree).name != null) {
-                    code.append(((Function) tree).name + "(");
+                    code.append(((Function) tree).name + "( ");
                 }
                 if (((Function) tree).decFinished) {
-                    code.append(" ) {");
-                    openCurlysIndent.add(true);
+                   /* code.append(") {");
+                    openCurlysIndent.add(true);*/
 
                 }
 
@@ -824,14 +842,18 @@ public class Main extends Activity {
                 }*/
             }
         }
+        else if(nodeType == Node.Type.STARTFUNC){
+            code.append(") {");
+            openCurlysIndent.add(true);
+        }
         else if(nodeType == Node.Type.FUNCCALL){
             if(((FunctionCall)tree).functionName != null){
                 code.append(((FunctionCall)tree).functionName + "(");
             }
-            for(int i = 0; i < ((FunctionCall)tree).parameters.size(); i++){
+           /* for(int i = 0; i < ((FunctionCall)tree).parameters.size(); i++){
                 String value = getValueOfExpressionNode(((FunctionCall) tree).parameters.get(i));
                 code.append(value + ", ");
-            }
+            }*/
             if(((FunctionCall)tree).paramsFinished) {
                 code.append(" )");
             }
@@ -1349,16 +1371,15 @@ public class Main extends Activity {
                        if (((Function) treeNode).decFinished) {
                        //    addToVariablesArray();
 
-                           openCurlysIndent.add(true);
+                          // openCurlysIndent.add(true);
                        }
                    }
-               }else if (treeNode.nodeType == Node.Type.END) {
+               }
+               else if(treeNode.nodeType == Node.Type.STARTFUNC){
+                   openCurlysIndent.add(true);
+               }
+               else if (treeNode.nodeType == Node.Type.END) {
                    openCurlysIndent.remove(openCurlysIndent.size() - 1);
-                   /*if(((Newline)treeNode.parent).newlineNodeType == Newline.Type.FUNCEND){
-                       removeFunctionDimension();
-                   }else {
-                       variablesArray.get(functionDimensions.size()).remove(variablesArray.get(functionDimensions.size()).size() - 1);
-                   }*/
                    VarTree currentScopeVar = varTree.findTempCurVarNode(varTree);
                    currentScopeVar.tempCurrentScope = false;
                    currentScopeVar.parent.tempCurrentScope = true;
@@ -1737,7 +1758,45 @@ public class Main extends Activity {
                // }
             }
 
-        } else if (nodeType == Node.Type.FORLOOP) {
+        } else if(nodeType == Node.Type.ENDPARAM){  //TODO: THIS IS BEING CALLED LIKE 5 TIMES WHEN IT SHOULD JUST BE CALLED ONCE
+            Variable v;
+            v = treeNode.returnDecVar(treeNode);
+            Variable.Type type = v.varNodeType;
+            Variable var = new Variable(null, type, v.name, null);
+            VarTree currentVarScope = varTree.findTempCurVarNode(varTree);
+            currentVarScope.variables.add(var);
+            Node functionNode = treeNode.returnFunctionNode(treeNode);
+            ((Function)functionNode).parameters.add(var);
+
+
+        }
+        else if(nodeType == Node.Type.ENDPARAMFUNCCALL){  //TODO: THIS IS BEING CALLED LIKE 5 TIMES WHEN IT SHOULD JUST BE CALLED ONCE
+
+            ArrayList<Node> paramArray = new ArrayList<Node>();
+            treeNode = treeNode.parent;
+            Integer count = 0;
+            while(treeNode.nodeType != Node.Type.EVAL) {
+                paramArray.add(0, treeNode);
+                treeNode = treeNode.parent;
+                count++;
+            }
+            for(int i = 0; i < count+1; i ++){
+                treeNode = treeNode.left;
+            }
+
+            Node functionCallNode = tree.returnFunctionCallNode(treeNode);
+            (((FunctionCall)functionCallNode).parameters).add(paramArray);
+            /*Variable v;
+            v = treeNode.returnDecVar(treeNode);
+            Variable.Type type = v.varNodeType;
+            Variable var = new Variable(null, type, v.name, null);
+            VarTree currentVarScope = varTree.findTempCurVarNode(varTree);
+            currentVarScope.variables.add(var);
+            Node functionNode = treeNode.returnFunctionNode(treeNode);
+            ((Function)functionNode).parameters.add(var);*/
+
+
+        }else if (nodeType == Node.Type.FORLOOP) {
             switch (((Loops) treeNode).varNodeType) {
                 case FOR:
                     if (((Loops) treeNode).limiter != null) {
@@ -1868,12 +1927,14 @@ public class Main extends Activity {
     public void fillVariablesArrayToCurrentNode(){
         varTree = new VarTree(null);
         openCurlysIndent.clear();
+        tree = tree.clearFunctionParams(tree);
         runFillVarNew(tree, false, false);
     }
 
     public void fillVariablesArrayFull(){
         varTree = new VarTree(null);
         openCurlysIndent.clear();
+        tree = tree.clearFunctionParams(tree);
         runFillVarNew(tree, false, true);
     }
 
@@ -2080,7 +2141,9 @@ public class Main extends Activity {
     }
 
     public void doFunctionCallParams(Node currentNode){
+        fillVariablesArrayFull();
         Function f = getFunctionFromName(((FunctionCall)currentNode).functionName);
+
         if(f.parameters.size() == 0){
             ((FunctionCall)currentNode).paramsFinished = true;
         }
@@ -2116,7 +2179,71 @@ public class Main extends Activity {
 
 
             case R.id.btnExistingFunc:
-                tree = tree.addNode(tree, Node.Type.FUNCCALL, "left", null);
+                tree = tree.addNode(tree, Node.Type.FUNCCALL, "right", null);
+                break;
+
+            case R.id.btnFuncFinishParam:
+                tree = tree.addNode(tree, Node.Type.ENDPARAMFUNCCALL, "left", null);
+                tree = tree.moveUpTreeLimit(tree, "FUNCCALL");
+
+                break;
+
+            case R.id.btnFuncAddParam:
+                Node currentN = tree.findCurNode(tree);
+                if (currentN.nodeType == Node.Type.FUNCTION ){
+                    tree = tree.addNode(tree, Node.Type.STARTPARAM, "left", null);
+                    tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
+
+                }else if(currentN.nodeType == Node.Type.FUNCCALL) {
+                    if(currentN.left == null){
+                        tree = tree.addNode(tree, Node.Type.STARTPARAM, "left", null);
+                        tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
+                    }
+                    else{
+                        
+                    }
+                }
+                if (!tree.isXbeforeY(currentN, Node.Type.FUNCCALL, Node.Type.FUNCTION)) {
+                    tree = tree.addNode(tree, Node.Type.ENDPARAM, "left", null);
+                    tree = tree.moveUpTreeLimit(tree, "PARAMETER");
+                    tree = tree.addNode(tree, Node.Type.COMMA, "right", null);
+                    tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
+                } else {
+
+                }
+
+                if (currentN.nodeType == Node.Type.FUNCCALL) {
+                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
+                    /*fillVariablesArrayFull();
+                    Node functionNode = tree.getFunctionNodeByName(tree, ((FunctionCall)currentN).functionName);
+                    ArrayList<Variable> functionParams = ((Function)functionNode).parameters;
+                    ArrayList<VarVal> functionCallParams = ((FunctionCall)currentN).parameters;
+                    Boolean paramFound = false;
+                    Boolean foundEmptyParam = false;
+                    for(int i = 0; i < functionParams.size(); i++){
+                        if(foundEmptyParam == false) {
+                            try {
+                                functionCallParams.get(i);
+                            } catch (IndexOutOfBoundsException p) {
+                                //     Function.Type functionParams.get(i))
+                                if(functionParams.get(i).varNodeType == Variable.Type.INT) {
+                                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "INT");
+                                }
+                                else if(functionParams.get(i).varNodeType == Variable.Type.BOOL) {
+                                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "BOOL");
+                                }
+                                else if(functionParams.get(i).varNodeType == Variable.Type.STRING) {
+                                    tree = tree.addNode(tree, Node.Type.EVAL, "left", "STRING");
+                                }
+                                foundEmptyParam = true;
+                            }
+                        }
+                    }*/
+                } else {
+                    tree = tree.addNode(tree, Node.Type.DEC, "left", "none");
+
+                }
+
                 break;
 
 
@@ -2124,7 +2251,7 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "FUNCTION");
 
-              //  tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
+                //  tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
                 tree = tree.addNode(tree, Node.Type.FUNCTION, "left", null);
                 break;
 
@@ -2153,23 +2280,29 @@ public class Main extends Activity {
                 String name = edtEnterString.getText().toString().trim();
                 hideKeyboard();
                 Boolean funcNameExists = false;
-                for(int i = 0; i < functionsArray.size(); i++){
-                    if(functionsArray.get(i).name.equals(name)){
+                for (int i = 0; i < functionsArray.size(); i++) {
+                    if (functionsArray.get(i).name.equals(name)) {
                         funcNameExists = true;
                     }
                 }
-               if(funcNameExists){
+                if (funcNameExists) {
                     showInvalidAlert("Error: A function has already been declared with this name, please choose another name");
-                }else if(name.length() == 0) {
+                } else if (name.length() == 0) {
                     showInvalidAlert("Error: please enter a name for the function");
                 } else {
-                   tree = tree.updateFuncName(tree, name);
-               }
+                    tree = tree.updateFuncName(tree, name);
+                }
                 break;
 
             case R.id.btnEndFuncDec:
                 Node currentNode = (tree.findCurNode(tree));
-                tree = tree.addNode(tree, Node.Type.BLANK, "left", null);
+                if (currentNode.nodeType != Node.Type.FUNCTION) {
+                    tree = tree.addNode(tree, Node.Type.ENDPARAM, "left", null);
+                    tree = tree.moveUpTreeLimit(tree, "FUNCTION");
+                    currentNode = tree.findCurNode(tree);
+                }
+
+                tree = tree.addNode(tree, Node.Type.BLANK, "right", null);
                 tree = tree.addNode(tree, Node.Type.RESETRETURN, "right", null);
                 tree = tree.moveUpOneStep(tree);
                 tree = tree.addNode(tree, Node.Type.STARTFUNC, "right", null);
@@ -2177,26 +2310,26 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "STARTFUNC");
                 tree = tree.addNode(tree, Node.Type.NONE, "left", null);
-                if(((Function)currentNode).funcType != Function.Type.VOID){
+                if (((Function) currentNode).funcType != Function.Type.VOID) {
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "NEWLINE");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
                     tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                     tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "RETURN");
                     tree = tree.addNode(tree, Node.Type.RETURN, "left", "true");
-                    if(((Function)currentNode).funcType == Function.Type.BOOL){
+                    if (((Function) currentNode).funcType == Function.Type.BOOL) {
                         tree = tree.addNode(tree, Node.Type.EVAL, "left", "BOOL");
                         tree = tree.addNode(tree, Node.Type.VARVAL, "left", "true");
                         tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                         tree = tree.moveUpTreeLimit(tree, "SEQ");
                     }
-                    if(((Function)currentNode).funcType == Function.Type.STRING){
+                    if (((Function) currentNode).funcType == Function.Type.STRING) {
                         tree = tree.addNode(tree, Node.Type.EVAL, "left", "STRING");
                         tree = tree.addNode(tree, Node.Type.VARVAL, "left", "<empty String>");
                         tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                         tree = tree.moveUpTreeLimit(tree, "SEQ");
                     }
-                    if(((Function)currentNode).funcType == Function.Type.INT){
+                    if (((Function) currentNode).funcType == Function.Type.INT) {
                         tree = tree.addNode(tree, Node.Type.EVAL, "left", "INT");
                         tree = tree.addNode(tree, Node.Type.VARVAL, "left", "0");
                         tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
@@ -2206,7 +2339,7 @@ public class Main extends Activity {
                 }
 
 
-                Node functionNode =  tree.findCurNode(tree).parent.parent.parent;
+                Node functionNode = tree.findCurNode(tree).parent.parent.parent;
                 functionNode = tree.setFuncParamFinished(functionNode, true);
                 functionNode = tree.setFuncEndDec(functionNode, true);
 
@@ -2216,10 +2349,10 @@ public class Main extends Activity {
             case R.id.btnEditReturn:
                 tree = tree.moveDownDirectionLimit(tree, "left", "EVAL");
                 Node n = tree.findCurNode(tree);
-                if(n.left != null) {
+                if (n.left != null) {
                     n.left = null;
                 }
-                if(n.right != null) {
+                if (n.right != null) {
                     n.right = null;
                 }
                 break;
@@ -2229,12 +2362,11 @@ public class Main extends Activity {
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", "RETURN");
                 tree = tree.addNode(tree, Node.Type.RETURN, "left", "false");
                 Function.Type funcType = tree.getCurrentFuncType(tree);
-                if(funcType == Function.Type.BOOL) {
+                if (funcType == Function.Type.BOOL) {
                     tree = tree.addNode(tree, Node.Type.EVAL, "left", "BOOL");
-                }else if(funcType == Function.Type.STRING) {
+                } else if (funcType == Function.Type.STRING) {
                     tree = tree.addNode(tree, Node.Type.EVAL, "left", "STRING");
-                }
-                else if(funcType == Function.Type.INT) {
+                } else if (funcType == Function.Type.INT) {
                     tree = tree.addNode(tree, Node.Type.EVAL, "left", "INT");
                 }
                 break;
@@ -2247,20 +2379,20 @@ public class Main extends Activity {
 
             case R.id.btnDelete:
                 Log.d("DEBUG", "PRESS PRINT");
-                Node currentN = tree.findCurNode(tree);
-                Node.Type currentNodeType = currentN.nodeType;
+                Node currentNd = tree.findCurNode(tree);
+                Node.Type currentNodeType = currentNd.nodeType;
                 Boolean canDelete = true;
-                if(currentNodeType == Node.Type.SEQ) {
-                    if(currentN.left.nodeType == Node.Type.NEWLINE){
-                        if(((Newline)currentN.left).newlineNodeType == Newline.Type.RETURN){
-                            if(((Return)currentN.left.left).isInitialReturn){
+                if (currentNodeType == Node.Type.SEQ) {
+                    if (currentNd.left.nodeType == Node.Type.NEWLINE) {
+                        if (((Newline) currentNd.left).newlineNodeType == Newline.Type.RETURN) {
+                            if (((Return) currentNd.left.left).isInitialReturn) {
                                 showInvalidAlert("Cannot delete this return, every none void function must return a value");
                                 canDelete = false;
                             }
                         }
                     }
                 }
-                if(canDelete) {
+                if (canDelete) {
                     tree = tree.delete(tree, lineJustPressed);
                 }
                 btnDelete.setVisibility(View.VISIBLE);
@@ -2270,11 +2402,69 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnSetEvalTypeInt:
-                tree = tree.updateEval(tree, Eval.Type.INT);
+                currentN = tree.returnFunctionCallNode(tree.findCurNode(tree));
+                if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ)) {
+                    fillVariablesArrayFull();
+                    functionNode = tree.getFunctionNodeByName(tree, ((FunctionCall) currentN).functionName);
+                    ArrayList<Variable> functionParams = ((Function) functionNode).parameters;
+                    ArrayList<ArrayList<Node>> functionCallParams = ((FunctionCall) currentN).parameters;
+                    Boolean paramFound = false;
+                    Boolean foundEmptyParam = false;
+                    for (int i = 0; i < functionParams.size(); i++) {
+                        if (foundEmptyParam == false) {
+                            try {
+                                functionCallParams.get(i);
+                            } catch (IndexOutOfBoundsException p) {
+                                //     Function.Type functionParams.get(i))
+                                Variable.Type vType = functionParams.get(i).varNodeType;
+                                if (vType == Variable.Type.INT) {
+                                    tree = tree.updateEval(tree, Eval.Type.INT);
+                                } else {
+                                    if (vType == Variable.Type.STRING)
+                                        showInvalidAlert("Wrong type, the parameter type must be String");
+                                    if (vType == Variable.Type.BOOL)
+                                        showInvalidAlert("Wrong type, the parameter type must be Boolean");
+                                }
+                                foundEmptyParam = true;
+                            }
+                        }
+                    }
+                } else {
+                    tree = tree.updateEval(tree, Eval.Type.INT);
+                }
                 break;
 
             case R.id.btnSetEvalTypeString:
-                tree = tree.updateEval(tree, Eval.Type.STRING);
+                currentN = tree.returnFunctionCallNode(tree.findCurNode(tree));
+                if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ)) {
+                    fillVariablesArrayFull();
+                    functionNode = tree.getFunctionNodeByName(tree, ((FunctionCall) currentN).functionName);
+                    ArrayList<Variable> functionParams = ((Function) functionNode).parameters;
+                    ArrayList<ArrayList<Node>> functionCallParams = ((FunctionCall) currentN).parameters;
+                    Boolean paramFound = false;
+                    Boolean foundEmptyParam = false;
+                    for (int i = 0; i < functionParams.size(); i++) {
+                        if (foundEmptyParam == false) {
+                            try {
+                                functionCallParams.get(i);
+                            } catch (IndexOutOfBoundsException p) {
+                                //     Function.Type functionParams.get(i))
+                                Variable.Type vType = functionParams.get(i).varNodeType;
+                                if (vType == Variable.Type.STRING) {
+                                    tree = tree.updateEval(tree, Eval.Type.STRING);
+                                } else {
+                                    if (vType == Variable.Type.INT)
+                                        showInvalidAlert("Wrong type, the parameter type must be Integer");
+                                    if (vType == Variable.Type.BOOL)
+                                        showInvalidAlert("Wrong type, the parameter type must be String");
+                                }
+                                foundEmptyParam = true;
+                            }
+                        }
+                    }
+                }else {
+                    tree = tree.updateEval(tree, Eval.Type.STRING);
+                }
                 break;
 
             case R.id.btnSetEvalTypeBool:
@@ -2295,9 +2485,6 @@ public class Main extends Activity {
                 errorStack = new ArrayList<String>();
                 output.setText("");
                 tree.renumberNodes(tree);
-               // variablesArray.clear();
-               // functionDimensions.clear();
-               // addToVariablesArray();
                 varTree = new VarTree(null);
                 openCurlysIndent.clear();
                 runCode(tree);
@@ -2329,12 +2516,8 @@ public class Main extends Activity {
                 String varName = edtEnterString.getText().toString().trim();
                 hideKeyboard();
                 clearButtons();
-              //  variablesArray.clear();
-              //  functionDimensions.clear();
-              //  addToVariablesArray();
                 varTree = new VarTree(null);
                 openCurlysIndent.clear();
-              //  runFillVar(tree, false);
                 if(checkVarExists(varName)){
                     showInvalidAlert("Error: A variable has already been declared with this name");
                 }else if(varName.length() == 0) {
@@ -2343,8 +2526,6 @@ public class Main extends Activity {
                 } else {
                     ((Loops) tree.findCurNode(tree)).limiter = edtEnterString.getText().toString().trim();
                 }
-                //      edtEnterString.setVisibility(View.VISIBLE);
-                //     btnForNewVarValueEnter.setVisibility(View.VISIBLE);
                 break;
 
             case R.id.btnForNewVarValueEnter:
@@ -2354,25 +2535,17 @@ public class Main extends Activity {
                     int num = Integer.parseInt(text);
                     clearButtons();
                     ((Loops) tree.findCurNode(tree)).lowerLim = Integer.parseInt(text);
-                    //        btnForLess.setVisibility(View.VISIBLE);
-                    //      btnForGreater.setVisibility(View.VISIBLE);
                 } catch (NumberFormatException e) {
                     showInvalidAlert("Please enter a valid value");
                 }
                 break;
 
             case R.id.btnForLess:
-                //     clearButtons();
                 ((Loops) tree.findCurNode(tree)).operator = Operator.Type.LESSTHAN;
-                //    edtEnterString.setVisibility(View.VISIBLE);
-                //  btnForNewVarValueUpperEnter.setVisibility(View.VISIBLE);
                 break;
 
             case R.id.btnForGreater:
-                //  clearButtons();
                 ((Loops) tree.findCurNode(tree)).operator = Operator.Type.MORETHAN;
-                //     edtEnterString.setVisibility(View.VISIBLE);
-                //   btnForNewVarValueUpperEnter.setVisibility(View.VISIBLE);
                 break;
 
 
@@ -2391,33 +2564,20 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnForPlus:
-                //   clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "++";
                 tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "FORLOOP");
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
-          //      tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
-           //     tree.addNode(tree, Node.Type.END, "right", null);
-            //    tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
-                // showButtons(homeMenu);
                 break;
 
             case R.id.btnForMinus:
-                //   clearButtons();
                 ((Loops) tree.findCurNode(tree)).plusOrMinus = "--";
                 tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
                 tree.addNode(tree, Node.Type.END, "right", null);
                 tree = tree.moveUpTreeLimit(tree, "FORLOOP");
                 tree.addNode(tree, Node.Type.STARTLOOP, "left", null);
-            //    tree.addNode(tree, Node.Type.NEWLINE, "right", "FOREND");
-            //    tree.addNode(tree, Node.Type.END, "right", null);
-             //   tree = tree.moveUpTreeLimit(tree, "STARTLOOP");
-                //   showButtons(homeMenu);
                 break;
-
-
-
 
             case R.id.clear:
                 initialise();
@@ -2796,8 +2956,15 @@ public class Main extends Activity {
                 }
             } else {
                 edtEnterString.setText("");
-                btnEquals.setVisibility(View.VISIBLE);
-                showSemicolonButton();
+                //For adding parameters into function definition
+                if(tree.isXbeforeY(currentNode, Node.Type.PARAMETER, Node.Type.SEQ)){
+                    btnFuncAddParam.setVisibility(View.VISIBLE);
+                    btnEndFuncDec.setVisibility(View.VISIBLE);
+                }else {
+                    //For declaring a new variable
+                    btnEquals.setVisibility(View.VISIBLE);
+                    showSemicolonButton();
+                }
             }
         } else if (currentNodeType == Node.Type.PRINT) {
             btnPrintBack.setVisibility(View.VISIBLE);
@@ -2809,10 +2976,15 @@ public class Main extends Activity {
                 btnEnterVarValue.setVisibility(View.VISIBLE);
                 //for Booleans
             } else {
-                showSemicolonButton();
                 btnOperator.setVisibility(View.VISIBLE);
                 showBracketButtons(currentNode);
                 endIfCondition(currentNode); //TODO
+                if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ)){
+                    btnFuncFinishParam.setVisibility(View.VISIBLE);
+                }else{
+                    showSemicolonButton();
+                }
+
             }
 
         } else if (currentNodeType == Node.Type.FORLOOP) {
@@ -2883,9 +3055,10 @@ public class Main extends Activity {
                         }
                     }
                 } else {
-
+                    doFunctionCallParams(currentNode);
                     if (!((FunctionCall) currentNode).paramsFinished) {
-                        doFunctionCallParams(currentNode);
+                        btnFuncAddParam.setVisibility(View.VISIBLE);
+
                     }
                     if (((FunctionCall) currentNode).paramsFinished) {
                         showSemicolonButton();
@@ -2941,9 +3114,17 @@ public class Main extends Activity {
         else if (currentNodeType == Node.Type.ELSE) {
             showButtons(homeMenu);
         }
+        else if (currentNodeType == Node.Type.PARAMETER) {
+            Node functionNode = tree.returnFunctionNode(tree.findCurNode(tree));
+            if(((Function)functionNode).isDec) {
+                btnEndFuncDec.setVisibility(View.VISIBLE);
+            }else{
+
+            }
+        }
         else if (currentNodeType == Node.Type.EVAL) {
             if ((tree.returnEvalNode(currentNode)).evalNodeType == Eval.Type.NONE) {
-                if (tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ) || tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) {
+                if ((tree.isXbeforeY(currentNode, Node.Type.PRINT, Node.Type.SEQ)) || (tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) || (tree.isXbeforeY(currentNode, Node.Type.PARAMETER, Node.Type.SEQ))) {
                     btnSetEvalTypeInt.setVisibility(View.VISIBLE);
                     btnSetEvalTypeString.setVisibility(View.VISIBLE);
                     btnSetEvalTypeBool.setVisibility(View.VISIBLE);
@@ -3017,19 +3198,12 @@ public class Main extends Activity {
 
 
 
-
-//Tuesday 18th August
-//ToDO: make loops work properly (with ++ -- etc) -- DONE
-//TODO: implement return functionality -- DONE
-
-//TODO: editReturn button still shows when you press on another line -- DONE
-
-//TODO: FIX VARIABLE SCOPE
-
-//TODO: having problems with for loops within functions
-
-
-//TODO: have better error reporting, so basically if there is an error, add the error message to an array list, at the end if there are any errors, output them instead of code
+//Wed
+//TODO: redo variable scope -- DONE
+//TODO: Parameters
+//TODO: add parameters into function definitions -- DONE
+//TODO: add parameters into function calls
+//TODO: make code scrollable across, messes up line number otherwise
 
 
 
@@ -3253,3 +3427,17 @@ public class Main extends Activity {
 //TODO: functions: might have to make varaibles array 3d? -- MADE IT 3D, NOW TO MAKE IT ADD MORE DIMENSIONS WHEN NEW FUNCTION OPENED
 //
 //TODO: function calls -- DONE for no parameters and no return
+
+
+//Tuesday 18th August
+//ToDO: make loops work properly (with ++ -- etc) -- DONE
+//TODO: implement return functionality -- DONE
+
+//TODO: editReturn button still shows when you press on another line -- DONE
+
+//TODO: FIX VARIABLE SCOPE -- DONE
+
+//TODO: having problems with for loops within functions -- DONE
+
+
+//TODO: have better error reporting, so basically if there is an error, add the error message to an array list, at the end if there are any errors, output them instead of code -- DONE
