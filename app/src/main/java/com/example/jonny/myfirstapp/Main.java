@@ -2232,7 +2232,8 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnExistingFunc:
-                tree = tree.addNode(tree, Node.Type.FUNCCALL, "right", null);
+                tree = tree.addNode(tree, Node.Type.FUNCCALL, "left", null);
+                tree = tree.addNode(tree, Node.Type.STARTFUNCCALL, "right", null);
                 break;
 
             case R.id.btnFuncFinishParam:

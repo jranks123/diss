@@ -42,6 +42,7 @@ public class Node extends Activity {
         ENDPROGRAM,
         GO,
         FUNCCALL,
+        STARTFUNCCALL,
         RESETRETURN,
         STARTPARAM,
         PARAMETER,
