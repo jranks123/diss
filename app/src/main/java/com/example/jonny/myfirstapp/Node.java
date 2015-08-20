@@ -966,6 +966,10 @@ public class Node extends Activity {
         if(tree.nodeType == Type.FUNCTION){
             ((Function)tree).parameters = new ArrayList<Variable>();
         }
+        if(tree.nodeType == Type.FUNCCALL){
+            ((FunctionCall)tree).parameters = new ArrayList<ArrayList<Node>>();
+
+        }
         if(tree.left != null){
             clearFunctionParams(tree.left);
         }

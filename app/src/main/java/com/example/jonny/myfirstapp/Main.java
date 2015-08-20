@@ -1737,6 +1737,21 @@ public class Main extends Activity {
         currentVarScope.isCurrentScope = true;
     }
 
+    public Node searchChildren(Node n, Node.Type type){
+        Node newNode = new Node(null, null);
+        if(n.nodeType == type){
+            return n;
+        }
+        if(n.left != null){
+            newNode = searchChildren(n.left, type);
+        }
+        if(n.right != null){
+            newNode = searchChildren(n.right, type);
+        }
+        return newNode;
+
+    }
+
 
     public void visitNodeVarNew(Node treeNode) {
         Node.Type nodeType = treeNode.nodeType;
@@ -1780,9 +1795,7 @@ public class Main extends Activity {
                 treeNode = treeNode.parent;
                 count++;
             }
-            for(int i = 0; i < count+1; i ++){
-                treeNode = treeNode.left;
-            }
+            treeNode = searchChildren(treeNode, Node.Type.ENDPARAMFUNCCALL);
 
             Node functionCallNode = tree.returnFunctionCallNode(treeNode);
             (((FunctionCall)functionCallNode).parameters).add(paramArray);
@@ -2152,7 +2165,7 @@ public class Main extends Activity {
     public Boolean checkIfFunctionCallParametersFinished(Node n){
         fillVariablesArrayFull();
         Node functionCallNode = tree.returnFunctionCallNode(n);
-        String name = ((Function)functionCallNode).name;
+        String name = ((FunctionCall)functionCallNode).functionName;
         Node functionNode = getFunctionFromName(name);
         ArrayList<Variable> functionParams = ((Function)functionNode).parameters;
         ArrayList<ArrayList<Node>> functionCallParams = ((FunctionCall)functionCallNode).parameters;
@@ -2208,13 +2221,6 @@ public class Main extends Activity {
                     tree = tree.addNode(tree, Node.Type.STARTPARAM, "left", null);
                     tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
 
-                }else if (currentN.nodeType == Node.Type.PARAMETER) {
-                    if(checkIfFunctionCallParametersFinished(currentN)){
-                        showInvalidAlert("You have already added the correct ammount of parameters");
-                    }else{
-                        tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
-                    }
-
                 } else {
                     if (!tree.isXbeforeY(currentN, Node.Type.FUNCCALL, Node.Type.FUNCTION)) {
                         tree = tree.addNode(tree, Node.Type.ENDPARAM, "left", null);
@@ -2222,6 +2228,17 @@ public class Main extends Activity {
                         tree = tree.addNode(tree, Node.Type.COMMA, "right", null);
                         tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
                     } else {
+                        //This is for functioncalls
+                        if (currentN.nodeType == Node.Type.PARAMETER) {
+                            if(checkIfFunctionCallParametersFinished(currentN)){
+                                showInvalidAlert("You have already added the correct ammount of parameters");
+                            }else{
+                                tree = tree.addNode(tree, Node.Type.COMMA, "right", null);
+                                tree = tree.addNode(tree, Node.Type.PARAMETER, "right", null);
+                                tree = tree.addNode(tree, Node.Type.EVAL, "left", "none");
+                            }
+
+                        }
 
                     }
                 }
@@ -2252,7 +2269,7 @@ public class Main extends Activity {
                             }
                         }
                     }*/
-                } else {
+                } else if (currentN.nodeType != Node.Type.PARAMETER) {
                     tree = tree.addNode(tree, Node.Type.DEC, "left", "none");
 
                 }
@@ -2469,7 +2486,7 @@ public class Main extends Activity {
                                     if (vType == Variable.Type.INT)
                                         showInvalidAlert("Wrong type, the parameter type must be Integer");
                                     if (vType == Variable.Type.BOOL)
-                                        showInvalidAlert("Wrong type, the parameter type must be String");
+                                        showInvalidAlert("Wrong type, the parameter type must be Boolean");
                                 }
                                 foundEmptyParam = true;
                             }
@@ -2481,7 +2498,36 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnSetEvalTypeBool:
-                tree = tree.updateEval(tree, Eval.Type.BOOL);
+                currentN = tree.returnFunctionCallNode(tree.findCurNode(tree));
+                if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ)) {
+                    fillVariablesArrayFull();
+                    functionNode = tree.getFunctionNodeByName(tree, ((FunctionCall) currentN).functionName);
+                    ArrayList<Variable> functionParams = ((Function) functionNode).parameters;
+                    ArrayList<ArrayList<Node>> functionCallParams = ((FunctionCall) currentN).parameters;
+                    Boolean paramFound = false;
+                    Boolean foundEmptyParam = false;
+                    for (int i = 0; i < functionParams.size(); i++) {
+                        if (foundEmptyParam == false) {
+                            try {
+                                functionCallParams.get(i);
+                            } catch (IndexOutOfBoundsException p) {
+                                //     Function.Type functionParams.get(i))
+                                Variable.Type vType = functionParams.get(i).varNodeType;
+                                if (vType == Variable.Type.BOOL) {
+                                    tree = tree.updateEval(tree, Eval.Type.BOOL);
+                                } else {
+                                    if (vType == Variable.Type.INT)
+                                        showInvalidAlert("Wrong type, the parameter type must be Integer");
+                                    if (vType == Variable.Type.STRING)
+                                        showInvalidAlert("Wrong type, the parameter type must be String");
+                                }
+                                foundEmptyParam = true;
+                            }
+                        }
+                    }
+                }else {
+                    tree = tree.updateEval(tree, Eval.Type.BOOL);
+                }
                 break;
 
 
