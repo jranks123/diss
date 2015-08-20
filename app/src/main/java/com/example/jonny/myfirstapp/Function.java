@@ -12,7 +12,7 @@ public class Function extends Node{
     Boolean decFinished;
     Boolean paramsFinished;
     Boolean hasReturn;
-    ArrayList<Node> parameters;
+    ArrayList<Variable> parameters;
 
     public enum Type {
         INT,
@@ -32,6 +32,6 @@ public class Function extends Node{
         this.paramsFinished = false;
         this.decFinished = false;
         this.hasReturn = false;
-        this.parameters = new ArrayList<Node>();
+        this.parameters = new ArrayList<Variable>();
     }
 }

@@ -3,6 +3,8 @@ package com.example.jonny.myfirstapp;
 import android.app.Activity;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 //TEST
 /**
  * Created by Jonny on 20/03/2015.
@@ -41,6 +43,11 @@ public class Node extends Activity {
         GO,
         FUNCCALL,
         RESETRETURN,
+        STARTPARAM,
+        PARAMETER,
+        COMMA,
+        ENDPARAM,
+        ENDPARAMFUNCCALL,
         CONDITION;
     }
 
@@ -71,6 +78,28 @@ public class Node extends Activity {
     }
 
 
+    public Node returnFunctionNode(Node tree){
+        do{
+            if(tree.nodeType == Type.FUNCTION){
+                return tree;
+            }
+            tree = tree.parent;
+        }while(tree.nodeType != Node.Type.ROOT);
+        return tree;
+    }
+
+    public Node returnFunctionCallNode(Node tree){
+        do{
+            if(tree.nodeType == Type.FUNCCALL){
+                return tree;
+            }
+            tree = tree.parent;
+        }while(tree.nodeType != Node.Type.ROOT);
+        return tree;
+    }
+
+
+
     public Node getFunctionNodeByName(Node tree, String name){
         if(tree.nodeType == Type.FUNCTION){
             if(((Function)tree).isDec){
@@ -99,10 +128,10 @@ public class Node extends Activity {
 
 
     public Node findCurNode(Node tree){
-        Log.e("LOOKING AT NODE",  tree.nodeType.toString());
+       // Log.e("LOOKING AT NODE",  tree.nodeType.toString());
         if(tree.nodeType == Node.Type.VAR){
             try {
-                Log.e("AND is type", ((Variable) tree).varNodeType.toString());
+         //       Log.e("AND is type", ((Variable) tree).varNodeType.toString());
             }catch (NullPointerException e ){
 
             }
@@ -110,7 +139,7 @@ public class Node extends Activity {
         }
         Node newTree = null;
         if (tree.isCurrentNode == true){
-            Log.e("ADDNODE", "Current node findCurNode " + tree.nodeType.toString());
+          //  Log.e("ADDNODE", "Current node findCurNode " + tree.nodeType.toString());
             return tree;
         }
         if (tree.left != null) {
@@ -233,6 +262,9 @@ public class Node extends Activity {
                 }else if(value == "Close"){
                     newNode =  new Bracket(node, Bracket.Type.CLOSE);
                 }
+            }
+            else if(type == Type.PARAMETER){
+                newNode = new Parameter(node);
             }
             else if(type == Type.RETURN){
                 if(value == "true"){
@@ -374,6 +406,16 @@ public class Node extends Activity {
         return tree;
     }
 
+    /*
+    if(type == Eval.Type.BOOL){
+                ((Parameter)node.parent).type = Parameter.Type.BOOL;
+            }else if(type == Eval.Type.STRING){
+                ((Parameter)node.parent).type = Parameter.Type.STRING;
+            }else if(type == Eval.Type.INT){
+                ((Parameter)node.parent).type = Parameter.Type.INT;
+            }
+     */
+
     public Node updateVarType(Node tree, Variable.Type type){
         Node node = findCurNode(tree);
         ((Variable)node).varNodeType = type;
@@ -463,7 +505,7 @@ public class Node extends Activity {
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
                             tree.left.left.left.right.left.isCurrentNode = true;
                         }else if ((newLineType == Newline.Type.FUNCTION) && (function.equals("setCurrent")) && (((Function)tree.left.left).isDec)) {
-                                tree.left.left.left.right.left.isCurrentNode = true;
+                                tree.left.left.right.right.left.isCurrentNode = true;
                         }else {
                             if (function.equals("delete")) {
                                 tree.left = null;
@@ -807,13 +849,13 @@ public class Node extends Activity {
 
 
     public Node moveUpTreeLimit(Node tree, String limit){
-        Log.e("ADDNODE", "moving up tree");
+     //   Log.e("ADDNODE", "moving up tree");
         Node node = findCurNode(tree);
         /*node.isCurrentNode = false;
         node = node.parent;
         node.isCurrentNode = true;*/
         while (!node.nodeType.toString().equals(limit)){
-           Log.e("DEBUG", "Current node before = " + node.nodeType.toString());
+       //    Log.e("DEBUG", "Current node before = " + node.nodeType.toString());
            node.isCurrentNode = false;
            node.parent.isCurrentNode = true;
             node = node.parent;
@@ -825,7 +867,7 @@ public class Node extends Activity {
     }
 
     public Node moveUpTreeLimitNode(Node tree, String limit){
-        Log.e("ADDNODE", "moving up tree");
+     //   Log.e("ADDNODE", "moving up tree");
 
         while (!tree.nodeType.toString().equals(limit)){
             Log.e("DEBUG", "Current node before = " + tree.nodeType.toString());
@@ -885,6 +927,8 @@ public class Node extends Activity {
         return tree;
     }
 
+
+
     public Node moveUpOneStep(Node tree){
         Node node;
         node = findCurNode(tree);
@@ -906,6 +950,32 @@ public class Node extends Activity {
         return tree;
     }
 
+    /*public Node doRenumbering(Node tree){
+        tree.position = currentNodeNumber;
+        currentNodeNumber += 1;
+        if (tree.left != null){
+            doRenumbering(tree.left);
+        }
+        if (tree.right != null){
+            doRenumbering(tree.right);
+        }
+        return tree;
+    }*/
+
+    public Node clearFunctionParams(Node tree){
+        if(tree.nodeType == Type.FUNCTION){
+            ((Function)tree).parameters = new ArrayList<Variable>();
+        }
+        if(tree.left != null){
+            clearFunctionParams(tree.left);
+        }
+        if(tree.right != null){
+           clearFunctionParams(tree.right);
+        }
+        return tree;
+
+
+    }
 
 
 

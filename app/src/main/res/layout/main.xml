@@ -573,6 +573,22 @@
             android:onClick="onBtnClicked"/>
 
         <Button
+            android:id="@+id/btnFuncFinishParam"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Finish Parameter"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
+            android:id="@+id/btnFuncFinishFuncCall"
+            android:layout_width="141dp"
+            android:layout_height="60dp"
+            android:text="Finish Function Call"
+            android:visibility="gone"
+            android:onClick="onBtnClicked"/>
+
+        <Button
             android:id="@+id/btnFuncReturn"
             android:layout_width="141dp"
             android:layout_height="60dp"
