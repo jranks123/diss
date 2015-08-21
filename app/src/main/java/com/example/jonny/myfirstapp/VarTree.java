@@ -24,7 +24,7 @@ public class VarTree extends Activity {
 
     public VarTree ( VarTree parent){
         this.parent = parent;
-        this.children = new ArrayList<VarTree>();
+        this.children = null;
         this.variables = new ArrayList<Variable>();
         this.tempCurrentScope = true;
         this.isCurrentScope = false;
@@ -35,10 +35,12 @@ public class VarTree extends Activity {
         if (tree.tempCurrentScope == true){
             return tree;
         }
-        for(int i = 0; i < tree.children.size(); i++){
-            newTree = findTempCurVarNode(tree.children.get(i));
-            if(newTree != null){
-                return newTree;
+        if(tree.children != null) {
+            for (int i = 0; i < tree.children.size(); i++) {
+                newTree = findTempCurVarNode(tree.children.get(i));
+                if (newTree != null) {
+                    return newTree;
+                }
             }
         }
         return newTree;
@@ -46,8 +48,10 @@ public class VarTree extends Activity {
 
     public VarTree clearVarTreeIsCurrent(VarTree varTree){
         varTree.isCurrentScope = false;
-        for(int i = 0; i < varTree.children.size(); i++ ){
-           clearVarTreeIsCurrent(varTree.children.get(i));
+        if(varTree.children != null) {
+            for (int i = 0; i < varTree.children.size(); i++) {
+                clearVarTreeIsCurrent(varTree.children.get(i));
+            }
         }
         return varTree;
     }
@@ -57,10 +61,12 @@ public class VarTree extends Activity {
         if (tree.isCurrentScope == true){
             return tree;
         }
-        for(int i = 0; i < tree.children.size(); i++){
-            newTree = findCurVarNode(tree.children.get(i));
-            if(newTree != null){
-                return newTree;
+        if(tree.children != null) {
+            for (int i = 0; i < tree.children.size(); i++) {
+                newTree = findCurVarNode(tree.children.get(i));
+                if (newTree != null) {
+                    return newTree;
+                }
             }
         }
         return newTree;
@@ -71,6 +77,9 @@ public class VarTree extends Activity {
         VarTree varNode = findTempCurVarNode(varTree);
         VarTree newNode = new VarTree(varNode);
         varNode.tempCurrentScope = false;
+        if(varNode.children == null) {
+            varNode.children = new ArrayList<VarTree>();
+        }
         varNode.children.add(newNode);
         return varTree;
     }
