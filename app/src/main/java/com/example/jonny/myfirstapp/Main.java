@@ -969,11 +969,39 @@ public class Main extends Activity {
 
     public String getValueOfExpressionNode(Node node){
             if(node.nodeType == Node.Type.FUNCCALL) {
-                Node n = node.getFunctionNodeByName(tree, ((FunctionCall) node).functionName);
+
+             //   if(!(tree.isXbeforeY(node, Node.Type.EVAL, Node.Type.SEQ))) {
+
+                    Node n = node.getFunctionNodeByName(tree, ((FunctionCall) node).functionName);
+
+                    for(int i = 0; i < ((FunctionCall)node).parameters.size(); i++){
+                        ArrayList<Node> paramArray = ((FunctionCall)node).parameters.get(i);
+                        String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
+                        parameterStack.add(0, value);
+                    }
+                    runCode(n);
+                    String value = returnValueStack.get(returnValueStack.size() - 1);
+                    returnValueStack.remove(returnValueStack.size() - 1);
+                    return value;
+            //    }
+
+
+
+            /*    Node n = node.getFunctionNodeByName(tree, ((FunctionCall) node).functionName);
+                for(int i = 0; i < ((FunctionCall)node).parameters.size(); i++){
+                    ArrayList<Node> paramArray = ((FunctionCall)node).parameters.get(i);
+                    String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
+                    parameterStack.add(0, value);
+                }
+
                 runCode(n);
                 String value = returnValueStack.get(returnValueStack.size() - 1);
                 returnValueStack.remove(returnValueStack.size() - 1);
-                return value;
+                return value;*/
+
+
+
+
             }else {
                 try {
                     return (((VarVal) node).value);
@@ -1341,16 +1369,18 @@ public class Main extends Activity {
                    VarTree currentScopeVar = varTree.findTempCurVarNode(varTree);
                    currentScopeVar.tempCurrentScope = false;
                    currentScopeVar.parent.tempCurrentScope = true;
-               }else if(treeNode.nodeType == Node.Type.FUNCCALL){
+               }else if(treeNode.nodeType == Node.Type.ENDFUNCCALL){
                    if(!(tree.isXbeforeY(treeNode, Node.Type.EVAL, Node.Type.SEQ))) {
-                       Node n = treeNode.getFunctionNodeByName(tree, ((FunctionCall) treeNode).functionName);
-                       for(int i = 0; i < ((FunctionCall)treeNode).parameters.size(); i++){
-                           ArrayList<Node> paramArray = ((FunctionCall)treeNode).parameters.get(i);
+                        Node funcCall = treeNode.parent.parent;
+                        Node n = treeNode.getFunctionNodeByName(tree, ((FunctionCall) funcCall).functionName);
+
+                       for(int i = 0; i < ((FunctionCall)funcCall).parameters.size(); i++){
+                           ArrayList<Node> paramArray = ((FunctionCall)funcCall).parameters.get(i);
                            String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
                            parameterStack.add(0, value);
                        }
                        runCode(n);
-                       if(((FunctionCall)treeNode).type != FunctionCall.Type.VOID) {
+                       if(((FunctionCall)funcCall).type != FunctionCall.Type.VOID) {
                            returnValueStack.remove(returnValueStack.size() - 1);
                        }
                    }
@@ -1368,7 +1398,33 @@ public class Main extends Activity {
                    parameterStack.remove(parameterStack.size() - 1);
 
                }
+               else if(treeNode.nodeType == Node.Type.ENDPARAMFUNCCALL) {
+                   ArrayList<Node> paramArray = new ArrayList<Node>();
+                   treeNode = treeNode.parent;
+                   Integer count = 0;
+                   while(treeNode.nodeType != Node.Type.EVAL) {
+                       paramArray.add(0, treeNode);
+                       treeNode = treeNode.parent;
+                       count++;
+                   }
+                   treeNode = searchChildren(treeNode, Node.Type.ENDPARAMFUNCCALL);
+
+                   Node functionCallNode = tree.returnFunctionCallNodeParam(treeNode);
+                   (((FunctionCall)functionCallNode).parameters).add(paramArray);
+
+               }
     }
+
+    public int i(int i){
+
+        return 0;
+    }
+
+    public int e(){
+        i(i(7));
+        return 0;
+    }
+
 
 
     public void showBracketButtons(Node node){
@@ -2095,9 +2151,13 @@ public class Main extends Activity {
         Node functionCallNode = tree.returnFunctionCallNode(n);
         String name = ((FunctionCall)functionCallNode).functionName;
         Node functionNode = getFunctionFromName(name);
-        ArrayList<Variable> functionParams = ((Function)functionNode).parameters;
-        ArrayList<ArrayList<Node>> functionCallParams = ((FunctionCall)functionCallNode).parameters;
-        if(functionParams.size() == functionCallParams.size()){
+        try {
+            ArrayList<Variable> functionParams = ((Function) functionNode).parameters;
+            ArrayList<ArrayList<Node>> functionCallParams = ((FunctionCall) functionCallNode).parameters;
+            if (functionParams.size() == functionCallParams.size()) {
+                return true;
+            }
+        }catch(NullPointerException e){
             return true;
         }
 
@@ -2478,6 +2538,7 @@ public class Main extends Activity {
                 varTree = new VarTree(null);
                 runVarTree = new ArrayList<VarTree>();
                 openCurlysIndent.clear();
+                tree.clearFunctionParams(tree);
                 runCode(tree);
               //  clearVar();
                 if(errorStack.size() > 0 ){
