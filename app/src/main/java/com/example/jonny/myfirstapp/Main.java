@@ -1311,7 +1311,7 @@ public class Main extends Activity {
                }else if(treeNode.nodeType == Node.Type.ENDIFCONDITION){
                    openCurlysIndent.add(true);
                   // addToVariablesArray();
-                   varTree.addNode(varTree);
+                   runVarTree.get(runVarTree.size()-1).addNode(varTree);
                    String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.ENDIFCONDITION);
                    if(value.equals("true")){
                        setConditionValue(treeNode, "true");
@@ -1322,10 +1322,11 @@ public class Main extends Activity {
                }else if (treeNode.nodeType == Node.Type.ELSE) {
                    openCurlysIndent.add(true);
                   // addToVariablesArray();
-                   varTree.addNode(varTree);
+                    runVarTree.get(runVarTree.size()-1).addNode(varTree);
                } else if (treeNode.nodeType == Node.Type.FUNCTION) {
                    if (((Function) treeNode).isDec) {
-                       varTree.addNode(varTree);
+                       runVarTree.get(runVarTree.size()-1).addNode(varTree);
+                       addFunctionDimension();
                        if (((Function) treeNode).decFinished) {
                        //    addToVariablesArray();
 
@@ -1352,6 +1353,7 @@ public class Main extends Activity {
                        runCode(n);
                        if(((FunctionCall)treeNode).type != FunctionCall.Type.VOID) {
                            returnValueStack.remove(returnValueStack.size() - 1);
+                           removeFunctionDimension();
                        }
                    }
                }
@@ -1817,15 +1819,14 @@ public class Main extends Activity {
     }
 
     public void addFunctionDimension(){
-        functionDimensions.add(true);
-        variablesArray.add(new ArrayList<ArrayList<Variable>>());
-        ArrayList<Variable> globals = variablesArray.get(0).get(0);
-        variablesArray.get(functionDimensions.size()).add(globals);
+        VarTree v = runVarTree.get(runVarTree.size()-1);
+        runVarTree.add(new VarTree(v, true));
+     //   functionDimensions.add(true);
     }
 
     public void removeFunctionDimension(){
-        functionDimensions.remove(functionDimensions.size() - 1);
-        variablesArray.remove(variablesArray.size() - 1);
+      //  functionDimensions.remove(functionDimensions.size() - 1);
+        runVarTree.remove(runVarTree.size() - 1);
     }
 
 
@@ -2477,6 +2478,7 @@ public class Main extends Activity {
                 tree.renumberNodes(tree);
                 varTree = new VarTree(null);
                 runVarTree = new ArrayList<VarTree>();
+                runVarTree.add(new VarTree(varTree));
                 openCurlysIndent.clear();
                 runCode(tree);
               //  clearVar();
