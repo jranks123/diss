@@ -1373,6 +1373,7 @@ public class Main extends Activity {
                } else if (treeNode.nodeType == Node.Type.FUNCTION) {
                    if (((Function) treeNode).isDec) {
                        //varTree.addNode(varTree);
+                       addFunctionDimension();
                        varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
 
                        if (((Function) treeNode).decFinished) {
@@ -1404,6 +1405,7 @@ public class Main extends Activity {
                        if(((FunctionCall)funcCall).type != FunctionCall.Type.VOID) {
                            returnValueStack.remove(returnValueStack.size() - 1);
                        }
+                       removeFunctionDimension();
                    }
                }
                else if(treeNode.nodeType == Node.Type.ENDPARAM) {
@@ -1905,15 +1907,20 @@ public class Main extends Activity {
     }
 
     public void addFunctionDimension(){
-        functionDimensions.add(true);
+        ArrayList<Variable> globals = varRunTree.get(varRunTree.size()-1).variables;
+        varRunTree.add(new VarTree(null));
+        varRunTree.get(0).variables = globals;
+
+       /* functionDimensions.add(true);
         variablesArray.add(new ArrayList<ArrayList<Variable>>());
         ArrayList<Variable> globals = variablesArray.get(0).get(0);
-        variablesArray.get(functionDimensions.size()).add(globals);
+        variablesArray.get(functionDimensions.size()).add(globals);*/
     }
 
     public void removeFunctionDimension(){
-        functionDimensions.remove(functionDimensions.size() - 1);
-        variablesArray.remove(variablesArray.size() - 1);
+     /*   functionDimensions.remove(functionDimensions.size() - 1);
+        variablesArray.remove(variablesArray.size() - 1);*/
+        varRunTree.remove(varRunTree.size() - 1);
     }
 
 
