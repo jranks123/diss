@@ -100,6 +100,20 @@ public class Node extends Activity {
         return tree;
     }
 
+    public Node returnFunctionCallNodeParam(Node tree){
+        Boolean hasPassedParam = false;
+        do{
+            if(tree.nodeType == Type.PARAMETER){
+                hasPassedParam = true;
+            }
+            if(tree.nodeType == Type.FUNCCALL && hasPassedParam){
+                return tree;
+            }
+            tree = tree.parent;
+        }while(tree.nodeType != Node.Type.ROOT);
+        return tree;
+    }
+
 
 
     public Node getFunctionNodeByName(Node tree, String name){
@@ -216,17 +230,21 @@ public class Node extends Activity {
                 }
             }else if (type == Type.FUNCCALL) {
                 Node n = tree.findCurNode(tree);
+                Boolean isParam = false;
+                if(value == "true"){
+                    isParam = true;
+                }
                 if (tree.isXbeforeY(n, Type.EVAL, Type.SEQ)) {
                     Eval.Type evalType = ((Eval)returnEvalNode(n)).evalNodeType;
                     if(evalType == Eval.Type.BOOL){
-                        newNode = new FunctionCall(node, FunctionCall.Type.BOOL);
+                        newNode = new FunctionCall(node, FunctionCall.Type.BOOL, isParam);
                     }else if(evalType == Eval.Type.INT){
-                        newNode = new FunctionCall(node, FunctionCall.Type.INT);
+                        newNode = new FunctionCall(node, FunctionCall.Type.INT, isParam);
                     }else if(evalType == Eval.Type.STRING){
-                        newNode = new FunctionCall(node, FunctionCall.Type.STRING);
+                        newNode = new FunctionCall(node, FunctionCall.Type.STRING, isParam);
                     }
                 }else{
-                    newNode = new FunctionCall(node, FunctionCall.Type.NONE);
+                    newNode = new FunctionCall(node, FunctionCall.Type.NONE, isParam);
                 }
             }
 

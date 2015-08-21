@@ -1407,7 +1407,7 @@ public class Main extends Activity {
                 btnCloseBracket.setVisibility(View.GONE);
             }
         }
-        if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL || node.nodeType == Node.Type.STARTFUNCCALL){
+        if(node.nodeType == Node.Type.VAR || node.nodeType == Node.Type.VARVAL || node.nodeType == Node.Type.FUNCCALL){
             btnOpenBracket.setVisibility(View.GONE);
         }
         if(node.nodeType == Node.Type.OP){
@@ -1607,12 +1607,23 @@ public class Main extends Activity {
 
 
     public void printTree(Node tree){
+        Boolean skip = false;
         visitNode(tree);
+        if(tree.right!= null){
+            if(tree.right.nodeType == Node.Type.STARTFUNCCALL){
+                if(tree.parent.nodeType != Node.Type.FUNCTION) {
+                    skip = true;
+                    printTree(tree.right);
+                }
+            }
+        }
         if (tree.left != null){
             printTree(tree.left);
         }
         if (tree.right != null){
-            printTree(tree.right);
+            if(!skip) {
+                printTree(tree.right);
+            }
         }
     }
 
@@ -1752,7 +1763,7 @@ public class Main extends Activity {
         if(n.left != null){
             newNode = searchChildren(n.left, type);
         }
-        if(n.right != null){
+        if(n.right != null && newNode == null){
             newNode = searchChildren(n.right, type);
         }
         return newNode;
@@ -1781,7 +1792,7 @@ public class Main extends Activity {
             }
 
         } else if(nodeType == Node.Type.ENDPARAM){  //TODO: THIS IS BEING CALLED LIKE 5 TIMES WHEN IT SHOULD JUST BE CALLED ONCE
-            Variable v;
+            Variable v; //TODO: make this account for varvals and functioncalls
             v = treeNode.returnDecVar(treeNode);
             Variable.Type type = v.varNodeType;
             Variable var = new Variable(null, type, v.name, null);
@@ -1804,7 +1815,7 @@ public class Main extends Activity {
             }
             treeNode = searchChildren(treeNode, Node.Type.ENDPARAMFUNCCALL);
 
-            Node functionCallNode = tree.returnFunctionCallNode(treeNode);
+            Node functionCallNode = tree.returnFunctionCallNodeParam(treeNode);
             (((FunctionCall)functionCallNode).parameters).add(paramArray);
             /*Variable v;
             v = treeNode.returnDecVar(treeNode);
@@ -2243,14 +2254,18 @@ public class Main extends Activity {
                     currentN = tree.findCurNode(tree);
                     ((FunctionCall)currentN.returnFunctionCallNode(currentN)).paramsFinished = true;
                     tree = tree.addNode(tree, Node.Type.ENDFUNCCALL, "right", null);
-                    if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.PARAMETER)){
+                   // if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.PARAMETER)){
                         tree = tree.moveUpTreeLimit(tree, "FUNCCALL");
-                    }
+                   // }
                 }
                 break;
 
             case R.id.btnExistingFunc:
-                tree = tree.addNode(tree, Node.Type.FUNCCALL, "left", null);
+                String isParam = "true";
+                if(tree.nodeType == Node.Type.FUNCTION){
+                    isParam = "false";
+                }
+                tree = tree.addNode(tree, Node.Type.FUNCCALL, "left", isParam);
                 tree = tree.addNode(tree, Node.Type.STARTFUNCCALL, "right", null);
                 break;
 
@@ -2690,9 +2705,18 @@ public class Main extends Activity {
 
             case R.id.semicolon:
                 Log.d("DEBUG", "PRESS ;");
-                if(tree.isXbeforeY(tree.findCurNode(tree), Node.Type.RETURN, Node.Type.SEQ)) {
+                currentNode = tree.findCurNode(tree);
+                if(tree.isXbeforeY(currentNode, Node.Type.RETURN, Node.Type.SEQ)) {
                     tree = tree.addNode(tree, Node.Type.SMCLN, "right", "RETURN");
+                }else if(currentNode.nodeType == Node.Type.FUNCCALL) {
+                    while(currentNode.right != null){
+                        currentNode.isCurrentNode = false;
+                        currentNode.right.isCurrentNode = true;
+                        currentNode = currentNode.right;
+                    }
+                    tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                 }else{
+
                     tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                 }
                 tree = tree.moveUpTreeLimit(tree, "SEQ");
@@ -2821,7 +2845,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnOperator:
-                tree = tree.addNode(tree, Node.Type.OP, "right", null);
+                tree = tree.addNode(tree, Node.Type.OP, "left", null);
                 break;
 
             case R.id.btnOperatorAdd:
@@ -3064,7 +3088,7 @@ public class Main extends Activity {
             } else {
                 btnOperator.setVisibility(View.VISIBLE);
                 showBracketButtons(currentNode);
-                endIfCondition(currentNode); //TODO
+            //    endIfCondition(currentNode); //TODO
                 if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ) && openBrackets.size() == 0){
                     btnFuncFinishParam.setVisibility(View.VISIBLE);
                 }else{
@@ -3117,12 +3141,17 @@ public class Main extends Activity {
             doButtonLogic();
         }
         else if(currentNodeType == Node.Type.FUNCCALL) {
-            btnOperator.setVisibility(View.VISIBLE);
-            showBracketButtons(currentNode);
+         //   btnOperator.setVisibility(View.VISIBLE);
+           // showBracketButtons(currentNode);
             endIfCondition(currentNode); //TODO
-            if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ) && openBrackets.size() == 0){
-                btnFuncFinishParam.setVisibility(View.VISIBLE);
-            }else{
+            if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ)){
+                btnOperator.setVisibility(View.VISIBLE);
+                showBracketButtons(currentNode);
+                if( openBrackets.size() == 0){
+                    btnFuncFinishParam.setVisibility(View.VISIBLE);
+                }
+            }
+            else{
                 showSemicolonButton();
             }
 
@@ -3304,6 +3333,11 @@ public class Main extends Activity {
         showBracketButtons(currentNode);
     }
 }
+
+
+
+//Friday
+
 
 
 //Thurs

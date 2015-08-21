@@ -12,6 +12,7 @@ public class FunctionCall extends Node{
     String functionName;
     ArrayList<ArrayList<Node>> parameters;
     Boolean paramsFinished;
+    Boolean isParam;
 
     public enum Type {
         STRING,
@@ -21,7 +22,7 @@ public class FunctionCall extends Node{
         NONE
     }
 
-    public FunctionCall(Node parent, Type type)
+    public FunctionCall(Node parent, Type type, Boolean isParam)
     {
         super(Node.Type.FUNCCALL, parent);
         this.isCurrentNode = true;
@@ -29,6 +30,7 @@ public class FunctionCall extends Node{
         this.functionName = null;
         this.parameters = new ArrayList<ArrayList<Node>>();
         paramsFinished = false;
+        this.isParam = isParam;
     }
 
 
