@@ -1572,6 +1572,8 @@ public class Main extends Activity {
             }
         }catch (StackOverflowError e){
             errorStack.add("A recursive function caused an error as it looped forever");
+        } catch (ArrayIndexOutOfBoundsException e){
+            errorStack.add("A recursive function caused an error as it looped forever");
         }
     }
 
