@@ -1230,24 +1230,26 @@ public class Main extends Activity {
     }
 
     public ArrayList<Node> evaluateArray(ArrayList<Node> array){
-        if(array.size() == 1){
-            return array;
-        }else {
-            if(areBracketsInArray(array)) {
-                while(areBracketsInArray(array)) {
-                    array = evaluateBrackets(array);
-                }
-                array = evaluateArray(array);
-            }else {
-                    array = evalDivAndMul(array);
-                    array = evalAddAndSub(array);
-                    array = evalString(array);
-                    array = evalBool(array);
-                    array = evalConditionalOp(array);
-            }
-            return array;
-        }
-    }
+           if(array.size() == 1){
+               return array;
+           }else {
+               if(areBracketsInArray(array)) {
+                   while(areBracketsInArray(array)) {
+                       array = evaluateBrackets(array);
+                   }
+                   array = evaluateArray(array);
+               }else {
+                   array = evalDivAndMul(array);
+                   array = evalAddAndSub(array);
+                   array = evalString(array);
+                   array = evalBool(array);
+                   array = evalConditionalOp(array);
+               }
+               return array;
+           }
+       }
+
+
 
 
     public String evaluate(Node tree, Node.Type typeOfEvaluation){
@@ -1267,7 +1269,12 @@ public class Main extends Activity {
                 node = node.right;
             }
         }
-        return getValueOfExpressionNode(evaluateArray(array).get(0));
+        try {
+            return getValueOfExpressionNode(evaluateArray(array).get(0));
+        }catch(ArithmeticException e){
+            errorStack.add("Error: tried to divide by 0");
+            return "";
+        }
     }
 
     public void setConditionValue(Node tree, String value){
@@ -1310,9 +1317,16 @@ public class Main extends Activity {
                            Variable.Type type = v.varNodeType;
                            String name = v.name;
                            //evaluate
-                           String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
-                          // updateVariableValue(value, name, type);
+                           String value = "";
+                           try {
+                               value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                           }catch (NumberFormatException e) {
+                               errorStack.add("NumberFormatException (hint: have you deleted any variable declarations?");
+                           }
                            updateVariableValueNew(value, name);
+
+                           // updateVariableValue(value, name, type);
+
                         //   Log.d("Value is ", value);
                        }
                       else if(treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)){
