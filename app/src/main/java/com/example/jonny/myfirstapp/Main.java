@@ -148,6 +148,7 @@ public class Main extends Activity {
     public void initialise(){
         tree = new Node(Node.Type.ROOT, null);
         varRunTree= new ArrayList<VarTree>();
+        varRunTree.add(new VarTree(null));
         //tree = tree.addNode(tree, Node.Type.NONE, "right", null);
         tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
         tree = tree.moveUpTreeLimit(tree, "ROOT");
