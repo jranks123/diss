@@ -1265,10 +1265,14 @@ public class Main extends Activity {
                 node = node.left;
             }
             else if(node.right != null){
-                if(node.right.nodeType != typeOfEvaluation) {
-                    array.add(node.right);
+                if(node.right.nodeType == typeOfEvaluation) {
+                    node = node.right;
+                }else if(node.nodeType == Node.Type.FUNCCALL){
+                    if(node.right.right.right != null){
+                        node = node.right.right.right;
+                    }
                 }
-                node = node.right;
+
             }
         }
         try {
@@ -1332,7 +1336,8 @@ public class Main extends Activity {
                         //   Log.d("Value is ", value);
                        }
                       else if(treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)){
-                           String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                           String value = "void";
+                               value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                            output.append(value + "\n");
                        }
                        else if(treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)){
@@ -1438,15 +1443,7 @@ public class Main extends Activity {
                }
     }
 
-    public int i(int i){
 
-        return 0;
-    }
-
-    public int e(){
-        i(i(7));
-        return 0;
-    }
 
 
 
@@ -1909,7 +1906,8 @@ public class Main extends Activity {
     public void addFunctionDimension(){
         ArrayList<Variable> globals = varRunTree.get(varRunTree.size()-1).variables;
         varRunTree.add(new VarTree(null));
-        varRunTree.get(0).variables = globals;
+        //varRunTree.get(0).variables = globals;
+        varRunTree.get(varRunTree.size()-1).variables = globals;
 
        /* functionDimensions.add(true);
         variablesArray.add(new ArrayList<ArrayList<Variable>>());
@@ -3158,7 +3156,11 @@ public class Main extends Activity {
                     btnFuncFinishParam.setVisibility(View.VISIBLE);
                 }
             }
-            else{
+            else if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.EVAL, Node.Type.SEQ)){
+                btnOperator.setVisibility(View.VISIBLE);
+                showBracketButtons(currentNode);
+                showSemicolonButton();
+            }else{
                 showSemicolonButton();
             }
 
@@ -3260,8 +3262,14 @@ public class Main extends Activity {
         }
         else if (currentNodeType == Node.Type.PARAMETER) {
             Node functionNode = tree.returnFunctionNode(tree.findCurNode(tree));
-            if(((Function)functionNode).isDec) {
-                btnEndFuncDec.setVisibility(View.VISIBLE);
+            if(functionNode.nodeType != Node.Type.ROOT) {
+
+                if (((Function) functionNode).isDec) {
+                    btnEndFuncDec.setVisibility(View.VISIBLE);
+                } else {
+                    btnFuncAddParam.setVisibility(View.VISIBLE);
+                    btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
+                }
             }else{
                 btnFuncAddParam.setVisibility(View.VISIBLE);
                 btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
