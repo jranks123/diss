@@ -14,6 +14,14 @@ public class VarTree extends Activity {
     Boolean tempCurrentScope;
     Boolean isCurrentScope;
 
+    public VarTree(VarTree another, Boolean copy) {
+        this.children = another.children; // you can access
+        this.variables = another.variables;
+        this.parent = another.parent;
+        this.tempCurrentScope = another.tempCurrentScope;
+        this.isCurrentScope = another.isCurrentScope;
+    }
+
     public VarTree ( VarTree parent){
         this.parent = parent;
         this.children = new ArrayList<VarTree>();
