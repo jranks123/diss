@@ -85,9 +85,12 @@ public class Node extends Activity {
             if(tree.nodeType == Type.FUNCTION){
                 return tree;
             }
+            if(tree.nodeType == Type.SEQ){
+                return null;
+            }
             tree = tree.parent;
         }while(tree.nodeType != Node.Type.ROOT);
-        return tree;
+        return null;
     }
 
     public Node returnFunctionCallNode(Node tree){

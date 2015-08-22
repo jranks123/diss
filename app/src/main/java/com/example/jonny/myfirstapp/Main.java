@@ -985,6 +985,7 @@ public class Main extends Activity {
                     runCode(n);
                     String value = returnValueStack.get(returnValueStack.size() - 1);
                     returnValueStack.remove(returnValueStack.size() - 1);
+                    removeFunctionDimension();
                     return value;
             //    }
 
@@ -1338,7 +1339,7 @@ public class Main extends Activity {
                        }
                       else if(treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)){
                            String value = "void";
-                               value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                           value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                            output.append(value + "\n");
                        }
                        else if(treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)){
@@ -1905,7 +1906,7 @@ public class Main extends Activity {
     }
 
     public void addFunctionDimension(){
-        ArrayList<Variable> globals = varRunTree.get(varRunTree.size()-1).variables;
+        ArrayList<Variable> globals = varRunTree.get(0).variables;
         varRunTree.add(new VarTree(null));
         //varRunTree.get(0).variables = globals;
         varRunTree.get(varRunTree.size()-1).variables = globals;
@@ -3263,17 +3264,17 @@ public class Main extends Activity {
         }
         else if (currentNodeType == Node.Type.PARAMETER) {
             Node functionNode = tree.returnFunctionNode(tree.findCurNode(tree));
-            if(functionNode.nodeType != Node.Type.ROOT) {
-
+            //this is when printing, as the function node is not added
+            if(functionNode == null) {
+                btnFuncAddParam.setVisibility(View.VISIBLE);
+                btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
+            }else{
                 if (((Function) functionNode).isDec) {
                     btnEndFuncDec.setVisibility(View.VISIBLE);
                 } else {
                     btnFuncAddParam.setVisibility(View.VISIBLE);
                     btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
                 }
-            }else{
-                btnFuncAddParam.setVisibility(View.VISIBLE);
-                btnFuncFinishFuncCall.setVisibility(View.VISIBLE);
             }
         }
         else if (currentNodeType == Node.Type.EVAL) {
@@ -3353,7 +3354,7 @@ public class Main extends Activity {
 
 
 //Friday
-
+//TODO: can't do print j(var) if it's in a function
 
 
 //Thurs
@@ -3361,7 +3362,7 @@ public class Main extends Activity {
 //TODO: make code scrollable across, messes up line number otherwise
 
 
-//TODO: make it so you can call a function as a parameter in a function call
+//TODO: make it so you can call a function as a parameter in a function call -- DONE
 
 
 //Wed
