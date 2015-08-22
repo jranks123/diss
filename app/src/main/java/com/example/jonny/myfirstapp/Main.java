@@ -26,6 +26,7 @@ public class Main extends Activity {
     VarTree varTree;
     ArrayList<VarTree> varRunTree;
     Node tree;
+    Button btnTest;
     Button btnPrint;
     Button btnSemicolon;
     Button btnLoops;
@@ -177,6 +178,8 @@ public class Main extends Activity {
         errorStack = new ArrayList<String>();
         btnFuncFinishParam = (Button) findViewById(R.id.btnFuncFinishParam);
         btnFuncFinishFuncCall = (Button) findViewById(R.id.btnFuncFinishFuncCall);
+
+        btnTest = (Button) findViewById(R.id.btnTest);
 
 
         btnLoops = (Button)findViewById(R.id.loops);
@@ -1521,10 +1524,10 @@ public class Main extends Activity {
                             condition.add(limit);
                             Integer count = 0;
                             Boolean loopLimitReached = false;
-                            while (getValueOfExpressionNode(evaluateArray(condition).get(0)) == "true" && !loopLimitReached) {
+                            while (getValueOfExpressionNode(evaluateArray(condition).get(0)).equals("true") && !loopLimitReached) {
                                 count++;
                                 runCode(tree.left.left);
-                                if (((Loops) tree.left).plusOrMinus == "--") {
+                                if (((Loops) tree.left).plusOrMinus.equals("--")) {
                                     //    String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
                                     String newValue = String.valueOf(Integer.parseInt(getVariableValueNew(((Loops) tree.left).limiter)) - 1);
                                     //   updateVariableValue(newValue, varName, Variable.Type.INT);
@@ -2222,6 +2225,12 @@ public class Main extends Activity {
         Boolean clearScreen = false;
         Integer move = 0;
         switch (v.getId()) {
+            case R.id.btnTest:
+                Test t = new Test();
+                tree = t.loadTest(1);
+
+                break;
+
             case R.id.btnPrint:
                 Log.d("DEBUG", "PRESS PRINT");
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);

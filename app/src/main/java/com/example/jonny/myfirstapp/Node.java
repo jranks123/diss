@@ -50,7 +50,7 @@ public class Node extends Activity {
         ENDPARAM,
         ENDPARAMFUNCCALL,
         ENDFUNCCALL,
-        CONDITION;
+        CONDITION
     }
 
 

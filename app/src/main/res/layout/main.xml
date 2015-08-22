@@ -822,6 +822,13 @@
             android:text="Logtree"
             android:onClick="onBtnClicked"/>
 
+            <Button
+                android:id="@+id/btnTest"
+                android:layout_width="141dp"
+                android:layout_height="60dp"
+                android:text="Test"
+                android:onClick="onBtnClicked"/>
+
 
 
         </LinearLayout>

@@ -20,5 +20,6 @@ public class Semicolon extends Node {
         this.isCurrentNode = true;
         this.type = type;
 
+
     }
 }
