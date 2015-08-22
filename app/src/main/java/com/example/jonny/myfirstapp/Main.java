@@ -2216,6 +2216,50 @@ public class Main extends Activity {
         return tree;
     }
 
+    public void test1(){
+        btnFunctions.performClick();
+        btnFuncBool.performClick();
+        edtEnterString.setText("a");
+        btnEnterFuncName.performClick();
+        btnFuncAddParam.performClick();
+        btnNewVarInt.performClick();
+        edtEnterString.setText("x");
+        btnEnterVarName.performClick();
+        btnEndFuncDec.performClick();
+
+        
+        btnDownLine.performClick();
+        btnDownLine.performClick();
+        btnDownLine.performClick();
+        btnNewLine.performClick();
+        btnFunctions.performClick();
+        btnFuncBool.performClick();
+        edtEnterString.setText("b");
+        btnEnterFuncName.performClick();
+        btnFuncAddParam.performClick();
+        btnNewVarInt.performClick();
+        edtEnterString.setText("a");
+        btnEnterVarName.performClick();
+        btnEndFuncDec.performClick();
+        btnFunctions.performClick();
+        btnExistingFunc.performClick();
+     //   tree = tree.addNode(tree, Node.Type.VAR, "left", "INT");
+     ///   tree.setVarName(tree, "b");
+      //  btnFuncAddParam.performClick();
+      //  btnSetEvalTypeInt.performClick();
+      //  btnVar.performClick();
+        //Button a = varButtons.get(0);
+        /*btnFuncFinishParam.performClick();
+        btnFuncFinishFuncCall.performClick();
+        btnSemicolon.performClick();
+        btnDownLine.performClick();
+        btnDownLine.performClick();
+        btnDownLine.performClick();*/
+    }
+
+
+
+
     public void onBtnClicked(View v) {
         clearButtons();
         btnDelete.setVisibility(View.GONE);
@@ -2226,8 +2270,9 @@ public class Main extends Activity {
         Integer move = 0;
         switch (v.getId()) {
             case R.id.btnTest:
-                Test t = new Test();
-                tree = t.loadTest(1);
+
+
+                test1();
 
                 break;
 

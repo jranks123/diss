@@ -1,6 +1,7 @@
 package com.example.jonny.myfirstapp;
 
 import android.util.Log;
+import android.view.View;
 
 /**
  * Created by Jonny on 22/08/15.
@@ -112,6 +113,15 @@ public class Test {
         return tree;
     }
 
+
+    public Node doTest(View v){
+        Node tree = new Node(Node.Type.ROOT, null);
+        tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
+        tree = tree.moveUpTreeLimit(tree, "ROOT");
+
+        return tree;
+
+    }
 
 
     public Node loadTest(int i){
