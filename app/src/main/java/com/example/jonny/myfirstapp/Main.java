@@ -786,18 +786,6 @@ public class Main extends Activity {
                 if (((Function) tree).name != null) {
                     code.append(((Function) tree).name + "( ");
                 }
-                if (((Function) tree).decFinished) {
-                   /* code.append(") {");
-                    openCurlysIndent.add(true);*/
-
-                }
-
-               /* if(!checkVarExists(((Loops) tree).limiter.toString())){
-                    String name = ((Loops) tree).limiter.toString();
-                    Variable v = new Variable(null, Variable.Type.INT, name, null );
-                    variablesArray.get(openCurlysIndent.size()).add(v);
-                    //    variables.add(v);
-                }*/
             }
         }
         else if(nodeType == Node.Type.STARTFUNC){
@@ -1299,150 +1287,147 @@ public class Main extends Activity {
 
 
     public void visitNodeRun(Node treeNode){
-         //  try {
-               if (treeNode.nodeType == Node.Type.SMCLN) {
-                       if(treeNode.isXbeforeY(treeNode, Node.Type.DEC, Node.Type.SEQ)) {
-                           Variable v = treeNode.returnDecVar(treeNode);
-                           Variable.Type type = v.varNodeType;
-                           String name = v.name;
+        if(errorStack.size() == 0) {
+            //  try {
+            if (treeNode.nodeType == Node.Type.SMCLN) {
+                if (treeNode.isXbeforeY(treeNode, Node.Type.DEC, Node.Type.SEQ)) {
+                    Variable v = treeNode.returnDecVar(treeNode);
+                    Variable.Type type = v.varNodeType;
+                    String name = v.name;
 
-                        //   if (!checkVarExists(name)) {
-                               Variable var = new Variable(null, type, name, null);
-                           varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(var);
-                              // variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
-                               //variables.add(var);
-                          // }
-                           //evaluate if user assigns a value while declaring
-                           if(treeNode.isXbeforeY(treeNode, Node.Type.EVAL, Node.Type.SEQ)){
-                               String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
-                               //updateVariableValue(value, name, type);
-                               updateVariableValueNew(value, name);
-                               Log.d("Value is ", value);
-                           }
-                       }
-                       else if(treeNode.isXbeforeY(treeNode, Node.Type.ASSIGN, Node.Type.SEQ)){
-                           Variable v = treeNode.returnAssignVar(treeNode);
-                           Variable.Type type = v.varNodeType;
-                           String name = v.name;
-                           //evaluate
-                           String value = "";
-                           try {
-                               value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
-                           }catch (NumberFormatException e) {
-                               errorStack.add("NumberFormatException (hint: have you deleted any variable declarations?");
-                           }
-                           updateVariableValueNew(value, name);
+                    //   if (!checkVarExists(name)) {
+                    Variable var = new Variable(null, type, name, null);
+                    varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(var);
+                    // variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
+                    //variables.add(var);
+                    // }
+                    //evaluate if user assigns a value while declaring
+                    if (treeNode.isXbeforeY(treeNode, Node.Type.EVAL, Node.Type.SEQ)) {
+                        String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                        //updateVariableValue(value, name, type);
+                        updateVariableValueNew(value, name);
+                        Log.d("Value is ", value);
+                    }
+                } else if (treeNode.isXbeforeY(treeNode, Node.Type.ASSIGN, Node.Type.SEQ)) {
+                    Variable v = treeNode.returnAssignVar(treeNode);
+                    Variable.Type type = v.varNodeType;
+                    String name = v.name;
+                    //evaluate
+                    String value = "";
+                    try {
+                        value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                    } catch (NumberFormatException e) {
+                        errorStack.add("NumberFormatException (hint: have you deleted any variable declarations?");
+                    }
+                    updateVariableValueNew(value, name);
 
-                           // updateVariableValue(value, name, type);
+                    // updateVariableValue(value, name, type);
 
-                        //   Log.d("Value is ", value);
-                       }
-                      else if(treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)){
-                           String value = "void";
-                           value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
-                           output.append(value + "\n");
-                       }
-                       else if(treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)){
-                           Node startFuncNode = treeNode.returnStartFuncNode(treeNode);
-                           startFuncNode.left = startFuncNode.setRunForAllChildren(startFuncNode.left, false);
-                           String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
-                           returnValueStack.add(value);
-                       }
-               }
-               else if (treeNode.nodeType == Node.Type.RESETRETURN) {
-                    treeNode.parent = treeNode.setRunForAllChildren(treeNode.parent, true);
-               }
-               else  if(treeNode.nodeType == Node.Type.FORLOOP){
-              //   //  openCurlysIndent.add(true);
-              //   //  addToVariablesArray();
-                   String varValue = ((Loops) treeNode).lowerLim.toString();
-                   String varName = ((Loops) treeNode).limiter;
-                 //  updateVariableValue(varValue, varName, Variable.Type.INT);
-                   updateVariableValueNew(varValue, varName);
-               }else if(treeNode.nodeType == Node.Type.ENDIFCONDITION){
-                   openCurlysIndent.add(true);
-                  // addToVariablesArray();
-                  // varTree.addNode(varTree);
-                   varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
-                   String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.ENDIFCONDITION);
-                   if(value.equals("true")){
-                       setConditionValue(treeNode, "true");
-                   }else if(value.equals("false")){
-                       setConditionValue(treeNode, "false");
-                   }
-                   Log.d("STATEMENT IS", value);
-               }else if (treeNode.nodeType == Node.Type.ELSE) {
-                   openCurlysIndent.add(true);
-                  // addToVariablesArray();
+                    //   Log.d("Value is ", value);
+                } else if (treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)) {
+                    String value = "void";
+                    value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                    output.append(value + "\n");
+                } else if (treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)) {
+                    Node startFuncNode = treeNode.returnStartFuncNode(treeNode);
+                    startFuncNode.left = startFuncNode.setRunForAllChildren(startFuncNode.left, false);
+                    String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
+                    returnValueStack.add(value);
+                }
+            } else if (treeNode.nodeType == Node.Type.RESETRETURN) {
+                treeNode.parent = treeNode.setRunForAllChildren(treeNode.parent, true);
+            } else if (treeNode.nodeType == Node.Type.FORLOOP) {
+                //   //  openCurlysIndent.add(true);
+                //   //  addToVariablesArray();
+                String varValue = ((Loops) treeNode).lowerLim.toString();
+                String varName = ((Loops) treeNode).limiter;
+                //  updateVariableValue(varValue, varName, Variable.Type.INT);
+                updateVariableValueNew(varValue, varName);
+            } else if (treeNode.nodeType == Node.Type.ENDIFCONDITION) {
+                openCurlysIndent.add(true);
+                // addToVariablesArray();
+                // varTree.addNode(varTree);
+                varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
+                String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.ENDIFCONDITION);
+                if (value.equals("true")) {
+                    setConditionValue(treeNode, "true");
+                } else if (value.equals("false")) {
+                    setConditionValue(treeNode, "false");
+                }
+                Log.d("STATEMENT IS", value);
+            } else if (treeNode.nodeType == Node.Type.ELSE) {
+                openCurlysIndent.add(true);
+                // addToVariablesArray();
                 //   varTree.addNode(varTree);
-                   varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
+                varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
 
-               } else if (treeNode.nodeType == Node.Type.FUNCTION) {
-                   if (((Function) treeNode).isDec) {
-                       //varTree.addNode(varTree);
-                       addFunctionDimension();
-                       varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
+            } else if (treeNode.nodeType == Node.Type.FUNCTION) {
+                if (((Function) treeNode).isDec) {
+                    //varTree.addNode(varTree);
+                    addFunctionDimension();
+                    varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
 
-                       if (((Function) treeNode).decFinished) {
-                       //    addToVariablesArray();
+                    if (((Function) treeNode).decFinished) {
+                        //    addToVariablesArray();
 
-                          // openCurlysIndent.add(true);
-                       }
-                   }
-               }
-               else if(treeNode.nodeType == Node.Type.STARTFUNC){
-                   openCurlysIndent.add(true);
-               }
-               else if (treeNode.nodeType == Node.Type.END) {
-                   openCurlysIndent.remove(openCurlysIndent.size() - 1);
-                   VarTree currentScopeVar = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-                   currentScopeVar.tempCurrentScope = false;
-                   currentScopeVar.parent.tempCurrentScope = true;
-               }else if(treeNode.nodeType == Node.Type.ENDFUNCCALL){
-                   if(!(tree.isXbeforeY(treeNode, Node.Type.EVAL, Node.Type.SEQ))) {
-                        Node funcCall = treeNode.parent.parent;
-                        Node n = treeNode.getFunctionNodeByName(tree, ((FunctionCall) funcCall).functionName);
+                        // openCurlysIndent.add(true);
+                    }
+                }
+            } else if (treeNode.nodeType == Node.Type.STARTFUNC) {
+                openCurlysIndent.add(true);
+            } else if (treeNode.nodeType == Node.Type.END) {
+                openCurlysIndent.remove(openCurlysIndent.size() - 1);
+                VarTree currentScopeVar = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
+                currentScopeVar.tempCurrentScope = false;
+                currentScopeVar.parent.tempCurrentScope = true;
+            } else if (treeNode.nodeType == Node.Type.ENDFUNCCALL) {
+                if (!(tree.isXbeforeY(treeNode, Node.Type.EVAL, Node.Type.SEQ))) {
+                    Node funcCall = treeNode.parent.parent;
+                    Node n = treeNode.getFunctionNodeByName(tree, ((FunctionCall) funcCall).functionName);
 
-                       for(int i = 0; i < ((FunctionCall)funcCall).parameters.size(); i++){
-                           ArrayList<Node> paramArray = ((FunctionCall)funcCall).parameters.get(i);
-                           String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
-                           parameterStack.add(0, value);
-                       }
-                       runCode(n);
-                       if(((FunctionCall)funcCall).type != FunctionCall.Type.VOID) {
-                           returnValueStack.remove(returnValueStack.size() - 1);
-                       }
-                       removeFunctionDimension();
-                   }
-               }
-               else if(treeNode.nodeType == Node.Type.ENDPARAM) {
+                    for (int i = 0; i < ((FunctionCall) funcCall).parameters.size(); i++) {
+                        ArrayList<Node> paramArray = ((FunctionCall) funcCall).parameters.get(i);
+                        String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
+                        parameterStack.add(0, value);
+                    }
+                    runCode(n);
+                    if (((FunctionCall) funcCall).type != FunctionCall.Type.VOID) {
+                        returnValueStack.remove(returnValueStack.size() - 1);
+                    }
+                    removeFunctionDimension();
+                }
+            } else if (treeNode.nodeType == Node.Type.ENDPARAM) {
                 //TODO: THIS IS BEING CALLED LIKE 5 TIMES WHEN IT SHOULD JUST BE CALLED ONCE
-                   Variable v; //TODO: make this account for varvals and functioncalls
-                   v = treeNode.returnDecVar(treeNode);
-                   Variable.Type type = v.varNodeType;
-                   String value = parameterStack.get(parameterStack.size() - 1);
-                   Variable var = new Variable(null, type, v.name, value);
-                   VarTree currentVarScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-                   currentVarScope.variables.add(var);
+                Variable v; //TODO: make this account for varvals and functioncalls
+                v = treeNode.returnDecVar(treeNode);
+                Variable.Type type = v.varNodeType;
+                String value = parameterStack.get(parameterStack.size() - 1);
+                Variable var = new Variable(null, type, v.name, value);
+                VarTree currentVarScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
+                currentVarScope.variables.add(var);
 
-                   parameterStack.remove(parameterStack.size() - 1);
+                parameterStack.remove(parameterStack.size() - 1);
 
-               }
-               else if(treeNode.nodeType == Node.Type.ENDPARAMFUNCCALL) {
-                   ArrayList<Node> paramArray = new ArrayList<Node>();
-                   treeNode = treeNode.parent;
-                   Integer count = 0;
-                   while(treeNode.nodeType != Node.Type.EVAL) {
-                       paramArray.add(0, treeNode);
-                       treeNode = treeNode.parent;
-                       count++;
-                   }
-                   treeNode = searchChildren(treeNode, Node.Type.ENDPARAMFUNCCALL);
+            } else if (treeNode.nodeType == Node.Type.ENDPARAMFUNCCALL) {
+                ArrayList<Node> paramArray = new ArrayList<Node>();
+                treeNode = treeNode.parent;
+                Integer count = 0;
+                while (treeNode.nodeType != Node.Type.EVAL) {
+                    paramArray.add(0, treeNode);
+                    treeNode = treeNode.parent;
+                    count++;
+                }
+                try {
+                    treeNode = searchChildren(treeNode, Node.Type.ENDPARAMFUNCCALL);
+                } catch (StackOverflowError e) {
+                    errorStack.add("Stack overflow due to never ending loop");
+                }
 
-                   Node functionCallNode = tree.returnFunctionCallNodeParam(treeNode);
-                   (((FunctionCall)functionCallNode).parameters).add(paramArray);
+                Node functionCallNode = tree.returnFunctionCallNodeParam(treeNode);
+                (((FunctionCall) functionCallNode).parameters).add(paramArray);
 
-               }
+            }
+        }
     }
 
 
@@ -1501,102 +1486,104 @@ public class Main extends Activity {
 
 
     public void runCode(Node tree){
-        try {
-            visitNodeRun(tree);
-            if (tree.left != null) {
-                if(tree.left.run){
-                    if (tree.left.nodeType == Node.Type.FUNCTION) {
-                        if (((Function) tree.left).isDec == false) {
-                            runCode(tree.left);
-                        }
-                    } else if (tree.left.nodeType == Node.Type.FORLOOP) {
-                        openCurlysIndent.add(true);
-                      //  addToVariablesArray();
-                      //  varTree.addNode(varTree);
-                        varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
-                        Integer loopAmount = Math.abs(((Loops) tree.left).upperLim - ((Loops) tree.left).lowerLim);
-                        String varValue = ((Loops) tree.left).lowerLim.toString();
-                        String varName = ((Loops) tree.left).limiter;
+        if(errorStack.size() == 0) {
+            try {
+                visitNodeRun(tree);
+                if (tree.left != null) {
+                    if (tree.left.run) {
+                        if (tree.left.nodeType == Node.Type.FUNCTION) {
+                            if (((Function) tree.left).isDec == false) {
+                                runCode(tree.left);
+                            }
+                        } else if (tree.left.nodeType == Node.Type.FORLOOP) {
+                            openCurlysIndent.add(true);
+                            //  addToVariablesArray();
+                            //  varTree.addNode(varTree);
+                            varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
+                            Integer loopAmount = Math.abs(((Loops) tree.left).upperLim - ((Loops) tree.left).lowerLim);
+                            String varValue = ((Loops) tree.left).lowerLim.toString();
+                            String varName = ((Loops) tree.left).limiter;
                       /*  if (!checkVarExists(varName)) {
                             variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(new Variable(null, Variable.Type.INT, varName, varValue));
                         } else {
                             updateVariableValue(varValue, varName, Variable.Type.INT);
                         }*/
-                        Variable var = new Variable(null, Variable.Type.INT, varName, varValue);
-                        varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(var);
-                        ArrayList<Node> condition = new ArrayList<Node>();
-                       // Variable loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
-                        Variable loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValueNew(varName));
-                        Operator.Type opType = ((Loops) tree.left).operator;
-                        Operator op = new Operator(null, opType);
-                        VarVal limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
-                        condition.add(loopInt);
-                        condition.add(op);
-                        condition.add(limit);
-                        Integer count = 0;
-                        Boolean loopLimitReached = false;
-                        while (getValueOfExpressionNode(evaluateArray(condition).get(0)) == "true" && !loopLimitReached) {
-                            count++;
-                            runCode(tree.left.left);
-                            if (((Loops) tree.left).plusOrMinus == "--") {
-                            //    String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
-                                String newValue = String.valueOf(Integer.parseInt(getVariableValueNew(((Loops) tree.left).limiter)) - 1);
-                             //   updateVariableValue(newValue, varName, Variable.Type.INT);
-                                updateVariableValueNew(newValue, varName);
-                            } else {
-                                //String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) + 1);
-                                String newValue = String.valueOf(Integer.parseInt(getVariableValueNew(((Loops) tree.left).limiter)) + 1);
-                              //  updateVariableValue(newValue, varName, Variable.Type.INT);
-                                  updateVariableValueNew(newValue, varName);
-                            }
-                          //  loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
-                            loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValueNew(varName));
-                            opType = ((Loops) tree.left).operator;
-                            op = new Operator(null, opType);
-                            limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
-                            condition.clear();
+                            Variable var = new Variable(null, Variable.Type.INT, varName, varValue);
+                            varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(var);
+                            ArrayList<Node> condition = new ArrayList<Node>();
+                            // Variable loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
+                            Variable loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValueNew(varName));
+                            Operator.Type opType = ((Loops) tree.left).operator;
+                            Operator op = new Operator(null, opType);
+                            VarVal limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
                             condition.add(loopInt);
                             condition.add(op);
                             condition.add(limit);
-                            if (count > 10000) {
-                                loopLimitReached = true;
-                                errorStack.add("<ERROR: loop repeated for more than 10,000 iterations>");
+                            Integer count = 0;
+                            Boolean loopLimitReached = false;
+                            while (getValueOfExpressionNode(evaluateArray(condition).get(0)) == "true" && !loopLimitReached) {
+                                count++;
+                                runCode(tree.left.left);
+                                if (((Loops) tree.left).plusOrMinus == "--") {
+                                    //    String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) - 1);
+                                    String newValue = String.valueOf(Integer.parseInt(getVariableValueNew(((Loops) tree.left).limiter)) - 1);
+                                    //   updateVariableValue(newValue, varName, Variable.Type.INT);
+                                    updateVariableValueNew(newValue, varName);
+                                } else {
+                                    //String newValue = String.valueOf(Integer.parseInt(getVariableValue(((Loops) tree.left).limiter, Variable.Type.INT)) + 1);
+                                    String newValue = String.valueOf(Integer.parseInt(getVariableValueNew(((Loops) tree.left).limiter)) + 1);
+                                    //  updateVariableValue(newValue, varName, Variable.Type.INT);
+                                    updateVariableValueNew(newValue, varName);
+                                }
+                                //  loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValue(varName, Variable.Type.INT));
+                                loopInt = new Variable(null, Variable.Type.INT, varName, getVariableValueNew(varName));
+                                opType = ((Loops) tree.left).operator;
+                                op = new Operator(null, opType);
+                                limit = new VarVal(null, VarVal.Type.INT, ((Loops) tree.left).upperLim.toString());
+                                condition.clear();
+                                condition.add(loopInt);
+                                condition.add(op);
+                                condition.add(limit);
+                                if (count > 10000) {
+                                    loopLimitReached = true;
+                                    errorStack.add("<ERROR: loop repeated for more than 10,000 iterations>");
+                                }
                             }
-                        }
-                        runCode(tree.left.right);
+                            runCode(tree.left.right);
 
-                    } else {
-                        runCode(tree.left);
+                        } else {
+                            runCode(tree.left);
+                        }
                     }
                 }
-            }
-            if (tree.right != null) {
-                if(tree.right.run){
+                if (tree.right != null) {
+                    if (tree.right.run) {
 
-                    if (tree.nodeType == Node.Type.NONE) {
-                        //check if if statement condition is true
-                        //  if(((If)tree.parent.parent).isTrue){
-                        if (tree.parent.nodeType == Node.Type.STARTIF) { //To distinguish from IF and FUNCTIONS
-                            if (checkIfTrue(tree)) {
+                        if (tree.nodeType == Node.Type.NONE) {
+                            //check if if statement condition is true
+                            //  if(((If)tree.parent.parent).isTrue){
+                            if (tree.parent.nodeType == Node.Type.STARTIF) { //To distinguish from IF and FUNCTIONS
+                                if (checkIfTrue(tree)) {
+                                    runCode(tree.right);
+                                }
+                            } else if (tree.parent.nodeType == Node.Type.STARTFUNC) {
                                 runCode(tree.right);
                             }
-                        } else if (tree.parent.nodeType == Node.Type.STARTFUNC) {
+                        } else if (tree.nodeType == Node.Type.ELSE) {
+                            if (!checkIfTrue(tree)) {
+                                runCode(tree.right);
+                            }
+                        } else {
                             runCode(tree.right);
                         }
-                    } else if (tree.nodeType == Node.Type.ELSE) {
-                        if (!checkIfTrue(tree)) {
-                            runCode(tree.right);
-                        }
-                    } else {
-                        runCode(tree.right);
                     }
-                }
 
+                }
+            } catch (StackOverflowError e) {
+                errorStack.add("A recursive function caused an error as it looped forever");
+            } catch (ArrayIndexOutOfBoundsException e) {
+                errorStack.add("A recursive function caused an error as it looped forever");
             }
-        }catch (StackOverflowError e){
-            errorStack.add("A recursive function caused an error as it looped forever");
-        } catch (ArrayIndexOutOfBoundsException e){
-            errorStack.add("A recursive function caused an error as it looped forever");
         }
     }
 
@@ -2137,6 +2124,10 @@ public class Main extends Activity {
                             endIfCondition(curNode);
                             btnOperator.setVisibility(View.VISIBLE);
                             showBracketButtons(curNode);
+                            if(curNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ) && openBrackets.size() == 0){
+                                btnFuncFinishParam.setVisibility(View.VISIBLE);
+                            }
+
                         }
                         if (tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.EVAL) && tree.isXbeforeY(curNode, Node.Type.SEQ, Node.Type.IF)) {
                             btnEquals.setVisibility(View.VISIBLE);
@@ -2987,10 +2978,6 @@ public class Main extends Activity {
         code.setText("");
         if (tree != null) {
             openCurlysIndent.clear();
-          //  functionDimensions.clear();
-           // variablesArray.clear();
-           // addToVariablesArray();
-            //varTree = new VarTree(null);
             varRunTree = new ArrayList<VarTree>();
             varRunTree.add(new VarTree(null));
             tree = checkNewLineNotDeleted();
@@ -3148,8 +3135,6 @@ public class Main extends Activity {
             doButtonLogic();
         }
         else if(currentNodeType == Node.Type.FUNCCALL) {
-         //   btnOperator.setVisibility(View.VISIBLE);
-           // showBracketButtons(currentNode);
             endIfCondition(currentNode); //TODO
             if(currentNode.isXbeforeY(tree.findCurNode(tree), Node.Type.PARAMETER, Node.Type.SEQ)){
                 btnOperator.setVisibility(View.VISIBLE);
@@ -3302,12 +3287,14 @@ public class Main extends Activity {
         }
         if(currentNodeType == Node.Type.SEQ) {
             btnEditReturn.setVisibility(View.GONE);
-            if(currentNode.left.nodeType == Node.Type.NEWLINE){
-                if(((Newline)currentNode.left).newlineNodeType == Newline.Type.RETURN){
-                    if(((Return)currentNode.left.left).isInitialReturn) {
-                        clearButtons();
+            if(currentNode.left != null) {
+                if (currentNode.left.nodeType == Node.Type.NEWLINE) {
+                    if (((Newline) currentNode.left).newlineNodeType == Newline.Type.RETURN) {
+                        if (((Return) currentNode.left.left).isInitialReturn) {
+                            clearButtons();
+                        }
+                        btnEditReturn.setVisibility(View.VISIBLE);
                     }
-                    btnEditReturn.setVisibility(View.VISIBLE);
                 }
             }
         }
@@ -3354,7 +3341,8 @@ public class Main extends Activity {
 
 
 //Friday
-//TODO: can't do print j(var) if it's in a function
+//TODO: can't do print j(var) if it's in a function -- DONE
+//TODO: seem to have problem with parameters, when i was doing complicated programs it looked like an int was being given value of "true"...maybe try retrying if not right type
 
 
 //Thurs
