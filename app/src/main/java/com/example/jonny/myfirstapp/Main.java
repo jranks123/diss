@@ -2319,6 +2319,7 @@ public class Main extends Activity {
         String text = "";
         Boolean clearScreen = false;
         Integer move = 0;
+        
         switch (v.getId()) {
             case R.id.btnTest:
 
