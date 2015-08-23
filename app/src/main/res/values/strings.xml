@@ -10,17 +10,17 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_search">Search</string>
     <string name="close">4. Close</string>
-    <string name="print"><![CDATA[<b>print </b>]]></string>
-    <string name="string"><![CDATA[<b>String </b>]]></string>
-    <string name="integer"><![CDATA[<b>int </b>]]></string>
-    <string name="bool"><![CDATA[<b>Boolean </b>]]></string>
-    <string name="Void"><![CDATA[<b>void </b>]]></string>
-    <string name="Return"><![CDATA[<b>return </b>]]></string>
+    <string name="print"><![CDATA[<font color = #000066><b>print </b></font>]]></string>
+    <string name="string"><![CDATA[<font color = #000066><b>String </b></font>]]></string>
+    <string name="integer"><![CDATA[<font color = #000066><b>int </b></font>]]></string>
+    <string name="bool"><![CDATA[<b><font color = #000066>Boolean </b></font>]]></string>
+    <string name="Void"><![CDATA[<font color = #000066><b>void </b></font>]]></string>
+    <string name="Return"><![CDATA[<font color = #000066><b>return </b></font>]]></string>
 
-    <string name="forLoop"><![CDATA[<b>for</b>( <b>int  </b>]]></string>
-    <string name="function"><![CDATA[<b>public </b>]]></string>
-    <string name="ifString"><![CDATA[<b>if</b>&#40; ]]></string>
-    <string name="elseString"><![CDATA[<b>else</b>&#123; ]]></string>
+    <string name="forLoop"><![CDATA[<font color = #000066><b>for</b></font>( <font color = #000066><b>int  </b></font>]]></string>
+    <string name="function"><![CDATA[<font color = #000066><b>public </b></font>]]></string>
+    <string name="ifString"><![CDATA[<font color = #000066><b>if</b></font>&#40; ]]></string>
+    <string name="elseString"><![CDATA[<font color = #000066><b>else</b>&#123; ]]></string>
     <string name="nullReturn"><![CDATA[<b><font color="red">-Please Enter Return Value-</font><b>]]></string>
     <string name="endIfConditionString"><![CDATA[ &#41; &#123;]]></string>
     <string name="endIfString"><![CDATA[&#125;]]></string>

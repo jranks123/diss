@@ -664,7 +664,7 @@ public class Main extends Activity {
     }
 
     public void updateVariableValueNew(String value, String name){
-        VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findCurVarNode(varRunTree.get(varRunTree.size() - 1));
+        VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
 
             doUpdateVariableValue(currentScope, value, name);
 
@@ -726,17 +726,40 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.VARVAL) {
             Boolean isString = false;
+            Boolean isInt = false;
+            Boolean isBool = false;
             if(tree.returnEvalVar(tree).evalNodeType == Eval.Type.STRING){
                 isString = true;
-            }
+            }else if(tree.returnEvalVar(tree).evalNodeType == Eval.Type.INT){
+                    isInt = true;
+
+            }else if(tree.returnEvalVar(tree).evalNodeType == Eval.Type.BOOL){
+                    isBool = true;
+                }
+
+
             if (((VarVal) tree).value != null) {
+                s= "";
                 if(isString) {
-                    code.append("\"");
+                    s =  ("<font color=\"#339933\"><b>\"");
                 }
-                code.append(((VarVal) tree).value);
+                if(isInt) {
+                    s = ("<font color=\"#0000FF\">");
+                }
+                if(isBool) {
+                    s = ("<font color = #000066><b>");
+                }
+                s = s + (((VarVal) tree).value);
                 if(isString) {
-                    code.append("\"");
+                    s = s + ("\"</b></font>");
                 }
+                if(isBool) {
+                    s = s + ("</b></font>");
+                }
+                if(isInt) {
+                    s = s + ("</font>");
+                }
+                code.append(Html.fromHtml(s));
             }
         }
         else if (nodeType == Node.Type.SMCLN){
