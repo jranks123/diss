@@ -751,9 +751,10 @@ public class Node extends Activity {
 
 
 
-    public Node setVarName(Node tree, String value){
+    public Node setVarName(Node tree, String value, Boolean isGlobal){
         Node node = findCurNode(tree);
         ((Variable)node).name = value;
+        ((Variable)node).isGlobal = isGlobal;
         return tree;
     }
 

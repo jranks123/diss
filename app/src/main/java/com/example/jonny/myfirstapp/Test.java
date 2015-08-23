@@ -34,7 +34,7 @@ public class Test {
         tree = tree.updateDec(tree, Dec.Type.INT);
         //Enter name of variable
         tree = tree.addNode(tree, Node.Type.VAR, "left", "Int");
-        tree.setVarName(tree, "x");
+        tree.setVarName(tree, "x", false);
         //Finish Declaraiton
         tree = tree.addNode(tree, Node.Type.ENDPARAM, "left", null);
         tree = tree.moveUpTreeLimit(tree, "FUNCTION");
@@ -83,7 +83,7 @@ public class Test {
         tree = tree.updateDec(tree, Dec.Type.INT);
         //Enter name of variable
         tree = tree.addNode(tree, Node.Type.VAR, "left", "Int");
-        tree.setVarName(tree, "x");
+        tree.setVarName(tree, "x", false);
         //Finish Declaraiton
         tree = tree.addNode(tree, Node.Type.ENDPARAM, "left", null);
         tree = tree.moveUpTreeLimit(tree, "FUNCTION");

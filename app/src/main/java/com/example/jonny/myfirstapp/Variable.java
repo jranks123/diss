@@ -9,6 +9,7 @@ public class Variable extends Node {
     Type varNodeType;
     public String name;
     public String value;
+    public Boolean isGlobal;
 
     public enum Type{
         STRING,
@@ -24,6 +25,7 @@ public class Variable extends Node {
         this.varNodeType = type;
         this.name = name;
         this.value = value;
+        this.isGlobal = false;
     }
 
 

@@ -564,6 +564,39 @@ public class Main extends Activity {
 
 
 
+    public boolean checkIfGlobalParents(VarTree currentScope, String name){
+        do {
+            for(int i = 0; i < currentScope.variables.size(); i++) {
+                if (currentScope.variables.get(i).name.equals(name)) {
+                    if(currentScope.parent == null)
+                    return true;
+                }
+            }
+            if(currentScope.parent != null) {
+                currentScope = currentScope.parent;
+            }else{
+                return false;
+            }
+
+        }while(true);
+    }
+
+
+    public boolean checkIfGlobal(String name){
+        fillVariablesArrayFull();
+        VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findCurVarNode(varRunTree.get(varRunTree.size() - 1));
+        if(currentScope.parent == null){
+            return true;
+        }
+        if(checkIfGlobalParents(currentScope, name)){
+            return true;
+        }
+        return false;
+    }
+
+
+
+
 
 
     public boolean checkFuncTypeExistence(Function.Type type){
@@ -631,8 +664,10 @@ public class Main extends Activity {
     }
 
     public void updateVariableValueNew(String value, String name){
-        VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-        doUpdateVariableValue(currentScope, value, name);
+        VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findCurVarNode(varRunTree.get(varRunTree.size() - 1));
+
+            doUpdateVariableValue(currentScope, value, name);
+
     }
 
     public void backTree(Node tree, String treeLimit, int steps, String childToDelete) {
@@ -889,7 +924,16 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.VAR){
             if (((Variable)tree).name != null){
-                s = "<i>" + ((Variable)tree).name + "</i>";
+                Boolean isGlobal = ((Variable) tree).isGlobal;
+                if(isGlobal){
+                    s = "<font color=\"#800080\"><b>";
+                }else{
+                    s = "";
+                }
+                s = s + "<i>" + ((Variable)tree).name + "</i>";
+                if(isGlobal){
+                    s = s + "</b></font>";
+                }
                 code.append(Html.fromHtml(s));
             }
         }
@@ -1707,17 +1751,23 @@ public class Main extends Activity {
 
 
     public Node doButtonLogic(Button b, Node curNode, Variable.Type varType, String varTypeString){
+        fillVariablesArrayFull();
+        Boolean isGlobal = false;
+        if(checkIfGlobal(b.getText().toString())){
+           isGlobal = true;
+        }
+        fillVariablesArrayToCurrentNode();
         if(tree.isXbeforeY(curNode, Node.Type.PRINT, Node.Type.SEQ) && curNode.nodeType == Node.Type.VAR){
             tree.updateVarType(tree, varType);
-            tree.setVarName(tree, b.getText().toString());
+            tree.setVarName(tree, b.getText().toString(), isGlobal);
         }else {
             if(curNode.nodeType != Node.Type.VAR) {
                 tree = tree.addNode(tree, Node.Type.VAR, "left", varTypeString);
-                tree.setVarName(tree, b.getText().toString());
+                tree.setVarName(tree, b.getText().toString(), isGlobal);
                 curNode = tree.findCurNode(tree);
             }else {
                 tree.updateVarType(tree, varType);
-                tree.setVarName(tree, b.getText().toString());
+                tree.setVarName(tree, b.getText().toString(), isGlobal);
             }
         }
         return curNode;
@@ -2091,6 +2141,7 @@ public class Main extends Activity {
             currentScope = currentScope.parent;
             doButtonSetUp(ll, varType, currentScope.variables);
         }
+
     }
 
     public void doButtonSetUp(LinearLayout ll, Variable.Type varType, ArrayList<Variable> variables){
@@ -2838,7 +2889,11 @@ public class Main extends Activity {
                     } else if (((Dec) tree.findCurNode(tree)).varNodeType == Dec.Type.BOOL) {
                         tree = tree.addNode(tree, Node.Type.VAR, "left", "Bool");
                     }
-                    tree.setVarName(tree, vName);
+                    Boolean isGlobal = false;
+                    if(checkIfGlobal(vName)){
+                        isGlobal = true;
+                    }
+                    tree.setVarName(tree, vName, isGlobal);
                 }
                 break;
 
