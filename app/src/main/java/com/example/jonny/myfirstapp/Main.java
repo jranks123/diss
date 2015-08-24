@@ -2501,7 +2501,6 @@ public class Main extends Activity {
 
             case R.id.btnEnterFuncName:
                 String name = edtEnterString.getText().toString().trim();
-                edtEnterString.setText("");
                 hideKeyboard();
                 Boolean funcNameExists = false;
                 for (int i = 0; i < functionsArray.size(); i++) {
@@ -2783,7 +2782,6 @@ public class Main extends Activity {
 
             case R.id.btnForNewVarEnter:
                 String varName = edtEnterString.getText().toString().trim();
-                edtEnterString.setText("");
                 hideKeyboard();
                 clearButtons();
                // varTree = new VarTree(null);
@@ -2796,15 +2794,12 @@ public class Main extends Activity {
                     showInvalidAlert("Error: please enter a name for the variable");
 
                 } else {
-
                     ((Loops) tree.findCurNode(tree)).limiter = edtEnterString.getText().toString().trim();
-                    edtEnterString.setText("");
                 }
                 break;
 
             case R.id.btnForNewVarValueEnter:
                 text = edtEnterString.getText().toString().trim();
-                edtEnterString.setText("");
                 hideKeyboard();
                 try {
                     int num = Integer.parseInt(text);
@@ -2826,7 +2821,6 @@ public class Main extends Activity {
 
             case R.id.btnForNewVarValueUpperEnter:
                 text = edtEnterString.getText().toString().trim();
-                edtEnterString.setText("");
                 hideKeyboard();
                 try {
                     int num = Integer.parseInt(text);
@@ -2947,7 +2941,6 @@ public class Main extends Activity {
             case R.id.btnEnterVarName:
 
                 String vName = edtEnterString.getText().toString().trim();
-                edtEnterString.setText("");
                 hideKeyboard();
 
              //   variablesArray.clear();
@@ -3011,13 +3004,11 @@ public class Main extends Activity {
                     try {
                         int num = Integer.parseInt(text);
                         tree = tree.updateVarVal(tree, edtEnterString.getText().toString());
-                        edtEnterString.setText("");
                     } catch (NumberFormatException e) {
                         showInvalidAlert("Please enter a valid value");
                     }
                 } else {
                     tree = tree.updateVarVal(tree, edtEnterString.getText().toString());
-                    edtEnterString.setText("");
                 }
                 break;
 
@@ -3026,10 +3017,8 @@ public class Main extends Activity {
                 hideKeyboard();
                 if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.VARVAL, Node.Type.SEQ)) {
                     tree = tree.updateVarVal(tree, edtEnterString.getText().toString());
-                    edtEnterString.setText("");
                 } else {
                     tree = tree.addNode(tree, Node.Type.VARVAL, "left", edtEnterString.getText().toString());
-                    edtEnterString.setText("");
                 }
                 break;
 
@@ -3184,10 +3173,6 @@ public class Main extends Activity {
             endTimeA = System.nanoTime();
              output.append((endTimeA - startTimeA) + " ns\n");
 
-            startTimeA = System.nanoTime();
-            doButtonLogic();
-            endTimeA = System.nanoTime();
-            output.append((endTimeA - startTimeA)+ " ns\n");
 
             startTimeA = System.nanoTime();
                 printTree(tree);
@@ -3201,7 +3186,10 @@ public class Main extends Activity {
             output.append((endTimeA - startTimeA)+ " ns\n");
 
 
-
+            startTimeA = System.nanoTime();
+                doButtonLogic();
+            endTimeA = System.nanoTime();
+            output.append((endTimeA - startTimeA)+ " ns\n");
 
 
 
@@ -3392,6 +3380,7 @@ public class Main extends Activity {
                     node.parent.isCurrentNode = true;
                     tree.currentNode = node.parent;
                     node.parent.right = node.right;
+                    printTree(tree);
                     doButtonLogic();
                 }else{
                    showFunctionButtons(null);
@@ -3428,6 +3417,7 @@ public class Main extends Activity {
 
                 }
 
+                printTree(tree);
             }
         }
         else if (currentNodeType == Node.Type.FUNCTION) {
@@ -3441,6 +3431,7 @@ public class Main extends Activity {
                     tree.root.currentNode = node.parent;
                     node.parent.right = node.right;
 
+                    printTree(tree);
                     doButtonLogic();
                 }else{
                     btnExistingFunc.setVisibility(View.VISIBLE);
