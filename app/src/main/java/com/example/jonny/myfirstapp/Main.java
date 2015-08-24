@@ -404,14 +404,6 @@ public class Main extends Activity {
     public void showElse(){
         Node node = tree.findCurNode(tree);
         btnElse.setVisibility(View.GONE);
-        /*btnFunctions.setVisibility(View.VISIBLE);
-        while(node.nodeType != Node.Type.ROOT){
-            if(node.nodeType != Node.Type.SEQ){
-                btnFunctions.setVisibility(View.GONE);
-            }
-            node = node.parent;
-        }
-        node = tree.findCurNode(tree);*/
         if(node.nodeType == Node.Type.SEQ){
             if(node.left != null) {
                 if (node.left.left != null) {
@@ -419,7 +411,6 @@ public class Main extends Activity {
                         tree = tree.moveDownDirectionLimit(tree, "left", "CONDITION");
                         tree = tree.moveDownDirectionLimit(tree, "right", "NEWLINE");
                         node = tree.findCurNode(tree);
-
                        try {
                            if (node.right.right.right.nodeType == Node.Type.ELSE) {
 
@@ -430,9 +421,6 @@ public class Main extends Activity {
                                //    ((Newline)node).stop = false;
                            }
                        }
-
-
-
                         tree = tree.moveUpTreeLimit(tree, "SEQ");
                     }
                 }
@@ -2373,7 +2361,8 @@ public class Main extends Activity {
         String text = "";
         Boolean clearScreen = false;
         Integer move = 0;
-        
+        long startTimeA = System.nanoTime();
+
         switch (v.getId()) {
             case R.id.btnTest:
 
@@ -2738,19 +2727,10 @@ public class Main extends Activity {
                 break;
 
             case R.id.run:
-                long startTimeA = System.nanoTime();
-                //Boolean k = false;
-                for(int i = 0; i < 100; i++){
-                    for(int j = 0; j < 100; j++){
-                       // if(k = true){
-                        //    k = false;
-                       // }else{
-                         //   k = true;
-                       // }
-                    }
-                }
-                long endTimeA = System.nanoTime();
-                Log.d("Took " + (endTimeA - startTimeA), " ns");
+                long startTimeR = System.nanoTime();
+
+                long endTimeR = System.nanoTime();
+                Log.d("Took " + (endTimeR - startTimeR), " ns");
 
                 errorStack = new ArrayList<String>();
                 output.setText("");
@@ -2766,8 +2746,8 @@ public class Main extends Activity {
                 Boolean test = false;
                 if(test) {
                     output.setText("");
-                    output.append("A:" + (endTimeA - startTimeA) + "\n");
-                    output.append("C:" + (endTimeB - startTimeB) + "\n");
+                    output.append("A:" + (endTimeR - startTimeR) + "\n");
+                    output.append("C:" + (endTimeR - startTimeR) + "\n");
                 }
                 //  clearVar();
                 if(errorStack.size() > 0 ){
@@ -3167,19 +3147,54 @@ public class Main extends Activity {
                 move = 1;
                 break;
         }
-
-
+        long startTimeB;
+        long endTimeB;
+        long endTimeA = System.nanoTime();
+        String a = ("Took " + (endTimeA - startTimeA)+ " ns\n");
         edtEnterString.setText("");
         code.setText("");
+
         if (tree != null) {
+
             openCurlysIndent.clear();
             varRunTree = new ArrayList<VarTree>();
             varRunTree.add(new VarTree(null));
-            tree = checkNewLineNotDeleted();
-            printTree(tree);
-            setCursorToEndOfCurrentLine(move);
-            doButtonLogic();
+            output.setText("");
+
+
+            startTimeA = System.nanoTime();
+                tree = checkNewLineNotDeleted();
+            endTimeA = System.nanoTime();
+             output.append((endTimeA - startTimeA)+ " ns\n");
+
+
+            startTimeA = System.nanoTime();
+                printTree(tree);
+            endTimeA = System.nanoTime();
+            output.append((endTimeA - startTimeA)+ " ns\n");
+
+
+            startTimeA = System.nanoTime();
+                setCursorToEndOfCurrentLine(move);
+            endTimeA = System.nanoTime();
+            output.append((endTimeA - startTimeA)+ " ns\n");
+
+
+            startTimeA = System.nanoTime();
+                doButtonLogic();
+            endTimeA = System.nanoTime();
+            output.append((endTimeA - startTimeA)+ " ns\n");
+
+
+
+
+
+
+
         }
+
+
+
     }
 
         public void doButtonLogic(){
@@ -3200,36 +3215,38 @@ public class Main extends Activity {
         }
 
 
-        if (currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType == null) {
-            Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
-            if (evalType == Eval.Type.INT) {
-                btnOperatorAdd.setVisibility(View.VISIBLE);
-                btnOperatorSub.setVisibility(View.VISIBLE);
-                btnOperatorMod.setVisibility(View.VISIBLE);
-                btnOperatorMulti.setVisibility(View.VISIBLE);
-                btnOperatorDiv.setVisibility(View.VISIBLE);
-            } else if (evalType == Eval.Type.STRING) {
-                btnOperatorConcat.setVisibility(View.VISIBLE);
-            } else if (evalType == Eval.Type.BOOL) {
-                btnOperatorBoolAnd.setVisibility(View.VISIBLE);
-                btnOperatorBoolOr.setVisibility(View.VISIBLE);
-            }
-            //for if statements
-            if (tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) {
-                showBracketButtons(currentNode);
-                if (tree.hasConditionOperatorBeenUsed(currentNode) == false && openBrackets.size() == 0) {
-                    if (evalType == Eval.Type.INT) {
-                        btnOperatorLessThan.setVisibility(View.VISIBLE);
-                        btnOperatorMoreThan.setVisibility(View.VISIBLE);
-                        btnOperatorMoreThanEquals.setVisibility(View.VISIBLE);
-                        btnOperatorLessThanEquals.setVisibility(View.VISIBLE);
-                    }
-                    btnOperatorEquality.setVisibility(View.VISIBLE);
-                    btnOperatorInequality.setVisibility(View.VISIBLE);
+        if (currentNodeType == Node.Type.OP ){
+            if (((Operator) currentNode).opNodeType == null) {
+                Eval.Type evalType = tree.returnEvalVar(currentNode).evalNodeType;
+                if (evalType == Eval.Type.INT) {
+                    btnOperatorAdd.setVisibility(View.VISIBLE);
+                    btnOperatorSub.setVisibility(View.VISIBLE);
+                    btnOperatorMod.setVisibility(View.VISIBLE);
+                    btnOperatorMulti.setVisibility(View.VISIBLE);
+                    btnOperatorDiv.setVisibility(View.VISIBLE);
+                } else if (evalType == Eval.Type.STRING) {
+                    btnOperatorConcat.setVisibility(View.VISIBLE);
+                } else if (evalType == Eval.Type.BOOL) {
+                    btnOperatorBoolAnd.setVisibility(View.VISIBLE);
+                    btnOperatorBoolOr.setVisibility(View.VISIBLE);
                 }
+                //for if statements
+                if (tree.isXbeforeY(currentNode, Node.Type.CONDITION, Node.Type.SEQ)) {
+                    showBracketButtons(currentNode);
+                    if (tree.hasConditionOperatorBeenUsed(currentNode) == false && openBrackets.size() == 0) {
+                        if (evalType == Eval.Type.INT) {
+                            btnOperatorLessThan.setVisibility(View.VISIBLE);
+                            btnOperatorMoreThan.setVisibility(View.VISIBLE);
+                            btnOperatorMoreThanEquals.setVisibility(View.VISIBLE);
+                            btnOperatorLessThanEquals.setVisibility(View.VISIBLE);
+                        }
+                        btnOperatorEquality.setVisibility(View.VISIBLE);
+                        btnOperatorInequality.setVisibility(View.VISIBLE);
+                    }
+                }
+            }else{
+                showTypeInput(currentNode);
             }
-        } else if (currentNodeType == Node.Type.OP && ((Operator) currentNode).opNodeType != null) {
-            showTypeInput(currentNode);
         } else if (currentNodeType == Node.Type.DEC) {
             if (((Dec) currentNode).varNodeType == Dec.Type.NONE) {
                 btnNewVar.setVisibility(View.GONE);
@@ -3471,8 +3488,16 @@ public class Main extends Activity {
             }
         }
 
-        if ((currentNodeType != Node.Type.VARVAL) && (currentNodeType != Node.Type.STRING) && (currentNodeType != Node.Type.FUNCCALL)&& (currentNodeType != Node.Type.VAR) && (currentNodeType != Node.Type.BRACKET)) {
-            btnOperator.setVisibility(View.GONE);
+        if (currentNodeType != Node.Type.VARVAL){
+            if(currentNodeType != Node.Type.STRING) {
+                if (currentNodeType != Node.Type.FUNCCALL) {
+                    if (currentNodeType != Node.Type.VAR) {
+                      if  (currentNodeType != Node.Type.BRACKET){
+                            btnOperator.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            }
         }
 
         if(tree.isInFunction(tree)) {

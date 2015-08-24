@@ -61,7 +61,6 @@ public class Node extends Activity {
     Node left;
     Node right;
     Node parent;
-    Node cacheNode;
     Node currentNode;
     Node root;
     Boolean isCurrentNode;
@@ -81,7 +80,6 @@ public class Node extends Activity {
         this.nodeType = type;
         this.isCurrentNode = true;
         this.run = true;
-        this.cacheNode = null;
         if(parent != null) {
             this.root = parent.root;
             this.root.currentNode = this;
@@ -94,7 +92,6 @@ public class Node extends Activity {
         this.nodeType = type;
         this.isCurrentNode = true;
         this.run = true;
-        this.cacheNode = this;
         this.currentNode = this;
         this.root = this;
     }
@@ -113,18 +110,7 @@ public class Node extends Activity {
         return null;
     }
 
-    public Node returnSeqNode(Node tree){
-        while(tree.nodeType != Node.Type.ROOT){
-            if(tree.isCurrentNode == true){
-                return tree;
-            }
-            if(tree.nodeType == Type.SEQ){
-                return tree;
-            }
-            tree = tree.parent;
-        }
-        return tree;
-    }
+
 
     public Node returnFunctionCallNode(Node tree){
         do{
@@ -180,62 +166,8 @@ public class Node extends Activity {
 
 
 
-
-    public Node doFindCurNode(Node tree){
-        if(!foundCurrentNode && tree != null) {
-            // Log.e("LOOKING AT NODE",  tree.nodeType.toString());
-
-            if (tree.isCurrentNode == true) {
-                //  Log.e("ADDNODE", "Current node findCurNode " + tree.nodeType.toString());
-                foundCurrentNode = true;
-                return tree;
-            }
-            if (tree.left != null) {
-                Node newTree = doFindCurNode(tree.left);
-                if (newTree != null) {
-                    return newTree;
-                }
-
-            }
-            if (tree.right != null && !foundCurrentNode) {
-                Node newTree = doFindCurNode(tree.right);
-                if (newTree != null) {
-                    return newTree;
-                }
-            }
-            return null;
-        }else {
-            return tree;
-        }
-    }
-
     public Node findCurNode(Node tree){
         return tree.root.currentNode;
-        /*foundCurrentNode = false;
-        Node n = returnSeqNode(tree.cacheNode);
-
-        if(n != null) {
-            if(n.isCurrentNode == true){
-                n.root.cacheNode = n;
-            }
-            n = doFindCurNode(n);
-            if (n != null) {
-
-               n.root.cacheNode = n;
-                return n;
-
-            }
-            else
-             {
-                tree.cacheNode = doFindCurNode(tree);
-                tree.cacheNode.root.cacheNode = tree.cacheNode;
-                return tree.cacheNode;
-            }
-        }else{
-            tree.cacheNode = doFindCurNode(tree);
-            tree.cacheNode.root.cacheNode = tree.cacheNode;
-            return tree.cacheNode;
-        }*/
     }
 
 
@@ -249,9 +181,31 @@ public class Node extends Activity {
     public Node addNode(Node tree, Type type, String direction, String value) {
         Node node = findCurNode(tree);
         Node newNode = new Node(Node.Type.NONE, node);
-            if (type == Type.STRING) {
-                newNode = new Str(node, value);
+        if (type == Type.NEWLINE) {
+            if(value == "FOR") {
+                newNode = new Newline(node, Newline.Type.FOR); //For indentation
+            }else if (value == "FOREND") {
+                newNode = new Newline(node, Newline.Type.FOREND); //For indentation
+            }else if (value == "IF") {
+                newNode = new Newline(node, Newline.Type.IF); //For indentation
+            }else if (value == "IFEND") {
+                newNode = new Newline(node, Newline.Type.IFEND); //For indentation
+            }else if (value == "ELSE") {
+                newNode = new Newline(node, Newline.Type.ELSE); //For indentation
+            }else if (value == "ELSEEND") {
+                newNode = new Newline(node, Newline.Type.ELSEEND); //For indentation
+            }else if (value == "FUNCEND") {
+                newNode = new Newline(node, Newline.Type.FUNCEND); //For indentation
+            }else if (value == "FUNCTION") {
+                newNode = new Newline(node, Newline.Type.FUNCTION); //For indentation
+            }else if (value == "NEWLINE") {
+                newNode = new Newline(node, Newline.Type.NEWLINE); //For indentation
+            }else if (value == "RETURN") {
+                newNode = new Newline(node, Newline.Type.RETURN); //For indentation
+            }else{
+                newNode = new Newline(node, Newline.Type.NONE);
             }
+        }
             else if (type == Type.VAR) {
                 if (value == "String") {
                     newNode = new Variable(node, Variable.Type.STRING, null, null);
@@ -316,31 +270,7 @@ public class Node extends Activity {
             else if (type == Type.OP) {
                 newNode = new Operator(node, null);
             }
-            else if (type == Type.NEWLINE) {
-                if(value == "FOR") {
-                    newNode = new Newline(node, Newline.Type.FOR); //For indentation
-                }else if (value == "FOREND") {
-                    newNode = new Newline(node, Newline.Type.FOREND); //For indentation
-                }else if (value == "IF") {
-                    newNode = new Newline(node, Newline.Type.IF); //For indentation
-                }else if (value == "IFEND") {
-                    newNode = new Newline(node, Newline.Type.IFEND); //For indentation
-                }else if (value == "ELSE") {
-                    newNode = new Newline(node, Newline.Type.ELSE); //For indentation
-                }else if (value == "ELSEEND") {
-                    newNode = new Newline(node, Newline.Type.ELSEEND); //For indentation
-                }else if (value == "FUNCEND") {
-                    newNode = new Newline(node, Newline.Type.FUNCEND); //For indentation
-                }else if (value == "FUNCTION") {
-                    newNode = new Newline(node, Newline.Type.FUNCTION); //For indentation
-                }else if (value == "NEWLINE") {
-                    newNode = new Newline(node, Newline.Type.NEWLINE); //For indentation
-                }else if (value == "RETURN") {
-                    newNode = new Newline(node, Newline.Type.RETURN); //For indentation
-                }else{
-                    newNode = new Newline(node, Newline.Type.NONE);
-                }
-            }
+
             else if(type == Type.BRACKET){
                 if(value == "Open"){
                     newNode =  new Bracket(node, Bracket.Type.OPEN);
@@ -379,10 +309,8 @@ public class Node extends Activity {
             }else if(direction == "right"){
                 if(node.right != null){
                     newNode.right = node.right;
-                    tree.cacheNode = newNode;
                 }
                 node.right = newNode;
-                tree.cacheNode = newNode;
                 tree.root.currentNode = newNode;
             }
             node.isCurrentNode = false;
@@ -878,14 +806,14 @@ public class Node extends Activity {
 
     public Boolean isInFunction(Node tree){
         Node node = findCurNode(tree);
-        while(node.nodeType != Node.Type.ROOT){
-            if(node.nodeType == Type.FUNCTION){
-                if(((Function)node).isDec && ((Function)node).decFinished) {
+        while(node.nodeType != Node.Type.ROOT) {
+            if (node.nodeType == Type.FUNCTION) {
+                if (((Function) node).isDec && ((Function) node).decFinished) {
                     return true;
-                }
-                else{
+                } else {
                     return false;
                 }
+
             }
             node = node.parent;
         }
@@ -950,7 +878,6 @@ public class Node extends Activity {
        //    Log.e("DEBUG", "Current node before = " + node.nodeType.toString());
            node.isCurrentNode = false;
            node.parent.isCurrentNode = true;
-            node.root.cacheNode = node.parent;
             node.root.currentNode = node.parent;
             node = node.parent;
 
