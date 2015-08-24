@@ -346,6 +346,7 @@ public class Main extends Activity {
         if(lineNumber == 0){
             tree = tree.clearCurrentNode(tree);
             tree.isCurrentNode = true;
+            tree.root.currentNode = tree;
             code.setSelection(0);
             lineJustPressed = lineNumber;
         }else {
@@ -1944,6 +1945,7 @@ public class Main extends Activity {
                 if(((FunctionCall)node).paramsFinished != true){
                     tree.clearCurrentNode(tree);
                     node.isCurrentNode = true;
+                    tree.root.currentNode = node;
                     return true;
                 }
             }
@@ -2380,7 +2382,7 @@ public class Main extends Activity {
 
 
                 //test1();
-                //testDoubleForLoop();
+               // testDoubleForLoop();
                 testPrint(100);
 
                 long endTime = System.nanoTime();
@@ -2761,7 +2763,7 @@ public class Main extends Activity {
                 long endTimeB = System.nanoTime();
                 Log.d("Took "+(endTimeB - startTimeB),  " ns");
 
-                Boolean test = true;
+                Boolean test = false;
                 if(test) {
                     output.setText("");
                     output.append("A:" + (endTimeA - startTimeA) + "\n");
@@ -2894,6 +2896,7 @@ public class Main extends Activity {
                     while(currentNode.right != null){
                         currentNode.isCurrentNode = false;
                         currentNode.right.isCurrentNode = true;
+                        currentNode.root.currentNode = currentNode.right;
                         currentNode = currentNode.right;
                     }
                     tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
@@ -3352,6 +3355,7 @@ public class Main extends Activity {
                     Node node = tree.findCurNode(tree);
                     node.left = null;
                     node.parent.isCurrentNode = true;
+                    tree.currentNode = node.parent;
                     node.parent.right = node.right;
                     code.setText("");
                     printTree(tree);
@@ -3402,6 +3406,7 @@ public class Main extends Activity {
                     Node node = tree.findCurNode(tree);
                     node.left = null;
                     node.parent.isCurrentNode = true;
+                    tree.root.currentNode = node.parent;
                     node.parent.right = node.right;
                     code.setText("");
                     printTree(tree);

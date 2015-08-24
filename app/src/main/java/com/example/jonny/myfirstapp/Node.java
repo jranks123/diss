@@ -62,6 +62,7 @@ public class Node extends Activity {
     Node right;
     Node parent;
     Node cacheNode;
+    Node currentNode;
     Node root;
     Boolean isCurrentNode;
     Boolean found;
@@ -83,7 +84,9 @@ public class Node extends Activity {
         this.cacheNode = null;
         if(parent != null) {
             this.root = parent.root;
+            this.root.currentNode = this;
         }
+
     }
 
     public Node (Type type, Node parent, Boolean root){
@@ -92,6 +95,7 @@ public class Node extends Activity {
         this.isCurrentNode = true;
         this.run = true;
         this.cacheNode = this;
+        this.currentNode = this;
         this.root = this;
     }
 
@@ -206,7 +210,8 @@ public class Node extends Activity {
     }
 
     public Node findCurNode(Node tree){
-        foundCurrentNode = false;
+        return tree.root.currentNode;
+        /*foundCurrentNode = false;
         Node n = returnSeqNode(tree.cacheNode);
 
         if(n != null) {
@@ -230,7 +235,7 @@ public class Node extends Activity {
             tree.cacheNode = doFindCurNode(tree);
             tree.cacheNode.root.cacheNode = tree.cacheNode;
             return tree.cacheNode;
-        }
+        }*/
     }
 
 
@@ -378,6 +383,7 @@ public class Node extends Activity {
                 }
                 node.right = newNode;
                 tree.cacheNode = newNode;
+                tree.root.currentNode = newNode;
             }
             node.isCurrentNode = false;
 
@@ -527,6 +533,7 @@ public class Node extends Activity {
     public Node findLine(Node tree, Integer lineNumber, String function){
         if(lineNumber == 0){
             tree.isCurrentNode = true;
+            tree.root.currentNode = tree;
         }else {
 //        Boolean endTree = false;
             //      Boolean elseTree = false;
@@ -544,6 +551,7 @@ public class Node extends Activity {
                             } else if (function.equals("setCurrent")) {
                                 if (newLineType == Newline.Type.FOR) {
                                     tree.left.left.left.isCurrentNode = true;
+                                    tree.root.currentNode = tree.left.left.left;
                                 }
                                 if (newLineType == Newline.Type.FOREND) {
                                     tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
@@ -570,12 +578,16 @@ public class Node extends Activity {
                             }
                         } else if (newLineType == Newline.Type.FOR && function.equals("setCurrent")) {
                             tree.left.left.left.isCurrentNode = true;
+                            tree.root.currentNode = tree.left.left.left;
                         } else if (newLineType == Newline.Type.ELSE && function.equals("setCurrent")) {
                             tree.left.right.isCurrentNode = true;
+                            tree.root.currentNode = tree.left.right;
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
                             tree.left.left.left.right.left.isCurrentNode = true;
+                            tree.root.currentNode = tree.left.left.left.right.left;
                         }else if ((newLineType == Newline.Type.FUNCTION) && (function.equals("setCurrent")) && (((Function)tree.left.left).isDec)) {
                                 tree.left.left.right.right.left.isCurrentNode = true;
+                                tree.root.currentNode = tree.left.left.right.right.left;
                         }else {
                             if (function.equals("delete")) {
                                 tree.left = null;
@@ -585,6 +597,7 @@ public class Node extends Activity {
                                 }
                             } else if (function.equals("setCurrent")) {
                                 tree.isCurrentNode = true;
+                                tree.root.currentNode = tree;
                             }
                         }
                         return tree;
@@ -608,6 +621,7 @@ public class Node extends Activity {
                             } else if (function.equals("setCurrent")) {
                                 if (newLineType == Newline.Type.FOR) {
                                     tree.left.left.left.isCurrentNode = true;
+                                    tree.root.currentNode = tree.left.left.left;
                                 } else if (newLineType == Newline.Type.FOREND) {
                                     tree = tree.moveUpTreeLimitNode(tree, "FORLOOP");
                                     tree = tree.moveUpTreeLimitNode(tree, "SEQ");
@@ -637,12 +651,16 @@ public class Node extends Activity {
                             }
                         }else if (newLineType == Newline.Type.FOR && function.equals("setCurrent")) {
                             tree.left.left.left.isCurrentNode = true;
+                            tree.root.currentNode = tree.left.left.left;
                         } else if (newLineType == Newline.Type.ELSE && function.equals("setCurrent")) {
                             tree.right.right.isCurrentNode = true;
+                            tree.root.currentNode = tree.right.right;
                         } else if (newLineType == Newline.Type.IF && function.equals("setCurrent")) {
                             tree.left.left.left.right.left.isCurrentNode = true;
+                            tree.root.currentNode = tree.left.left.left.right.left;
                         } else if (newLineType == Newline.Type.FUNCTION && function.equals("setCurrent")) {
                             tree.left.left.right.left.isCurrentNode = true;
+                            tree.root.currentNode = tree.left.left.right.left;
                         } else {
                             if (function.equals("delete")) {
                                 tree.right = null;
@@ -652,6 +670,7 @@ public class Node extends Activity {
                                 }
                             } else if (function.equals("setCurrent")) {
                                 tree.isCurrentNode = true;
+                                tree.root.currentNode = tree;
                             }
                         }
                         return tree;
@@ -694,6 +713,7 @@ public class Node extends Activity {
         if (tree.left != null){
             if(tree.left.isCurrentNode == true){
                 tree.left.isCurrentNode = false;
+                tree.root.currentNode = null;
                 return tree;
             }else {
                 clearCurrentNode(tree.left);
@@ -702,6 +722,7 @@ public class Node extends Activity {
         if (tree.right != null){
             if(tree.right.isCurrentNode == true){
                 tree.right.isCurrentNode = false;
+                tree.root.currentNode = null;
                 return tree;
             }else {
                 clearCurrentNode(tree.right);
@@ -930,6 +951,7 @@ public class Node extends Activity {
            node.isCurrentNode = false;
            node.parent.isCurrentNode = true;
             node.root.cacheNode = node.parent;
+            node.root.currentNode = node.parent;
             node = node.parent;
 
            // Log.e("DEBUG", "Current node = " + node.parent.nodeType.toString());
@@ -948,6 +970,7 @@ public class Node extends Activity {
           //  Log.e("DEBUG", "Current node before = " + tree.nodeType.toString());
             tree.isCurrentNode = false;
             tree.parent.isCurrentNode = true;
+            tree.root.currentNode = tree.parent;
             tree = tree.parent;
 
           //  Log.e("DEBUG", "Current node = " + tree.parent.nodeType.toString());
@@ -967,25 +990,13 @@ public class Node extends Activity {
       //      Log.d("DEBUG", "Current node before = " + node.nodeType.toString());
             node.isCurrentNode = false;
             node.parent.isCurrentNode = true;
+            tree.root.currentNode = node.parent;
        //     Log.d("DEBUG", "Current node = " + node.parent.nodeType.toString());
         }
         return tree;
 
     }
 
-    public Node moveDownOneStep(Node tree, String direction){
-        Node node;
-        node = findCurNode(tree);
-        node.isCurrentNode = false;
-        if(direction.equals("left")){
-            node.left.isCurrentNode = true;
-        }else if(direction.equals("right")){
-            node.right.isCurrentNode = true;
-        }else{
-       //     Log.d("THERE", "IS A PROBLEM");
-        }
-        return tree;
-    }
 
     public Node moveDownDirectionLimit(Node tree, String direction, String limit){
         Node node;
@@ -994,8 +1005,10 @@ public class Node extends Activity {
             node.isCurrentNode = false;
             if (direction.equals("left")) {
                 node.left.isCurrentNode = true;
+                tree.root.currentNode = node.left;
             } else if (direction.equals("right")) {
                 node.right.isCurrentNode = true;
+                tree.root.currentNode = node.right;
             } else {
            //     Log.d("THERE", "IS A PROBLEM");
             }
@@ -1011,6 +1024,7 @@ public class Node extends Activity {
         node = findCurNode(tree);
         node.isCurrentNode = false;
         node.parent.isCurrentNode = true;
+        tree.root.currentNode = node.parent;
         return tree;
     }
 
