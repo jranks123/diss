@@ -2380,8 +2380,8 @@ public class Main extends Activity {
 
 
                 //test1();
-                testDoubleForLoop();
-                //testPrint(100);
+                //testDoubleForLoop();
+                testPrint(100);
 
                 long endTime = System.nanoTime();
                 output.setText("");
@@ -2761,7 +2761,7 @@ public class Main extends Activity {
                 long endTimeB = System.nanoTime();
                 Log.d("Took "+(endTimeB - startTimeB),  " ns");
 
-                Boolean test = false;
+                Boolean test = true;
                 if(test) {
                     output.setText("");
                     output.append("A:" + (endTimeA - startTimeA) + "\n");

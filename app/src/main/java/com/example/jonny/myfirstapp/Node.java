@@ -109,6 +109,19 @@ public class Node extends Activity {
         return null;
     }
 
+    public Node returnSeqNode(Node tree){
+        while(tree.nodeType != Node.Type.ROOT){
+            if(tree.isCurrentNode == true){
+                return tree;
+            }
+            if(tree.nodeType == Type.SEQ){
+                return tree;
+            }
+            tree = tree.parent;
+        }
+        return tree;
+    }
+
     public Node returnFunctionCallNode(Node tree){
         do{
             if(tree.nodeType == Type.FUNCCALL){
@@ -194,25 +207,30 @@ public class Node extends Activity {
 
     public Node findCurNode(Node tree){
         foundCurrentNode = false;
-        return doFindCurNode(tree);
-/*
-        Node n = moveUpTreeLimitNode(tree.cacheNode, "SEQ");
+        Node n = returnSeqNode(tree.cacheNode);
+
         if(n != null) {
+            if(n.isCurrentNode == true){
+                n.root.cacheNode = n;
+            }
             n = doFindCurNode(n);
             if (n != null) {
-                tree.root.cacheNode = n;
-                foundCurrentNode = false;
+
+               n.root.cacheNode = n;
                 return n;
-            } else {
+
+            }
+            else
+             {
                 tree.cacheNode = doFindCurNode(tree);
-                foundCurrentNode = false;
+                tree.cacheNode.root.cacheNode = tree.cacheNode;
                 return tree.cacheNode;
             }
         }else{
             tree.cacheNode = doFindCurNode(tree);
-            foundCurrentNode = false;
+            tree.cacheNode.root.cacheNode = tree.cacheNode;
             return tree.cacheNode;
-        }*/
+        }
     }
 
 
@@ -911,6 +929,7 @@ public class Node extends Activity {
        //    Log.e("DEBUG", "Current node before = " + node.nodeType.toString());
            node.isCurrentNode = false;
            node.parent.isCurrentNode = true;
+            node.root.cacheNode = node.parent;
             node = node.parent;
 
            // Log.e("DEBUG", "Current node = " + node.parent.nodeType.toString());
@@ -936,6 +955,8 @@ public class Node extends Activity {
         }
         return tree;
     }
+
+
 
 
 
