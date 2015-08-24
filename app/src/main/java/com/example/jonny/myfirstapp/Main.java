@@ -120,7 +120,8 @@ public class Main extends Activity {
 
     Variable newVar;
     Button btnEnterString;
-    EditText code;
+    StringBuilder code;
+    EditText codeOutput;
     TextView output;
     ArrayList<Button> printMenu;
     ArrayList<Button> homeMenu;
@@ -282,11 +283,12 @@ public class Main extends Activity {
         printMenu.add(btnPrintBack);
         printMenu.add(btnSemicolon);
         printMenu.add(btnEnterString);
-        code = (EditText)findViewById(R.id.codeText);
-        code.setMovementMethod(new ScrollingMovementMethod());
-        code.setClickable(true);
-        code.setFocusable(true);
-        code.setOnTouchListener(new View.OnTouchListener() {
+        code = new StringBuilder();
+        codeOutput = (EditText)findViewById(R.id.codeText);
+        codeOutput.setMovementMethod(new ScrollingMovementMethod());
+        codeOutput.setClickable(true);
+        codeOutput.setFocusable(true);
+        codeOutput.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     Node.Type currentNodeType = tree.findCurNode(tree).nodeType;
@@ -303,17 +305,17 @@ public class Main extends Activity {
                        //     Log.v("index", "" + offset);
                             lineJustPressed = line;
                         //    Log.v("line number", "" + lineJustPressed);
-                            code.requestFocus();
+                            codeOutput.requestFocus();
                             Boolean endOfLine = false;
-                            while (offset < code.getText().length() - 1 && endOfLine == false) {
-                                String codeChar = code.getText().toString().substring(offset, offset + 1);
-                                if (codeChar.equals("\n")) {
+                            while (offset < codeOutput.getText().length() - 1 && endOfLine == false) {
+                                String codeOutputChar = codeOutput.getText().toString().substring(offset, offset + 1);
+                                if (codeOutputChar.equals("\n")) {
                                     endOfLine = true;
                                 }
                                 offset += 1;
                             }
                             offset--;
-                            code.setSelection(offset, offset);
+                            codeOutput.setSelection(offset, offset);
                         }
                         tree = tree.changeCurrentNode(tree, lineJustPressed);
                         doButtonLogic();
@@ -347,23 +349,23 @@ public class Main extends Activity {
             tree = tree.clearCurrentNode(tree);
             tree.isCurrentNode = true;
             tree.root.currentNode = tree;
-            code.setSelection(0);
+            codeOutput.setSelection(0);
             lineJustPressed = lineNumber;
         }else {
             lineJustPressed = lineNumber;
             Integer offset = 0;
             Integer numberOfLinesSoFar = 0;
             Boolean endOfLine = false;
-            while (offset < code.getText().length() && endOfLine == false) {
-                String codeChar = code.getText().toString().substring(offset, offset + 1);
+            while (offset < codeOutput.getText().length() && endOfLine == false) {
+                String codeChar = codeOutput.getText().toString().substring(offset, offset + 1);
                 if (codeChar.equals("\n")) {
                     numberOfLinesSoFar += 1;
                 }
                 if (numberOfLinesSoFar == lineNumber) {
                     Boolean end = false;
-                    while (offset < code.getText().length() - 1 && end == false) {
+                    while (offset < codeOutput.getText().length() - 1 && end == false) {
                         offset += 1;
-                        codeChar = code.getText().toString().substring(offset, offset + 1);
+                        codeChar = codeOutput.getText().toString().substring(offset, offset + 1);
                         if (codeChar.equals("\n")) {
                             end = true;
                         }
@@ -374,7 +376,7 @@ public class Main extends Activity {
             }
 
             offset -= 1;
-            code.setSelection(offset, offset);
+            codeOutput.setSelection(offset, offset);
             if (lineDirection != 0) {
                 tree = tree.changeCurrentNode(tree, lineNumber);
                 showElse();
@@ -675,19 +677,13 @@ public class Main extends Activity {
             dialog.show();
     }
 
-    public void addToCode(TextView view, String text, int htmlText, Boolean html){
-        if(html) {
-            view.append(text);
-        }else{
-            view.append(Html.fromHtml(getString(htmlText)));
-        }
-    }
+
 
     public void indent(Integer handicap){
        // int loop = openLoopsIndent.size() + openIfsIndent.size();
         int loop = openCurlysIndent.size();
         for(int i = 0; i < loop+handicap; i++){
-            code.append("\t\t\t");
+            code.append("&emsp;");
         }
     }
 
@@ -700,7 +696,7 @@ public class Main extends Activity {
         String text;
         if (nodeType == Node.Type.PRINT){
          //   addToCode(code, null, R.string.print, true);  //TODO
-            code.append(Html.fromHtml(getString(R.string.print)));
+            code.append(getString(R.string.print));
         }
         else if(nodeType == Node.Type.STRING){
             text = "\"" + ((Str)tree).value + "\"";
@@ -744,7 +740,7 @@ public class Main extends Activity {
                 if(isInt) {
                     s = s + ("</font>");
                 }
-                code.append(Html.fromHtml(s));
+                code.append(s);
             }
         }
         else if (nodeType == Node.Type.SMCLN){
@@ -771,13 +767,13 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.DEC){
             switch(((Dec)tree).varNodeType){
                 case STRING:
-                    code.append(Html.fromHtml(getString(R.string.string)));
+                    code.append(getString(R.string.string));
                     break;
                 case INT:
-                    code.append(Html.fromHtml(getString(R.string.integer)));
+                    code.append(getString(R.string.integer));
                     break;
                 case BOOL:
-                    code.append(Html.fromHtml(getString(R.string.bool)));
+                    code.append(getString(R.string.bool));
                     break;
                 default:
                     break;
@@ -786,20 +782,20 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.PARAMETER){
             switch(((Parameter)tree).type){
                 case STRING:
-                    code.append(Html.fromHtml(getString(R.string.string)));
+                    code.append(getString(R.string.string));
                     break;
                 case INT:
-                    code.append(Html.fromHtml(getString(R.string.integer)));
+                    code.append(getString(R.string.integer));
                     break;
                 case BOOL:
-                    code.append(Html.fromHtml(getString(R.string.bool)));
+                    code.append(getString(R.string.bool));
                     break;
                 case NONE:
                     break;
             }
         }
         else if(nodeType == Node.Type.RETURN){
-            code.append(Html.fromHtml(getString(R.string.Return)));
+            code.append(getString(R.string.Return));
         }
         else if(nodeType == Node.Type.FUNCTION){
             if(((Function)tree).isDec) {
@@ -808,22 +804,22 @@ public class Main extends Activity {
               //  varTree.addNode(varTree);
                 varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
                 if (((Function) tree).funcType != null) {
-                    code.append(Html.fromHtml(getString(R.string.function)));
+                    code.append(getString(R.string.function));
                     switch (((Function) tree).funcType) {
                         case INT:
-                            code.append(Html.fromHtml(getString(R.string.integer)));
+                            code.append(getString(R.string.integer));
                             break;
 
                         case BOOL:
-                            code.append(Html.fromHtml(getString(R.string.bool)));
+                            code.append(getString(R.string.bool));
                             break;
 
                         case STRING:
-                            code.append(Html.fromHtml(getString(R.string.string)));
+                            code.append(getString(R.string.string));
                             break;
 
                         case VOID:
-                            code.append(Html.fromHtml(getString(R.string.Void)));
+                            code.append(getString(R.string.Void));
                             break;
 
                     }
@@ -854,7 +850,7 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.FORLOOP){
             switch(((Loops)tree).varNodeType){
                 case FOR:
-                    code.append(Html.fromHtml(getString(R.string.forLoop)));
+                    code.append(getString(R.string.forLoop));
                     if(((Loops) tree).limiter != null){
                         openCurlysIndent.add(true);
                         //addToVariablesArray();
@@ -862,7 +858,7 @@ public class Main extends Activity {
                         varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
 
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
-                        code.append(Html.fromHtml(s) + " = ");
+                        code.append((s) + " = ");
                        // if(!checkVarExists(((Loops) tree).limiter.toString())){
                             String name = ((Loops) tree).limiter.toString();
                             Variable v = new Variable(null, Variable.Type.INT, name, null );
@@ -873,7 +869,7 @@ public class Main extends Activity {
                     }
                     if(((Loops) tree).lowerLim != null){
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
-                        code.append(((Loops) tree).lowerLim.toString() + "; " + Html.fromHtml(s));
+                        code.append(((Loops) tree).lowerLim.toString() + "; " + s);
                     }
                     if(((Loops) tree).operator != null){
                         if(((Loops) tree).operator == Operator.Type.LESSTHAN) {
@@ -884,7 +880,7 @@ public class Main extends Activity {
                     }
                     if(((Loops) tree).upperLim != null){
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
-                        code.append(((Loops) tree).upperLim.toString() + "; " + Html.fromHtml(s));
+                        code.append(((Loops) tree).upperLim.toString() + "; " + s);
                     }
                     if(((Loops) tree).plusOrMinus != null){
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
@@ -894,7 +890,7 @@ public class Main extends Activity {
             }
         }
         else if(nodeType == Node.Type.NEWLINE){
-            code.append("\n");
+            code.append("<br>");
             Boolean isEnd = ((Newline)tree).isEnd;
             if(isEnd == true) {
                 indent(-1);
@@ -928,7 +924,7 @@ public class Main extends Activity {
         else if(nodeType == Node.Type.ENDPROGRAM){
             // openLoopsIndent.remove(
             // Indent.size() - 1);
-            code.append("\n");
+            code.append("<br>");
         }
         else if(nodeType == Node.Type.VAR){
             if (((Variable)tree).name != null){
@@ -942,7 +938,7 @@ public class Main extends Activity {
                 if(isGlobal){
                     s = s + "</b></font>";
                 }
-                code.append(Html.fromHtml(s));
+                code.append(s);
             }
         }
         else if(nodeType == Node.Type.ASSIGN){
@@ -991,12 +987,12 @@ public class Main extends Activity {
             }
         }
         else if(nodeType == Node.Type.IF){
-            code.append(Html.fromHtml(getString(R.string.ifString)));
+            code.append(getString(R.string.ifString));
         }
         else if(nodeType == Node.Type.ELSE){
             //String codeText = code.getText().toString();
             //code.setText(codeText.substring(0, codeText.length() - 1));
-            code.append(Html.fromHtml(getString(R.string.elseString)));
+            code.append(getString(R.string.elseString));
 
 
             openCurlysIndent.add(true);
@@ -1004,7 +1000,7 @@ public class Main extends Activity {
             varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
         }
         else if(nodeType == Node.Type.ENDIFCONDITION){
-            code.append(Html.fromHtml(getString(R.string.endIfConditionString)));
+            code.append(getString(R.string.endIfConditionString));
             //openIfsIndent.add(true);
             openCurlysIndent.add(true);
            // addToVariablesArray();
@@ -1382,7 +1378,7 @@ public class Main extends Activity {
                 } else if (treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)) {
                     String value = "void";
                     value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
-                    output.append(value + "\n");
+                    output.append(value + "<br>");
                 } else if (treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)) {
                     Node startFuncNode = treeNode.returnStartFuncNode(treeNode);
                     startFuncNode.left = startFuncNode.setRunForAllChildren(startFuncNode.left, false);
@@ -1703,27 +1699,34 @@ public class Main extends Activity {
         }
     }
 
-
-
-    public void printTree(Node tree){
+    public void doPrintTree(Node tree){
         Boolean skip = false;
         visitNode(tree);
         if(tree.right!= null){
             if(tree.right.nodeType == Node.Type.STARTFUNCCALL){
                 if(tree.parent.nodeType != Node.Type.FUNCTION) {
                     skip = true;
-                    printTree(tree.right);
+                    doPrintTree(tree.right);
                 }
             }
         }
         if (tree.left != null){
-            printTree(tree.left);
+            doPrintTree(tree.left);
         }
         if (tree.right != null){
             if(!skip) {
-                printTree(tree.right);
+                doPrintTree(tree.right);
             }
         }
+    }
+
+
+
+    public void printTree(Node tree){
+        codeOutput.setText("");
+        code = new StringBuilder();
+        doPrintTree(tree);
+        codeOutput.append(Html.fromHtml(code.toString()));
     }
 
     public void countNewLines(Node tree){
@@ -2100,7 +2103,7 @@ public class Main extends Activity {
                             }else if (b.getContentDescription().equals(Function.Type.VOID.toString())) {
                                 curNode = curNode.setFunctionCallNameAndType(curNode, FunctionCall.Type.VOID, b.getText().toString());
                             }
-                            code.setText("");
+
                             if (tree != null) {
                                 //  openLoopsIndent.clear();
                                 //  openIfsIndent.clear();
@@ -2112,7 +2115,9 @@ public class Main extends Activity {
                                 //addToVariablesArray();
                                 openCurlysIndent.clear();
                                 tree = checkNewLineNotDeleted();
+                                code = new StringBuilder("");
                                 printTree(tree);
+
                                 setCursorToEndOfCurrentLine(0);
                                 doButtonLogic();
                                 //code.setSelection(code.getText().length());
@@ -2197,7 +2202,7 @@ public class Main extends Activity {
                         } else {
                             showSemicolonButton();
                         }
-                        code.setText("");
+
                         if (tree != null) {
                             //   variablesArray.clear();
                             //  functionDimensions.clear();
@@ -2207,7 +2212,9 @@ public class Main extends Activity {
                             varRunTree.add(new VarTree(null));
                             openCurlysIndent.clear();
                             tree = checkNewLineNotDeleted();
+
                             printTree(tree);
+
                             setCursorToEndOfCurrentLine(0);
                         }
                         varButtons.add(b);
@@ -2494,6 +2501,7 @@ public class Main extends Activity {
 
             case R.id.btnEnterFuncName:
                 String name = edtEnterString.getText().toString().trim();
+                edtEnterString.setText("");
                 hideKeyboard();
                 Boolean funcNameExists = false;
                 for (int i = 0; i < functionsArray.size(); i++) {
@@ -2775,6 +2783,7 @@ public class Main extends Activity {
 
             case R.id.btnForNewVarEnter:
                 String varName = edtEnterString.getText().toString().trim();
+                edtEnterString.setText("");
                 hideKeyboard();
                 clearButtons();
                // varTree = new VarTree(null);
@@ -2787,12 +2796,15 @@ public class Main extends Activity {
                     showInvalidAlert("Error: please enter a name for the variable");
 
                 } else {
+
                     ((Loops) tree.findCurNode(tree)).limiter = edtEnterString.getText().toString().trim();
+                    edtEnterString.setText("");
                 }
                 break;
 
             case R.id.btnForNewVarValueEnter:
                 text = edtEnterString.getText().toString().trim();
+                edtEnterString.setText("");
                 hideKeyboard();
                 try {
                     int num = Integer.parseInt(text);
@@ -2814,6 +2826,7 @@ public class Main extends Activity {
 
             case R.id.btnForNewVarValueUpperEnter:
                 text = edtEnterString.getText().toString().trim();
+                edtEnterString.setText("");
                 hideKeyboard();
                 try {
                     int num = Integer.parseInt(text);
@@ -2934,6 +2947,7 @@ public class Main extends Activity {
             case R.id.btnEnterVarName:
 
                 String vName = edtEnterString.getText().toString().trim();
+                edtEnterString.setText("");
                 hideKeyboard();
 
              //   variablesArray.clear();
@@ -2997,11 +3011,13 @@ public class Main extends Activity {
                     try {
                         int num = Integer.parseInt(text);
                         tree = tree.updateVarVal(tree, edtEnterString.getText().toString());
+                        edtEnterString.setText("");
                     } catch (NumberFormatException e) {
                         showInvalidAlert("Please enter a valid value");
                     }
                 } else {
                     tree = tree.updateVarVal(tree, edtEnterString.getText().toString());
+                    edtEnterString.setText("");
                 }
                 break;
 
@@ -3010,8 +3026,10 @@ public class Main extends Activity {
                 hideKeyboard();
                 if (tree.isXbeforeY(tree.findCurNode(tree), Node.Type.VARVAL, Node.Type.SEQ)) {
                     tree = tree.updateVarVal(tree, edtEnterString.getText().toString());
+                    edtEnterString.setText("");
                 } else {
                     tree = tree.addNode(tree, Node.Type.VARVAL, "left", edtEnterString.getText().toString());
+                    edtEnterString.setText("");
                 }
                 break;
 
@@ -3151,8 +3169,7 @@ public class Main extends Activity {
         long endTimeB;
         long endTimeA = System.nanoTime();
         String a = ("Took " + (endTimeA - startTimeA)+ " ns\n");
-        edtEnterString.setText("");
-        code.setText("");
+
 
         if (tree != null) {
 
@@ -3165,8 +3182,12 @@ public class Main extends Activity {
             startTimeA = System.nanoTime();
                 tree = checkNewLineNotDeleted();
             endTimeA = System.nanoTime();
-             output.append((endTimeA - startTimeA)+ " ns\n");
+             output.append((endTimeA - startTimeA) + " ns\n");
 
+            startTimeA = System.nanoTime();
+            doButtonLogic();
+            endTimeA = System.nanoTime();
+            output.append((endTimeA - startTimeA)+ " ns\n");
 
             startTimeA = System.nanoTime();
                 printTree(tree);
@@ -3180,10 +3201,7 @@ public class Main extends Activity {
             output.append((endTimeA - startTimeA)+ " ns\n");
 
 
-            startTimeA = System.nanoTime();
-                doButtonLogic();
-            endTimeA = System.nanoTime();
-            output.append((endTimeA - startTimeA)+ " ns\n");
+
 
 
 
@@ -3374,8 +3392,6 @@ public class Main extends Activity {
                     node.parent.isCurrentNode = true;
                     tree.currentNode = node.parent;
                     node.parent.right = node.right;
-                    code.setText("");
-                    printTree(tree);
                     doButtonLogic();
                 }else{
                    showFunctionButtons(null);
@@ -3411,8 +3427,7 @@ public class Main extends Activity {
 
 
                 }
-                code.setText("");
-                printTree(tree);
+
             }
         }
         else if (currentNodeType == Node.Type.FUNCTION) {
@@ -3425,8 +3440,7 @@ public class Main extends Activity {
                     node.parent.isCurrentNode = true;
                     tree.root.currentNode = node.parent;
                     node.parent.right = node.right;
-                    code.setText("");
-                    printTree(tree);
+
                     doButtonLogic();
                 }else{
                     btnExistingFunc.setVisibility(View.VISIBLE);
