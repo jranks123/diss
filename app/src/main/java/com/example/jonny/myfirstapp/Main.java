@@ -147,7 +147,7 @@ public class Main extends Activity {
 
 
     public void initialise(){
-        tree = new Node(Node.Type.ROOT, null);
+        tree = new Node(Node.Type.ROOT, null, true);
         varRunTree= new ArrayList<VarTree>();
         varRunTree.add(new VarTree(null));
         //tree = tree.addNode(tree, Node.Type.NONE, "right", null);
@@ -300,9 +300,9 @@ public class Main extends Activity {
                         if (layout != null) {
                             int line = layout.getLineForVertical(y);
                             int offset = layout.getOffsetForHorizontal(line, x);
-                            Log.v("index", "" + offset);
+                       //     Log.v("index", "" + offset);
                             lineJustPressed = line;
-                            Log.v("line number", "" + lineJustPressed);
+                        //    Log.v("line number", "" + lineJustPressed);
                             code.requestFocus();
                             Boolean endOfLine = false;
                             while (offset < code.getText().length() - 1 && endOfLine == false) {
@@ -371,11 +371,7 @@ public class Main extends Activity {
                 }
                 offset += 1;
             }
-            if (endOfLine) {
-                Log.d("Found end of", " line");
-            } else {
-                Log.d("Didn't find end of ", "line");
-            }
+
             offset -= 1;
             code.setSelection(offset, offset);
             if (lineDirection != 0) {
@@ -385,7 +381,7 @@ public class Main extends Activity {
                 showElse();
             }
         }
-        Log.d("Line number = ", lineNumber.toString());
+      //  Log.d("Line number = ", lineNumber.toString());
     }
     public Boolean isOutsideAllBrackets(){
         Node node = tree.findCurNode(tree);
@@ -776,7 +772,7 @@ public class Main extends Activity {
                     type = v.varNodeType;
                     //if (!checkVarExists(v.name)) {
                             Variable var = new Variable(null, type, v.name, null);
-                    varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(var);
+                        varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(var);
                            // variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
 
                     //    }
@@ -1376,7 +1372,7 @@ public class Main extends Activity {
                         String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                         //updateVariableValue(value, name, type);
                         updateVariableValueNew(value, name);
-                        Log.d("Value is ", value);
+                     //   Log.d("Value is ", value);
                     }
                 } else if (treeNode.isXbeforeY(treeNode, Node.Type.ASSIGN, Node.Type.SEQ)) {
                     Variable v = treeNode.returnAssignVar(treeNode);
@@ -1424,7 +1420,7 @@ public class Main extends Activity {
                 } else if (value.equals("false")) {
                     setConditionValue(treeNode, "false");
                 }
-                Log.d("STATEMENT IS", value);
+              //  Log.d("STATEMENT IS", value);
             } else if (treeNode.nodeType == Node.Type.ELSE) {
                 openCurlysIndent.add(true);
                 // addToVariablesArray();
@@ -1660,7 +1656,7 @@ public class Main extends Activity {
     public Boolean checkIfTrue(Node tree){
         while(tree.nodeType != Node.Type.IF){
             if(tree.nodeType == Node.Type.ROOT){
-                Log.e("ERROR", " got to root without finidng if");
+             //   Log.e("ERROR", " got to root without finidng if");
                 return false;
             }
             tree = tree.parent;
@@ -1682,9 +1678,9 @@ public class Main extends Activity {
             Log.d("CdTc Going left", tree.left.nodeType.toString());
             if(tree.left.nodeType.equals(Node.Type.VAR)){
                 try {
-                    Log.d("CdTc type is", ((Variable) tree.left).varNodeType.toString());
+                  //  Log.d("CdTc type is", ((Variable) tree.left).varNodeType.toString());
                 }catch (NullPointerException e){
-                    Log.d("CdTc type is", "null");
+                 //   Log.d("CdTc type is", "null");
                 }
             }
             if (tree.left.isCurrentNode){
@@ -1699,7 +1695,7 @@ public class Main extends Activity {
             rightChild = true;
             Log.d("CdTc Going right", tree.right.nodeType.toString());
             if(tree.right.nodeType.equals(Node.Type.VAR)){
-                Log.d("CdTc type is" , ((Variable)tree.right).varNodeType.toString());
+          //      Log.d("CdTc type is" , ((Variable)tree.right).varNodeType.toString());
             }
             if (tree.right.isCurrentNode){
                 Log.d("CdTc And IS", "CURRENT " + tree.right.nodeType.toString());
@@ -1744,7 +1740,7 @@ public class Main extends Activity {
     public void countNewLines(Node tree){
         if (tree.left != null){
             if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
-                Log.d("Newline", " left");
+             //   Log.d("Newline", " left");
                 numberOfNewLines += 1;
             }
             countNewLines(tree.left);
@@ -1752,7 +1748,7 @@ public class Main extends Activity {
         }
         if (tree.right != null){
             if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
-                Log.d("Newline", " right");
+             //   Log.d("Newline", " right");
                 numberOfNewLines += 1;
             }
             countNewLines(tree.right);
@@ -1811,10 +1807,10 @@ public class Main extends Activity {
     }
 
     public Node searchChildren(Node n, Node.Type type){
-        Node newNode = new Node(null, null);
         if(n.nodeType == type){
             return n;
         }
+        Node newNode = new Node(null, null, true);
         if(n.left != null){
             newNode = searchChildren(n.left, type);
         }
@@ -2290,6 +2286,15 @@ public class Main extends Activity {
         return tree;
     }
 
+    public void testPrint(int i){
+        for(int j = 0; j < i; j++){
+            btnPrint.performClick();
+            btnBoolTrue.performClick();
+            btnSemicolon.performClick();
+        }
+    }
+
+
     public void test1(){
         btnFunctions.performClick();
         btnFuncBool.performClick();
@@ -2332,6 +2337,30 @@ public class Main extends Activity {
     }
 
 
+    public void testDoubleForLoop(){
+        btnLoops.performClick();
+        btnFor.performClick();
+
+        edtEnterString.setText("i");
+        btnForNewVarEnter.performClick();
+        edtEnterString.setText("0");
+        btnForNewVarValueEnter.performClick();
+        btnForLess.performClick();
+        edtEnterString.setText("100");
+        btnForNewVarValueUpperEnter.performClick();
+        btnForPlus.performClick();
+        btnLoops.performClick();
+        btnFor.performClick();
+        edtEnterString.setText("j");
+        btnForNewVarEnter.performClick();
+        edtEnterString.setText("0");
+        btnForNewVarValueEnter.performClick();
+        btnForLess.performClick();
+        edtEnterString.setText("100");
+        btnForNewVarValueUpperEnter.performClick();
+        btnForPlus.performClick();
+
+    }
 
 
     public void onBtnClicked(View v) {
@@ -2346,13 +2375,21 @@ public class Main extends Activity {
         switch (v.getId()) {
             case R.id.btnTest:
 
+                long startTime = System.nanoTime();
 
-                test1();
 
+
+                //test1();
+                testDoubleForLoop();
+                //testPrint(100);
+
+                long endTime = System.nanoTime();
+                output.setText("");
+                output.append("Took " + (endTime - startTime) + " ns");
                 break;
 
             case R.id.btnPrint:
-                Log.d("DEBUG", "PRESS PRINT");
+                //Log.d("DEBUG", "PRESS PRINT");
                 tree = tree.addNode(tree, Node.Type.SEQ, "right", null);
                 tree = tree.addNode(tree, Node.Type.NEWLINE, "left", null);
                 tree = tree.addNode(tree, Node.Type.PRINT, "left", null);
@@ -2566,7 +2603,7 @@ public class Main extends Activity {
                 break;
 
             case R.id.btnDelete:
-                Log.d("DEBUG", "PRESS PRINT");
+             //   Log.d("DEBUG", "PRESS PRINT");
                 Node currentNd = tree.findCurNode(tree);
                 Node.Type currentNodeType = currentNd.nodeType;
                 Boolean canDelete = true;
@@ -2699,16 +2736,38 @@ public class Main extends Activity {
                 break;
 
             case R.id.run:
+                long startTimeA = System.nanoTime();
+                //Boolean k = false;
+                for(int i = 0; i < 100; i++){
+                    for(int j = 0; j < 100; j++){
+                       // if(k = true){
+                        //    k = false;
+                       // }else{
+                         //   k = true;
+                       // }
+                    }
+                }
+                long endTimeA = System.nanoTime();
+                Log.d("Took " + (endTimeA - startTimeA), " ns");
+
                 errorStack = new ArrayList<String>();
                 output.setText("");
-                tree.renumberNodes(tree);
-              //  varTree = new VarTree(null);
                 varRunTree = new ArrayList<VarTree>();
                 varRunTree.add(new VarTree(null));
                 openCurlysIndent.clear();
                 tree.clearFunctionParams(tree);
+                long startTimeB = System.nanoTime();
                 runCode(tree);
-              //  clearVar();
+                long endTimeB = System.nanoTime();
+                Log.d("Took "+(endTimeB - startTimeB),  " ns");
+
+                Boolean test = false;
+                if(test) {
+                    output.setText("");
+                    output.append("A:" + (endTimeA - startTimeA) + "\n");
+                    output.append("C:" + (endTimeB - startTimeB) + "\n");
+                }
+                //  clearVar();
                 if(errorStack.size() > 0 ){
                     output.setText(" ");
                     for(int i = 0; i < errorStack.size(); i++){
@@ -2822,12 +2881,12 @@ public class Main extends Activity {
                 LogTree(tree);
                 numberOfNewLines = 0;
                 countNewLines(tree);
-                Log.d("Number of lines = ", numberOfNewLines.toString());
+             //   Log.d("Number of lines = ", numberOfNewLines.toString());
                 break;
 
 
             case R.id.semicolon:
-                Log.d("DEBUG", "PRESS ;");
+              //  Log.d("DEBUG", "PRESS ;");
                 currentNode = tree.findCurNode(tree);
                 if(tree.isXbeforeY(currentNode, Node.Type.RETURN, Node.Type.SEQ)) {
                     tree = tree.addNode(tree, Node.Type.SMCLN, "right", "RETURN");
@@ -3127,7 +3186,7 @@ public class Main extends Activity {
         if (currentNodeType == Node.Type.SEQ ||/*currentNodeType == Node.Type.NEWLINE ||*/ currentNodeType == Node.Type.ROOT || (currentNodeType == Node.Type.STARTLOOP)) {
             showButtons(homeMenu);
         }
-        if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE) {
+        if (currentNodeType == Node.Type.SEQ || currentNodeType == Node.Type.IF || currentNodeType == Node.Type.ELSE || currentNodeType == Node.Type.NONE || currentNodeType == Node.Type.STARTLOOP) {
             if (openCurlysIndent.size() == 0) {
                 btnRun.setVisibility(View.VISIBLE);
             } else {

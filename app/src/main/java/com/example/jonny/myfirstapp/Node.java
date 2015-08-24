@@ -61,6 +61,8 @@ public class Node extends Activity {
     Node left;
     Node right;
     Node parent;
+    Node cacheNode;
+    Node root;
     Boolean isCurrentNode;
     Boolean found;
     Integer numberOfNewLines;
@@ -69,6 +71,7 @@ public class Node extends Activity {
     Integer currentNodeNumber;
     Integer position;
     Boolean run;
+    Boolean foundCurrentNode;
 
 
 
@@ -77,6 +80,19 @@ public class Node extends Activity {
         this.nodeType = type;
         this.isCurrentNode = true;
         this.run = true;
+        this.cacheNode = null;
+        if(parent != null) {
+            this.root = parent.root;
+        }
+    }
+
+    public Node (Type type, Node parent, Boolean root){
+        this.parent = parent;
+        this.nodeType = type;
+        this.isCurrentNode = true;
+        this.run = true;
+        this.cacheNode = this;
+        this.root = this;
     }
 
 
@@ -146,36 +162,59 @@ public class Node extends Activity {
     }
 
 
-    public Node findCurNode(Node tree){
-       // Log.e("LOOKING AT NODE",  tree.nodeType.toString());
-        if(tree.nodeType == Node.Type.VAR){
-            try {
-         //       Log.e("AND is type", ((Variable) tree).varNodeType.toString());
-            }catch (NullPointerException e ){
+
+
+    public Node doFindCurNode(Node tree){
+        if(!foundCurrentNode && tree != null) {
+            // Log.e("LOOKING AT NODE",  tree.nodeType.toString());
+
+            if (tree.isCurrentNode == true) {
+                //  Log.e("ADDNODE", "Current node findCurNode " + tree.nodeType.toString());
+                foundCurrentNode = true;
+                return tree;
+            }
+            if (tree.left != null) {
+                Node newTree = doFindCurNode(tree.left);
+                if (newTree != null) {
+                    return newTree;
+                }
 
             }
-
-        }
-        Node newTree = null;
-        if (tree.isCurrentNode == true){
-          //  Log.e("ADDNODE", "Current node findCurNode " + tree.nodeType.toString());
+            if (tree.right != null && !foundCurrentNode) {
+                Node newTree = doFindCurNode(tree.right);
+                if (newTree != null) {
+                    return newTree;
+                }
+            }
+            return null;
+        }else {
             return tree;
         }
-        if (tree.left != null) {
-            newTree = findCurNode(tree.left);
-            if(newTree != null){
-                return newTree;
-            }
-
-        }
-        if (tree.right != null) {
-            newTree = findCurNode(tree.right);
-            if(newTree != null){
-                return newTree;
-            }
-        }
-        return newTree;
     }
+
+    public Node findCurNode(Node tree){
+        foundCurrentNode = false;
+        return doFindCurNode(tree);
+/*
+        Node n = moveUpTreeLimitNode(tree.cacheNode, "SEQ");
+        if(n != null) {
+            n = doFindCurNode(n);
+            if (n != null) {
+                tree.root.cacheNode = n;
+                foundCurrentNode = false;
+                return n;
+            } else {
+                tree.cacheNode = doFindCurNode(tree);
+                foundCurrentNode = false;
+                return tree.cacheNode;
+            }
+        }else{
+            tree.cacheNode = doFindCurNode(tree);
+            foundCurrentNode = false;
+            return tree.cacheNode;
+        }*/
+    }
+
 
     public Node setFunctionCallNameAndType(Node node, FunctionCall.Type type, String name){
         ((FunctionCall)node.returnFunctionCallNode(node)).type = type;
@@ -317,10 +356,13 @@ public class Node extends Activity {
             }else if(direction == "right"){
                 if(node.right != null){
                     newNode.right = node.right;
+                    tree.cacheNode = newNode;
                 }
                 node.right = newNode;
+                tree.cacheNode = newNode;
             }
             node.isCurrentNode = false;
+
             return tree;
     }
 
@@ -397,24 +439,11 @@ public class Node extends Activity {
         return ((Eval)node);
     }
 
-    public Node doRenumbering(Node tree){
-        tree.position = currentNodeNumber;
-        currentNodeNumber += 1;
-        if (tree.left != null){
-            doRenumbering(tree.left);
-        }
-        if (tree.right != null){
-            doRenumbering(tree.right);
-        }
-        return tree;
-    }
 
 
-    public Node renumberNodes(Node tree){
-        currentNodeNumber = 0;
-        doRenumbering(tree);
-        return tree;
-    }
+
+
+
 
     public Node updatePrint(Node tree, Print.Type type){
         Node node = findCurNode(tree);
@@ -487,7 +516,7 @@ public class Node extends Activity {
                 if (tree.left.nodeType.equals(Node.Type.NEWLINE)) {
                     Node newLineNode = tree.left;
                     Newline.Type newLineType = ((Newline) newLineNode).newlineNodeType;
-                    Log.d("Newline", " left");
+                   // Log.d("Newline", " left");
                     numberOfNewLines += 1;
                     if (numberOfNewLines ==
                             lineNumber) {
@@ -551,7 +580,7 @@ public class Node extends Activity {
                 if (tree.right.nodeType.equals(Node.Type.NEWLINE)) {
                     Node newLineNode = tree.right;
                     Newline.Type newLineType = ((Newline) newLineNode).newlineNodeType;
-                    Log.d("Newline", " right");
+                 //   Log.d("Newline", " right");
                     numberOfNewLines += 1;
                     if (numberOfNewLines ==
                             lineNumber) {
@@ -667,14 +696,14 @@ public class Node extends Activity {
     public Node countNewLines(Node tree){
         if (tree.left != null){
             if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
-                Log.d("Newline", " left");
+            //    Log.d("Newline", " left");
                 numberOfNewLinesPostDelete += 1;
             }
             countNewLines(tree.left);
         }
         if (tree.right != null){
             if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
-                Log.d("Newline", " right");
+             //   Log.d("Newline", " right");
                 numberOfNewLinesPostDelete += 1;
             }
             countNewLines(tree.right);
@@ -689,7 +718,7 @@ public class Node extends Activity {
 
                 if(tree.left != null) {
                     numberOfNewLinesBeforeCurNode += 1;
-                    Log.d("added new one ", tree.nodeType.toString());
+                  //  Log.d("added new one ", tree.nodeType.toString());
                     if(tree.left.left != null) {
                         if (tree.left.left.nodeType == Node.Type.IF || tree.left.left.nodeType == Node.Type.FUNCTION) {
                             isIf = true;
@@ -701,7 +730,7 @@ public class Node extends Activity {
         }if(!curNodeFound){
             if (tree.left != null && !curNodeFound){
                 if(tree.left.nodeType.equals(Node.Type.NEWLINE)){
-                    Log.d("Newlineleft after ", tree.nodeType.toString());
+                //    Log.d("Newlineleft after ", tree.nodeType.toString());
                     numberOfNewLinesBeforeCurNode += 1;
                 }
                         curNodeFound = doCurrentNodeLineNumberCount(tree.left, curNodeFound, isIf);
@@ -709,7 +738,7 @@ public class Node extends Activity {
             }
             if (tree.right != null && !curNodeFound){
                 if(tree.right.nodeType.equals(Node.Type.NEWLINE)){
-                    Log.d("Newrightleft after ", tree.nodeType.toString());
+                  //  Log.d("Newrightleft after ", tree.nodeType.toString());
                     numberOfNewLinesBeforeCurNode += 1;
                     if(isIf){
                         if(((Newline)tree.right).stop == true){
@@ -894,12 +923,15 @@ public class Node extends Activity {
      //   Log.e("ADDNODE", "moving up tree");
 
         while (!tree.nodeType.toString().equals(limit)){
-            Log.e("DEBUG", "Current node before = " + tree.nodeType.toString());
+            if(tree.nodeType == Node.Type.ROOT){
+                return null;
+            }
+          //  Log.e("DEBUG", "Current node before = " + tree.nodeType.toString());
             tree.isCurrentNode = false;
             tree.parent.isCurrentNode = true;
             tree = tree.parent;
 
-            Log.e("DEBUG", "Current node = " + tree.parent.nodeType.toString());
+          //  Log.e("DEBUG", "Current node = " + tree.parent.nodeType.toString());
 
         }
         return tree;
@@ -911,10 +943,10 @@ public class Node extends Activity {
         Node node;
         for(int i  = 0; i < limit; i++) {
             node = findCurNode(tree);
-            Log.d("DEBUG", "Current node before = " + node.nodeType.toString());
+      //      Log.d("DEBUG", "Current node before = " + node.nodeType.toString());
             node.isCurrentNode = false;
             node.parent.isCurrentNode = true;
-            Log.d("DEBUG", "Current node = " + node.parent.nodeType.toString());
+       //     Log.d("DEBUG", "Current node = " + node.parent.nodeType.toString());
         }
         return tree;
 
@@ -929,7 +961,7 @@ public class Node extends Activity {
         }else if(direction.equals("right")){
             node.right.isCurrentNode = true;
         }else{
-            Log.d("THERE", "IS A PROBLEM");
+       //     Log.d("THERE", "IS A PROBLEM");
         }
         return tree;
     }
@@ -944,7 +976,7 @@ public class Node extends Activity {
             } else if (direction.equals("right")) {
                 node.right.isCurrentNode = true;
             } else {
-                Log.d("THERE", "IS A PROBLEM");
+           //     Log.d("THERE", "IS A PROBLEM");
             }
             node = findCurNode(tree);
         }
