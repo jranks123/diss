@@ -23,7 +23,13 @@ public class VarVal extends Node {
         this.varNodeType = type;
         this.value = value;
     }
+
+
+    public void setVal(String value) {
+        this.value = value;
+    }
 }
+
 
 
  /*   public void doFunctionCallParams(Node currentNode) {

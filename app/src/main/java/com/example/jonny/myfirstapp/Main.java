@@ -1055,11 +1055,13 @@ public class Main extends Activity {
             }
     }
 
+
     public ArrayList<Node> removeOpFromArrayList(ArrayList<Node> array, Integer i, String value){
         int pos = i;
       //  array.set(pos, new VarVal(array.get(pos).parent.parent, VarVal.Type.STRING, value));
-        array.set(pos, new VarVal(null, VarVal.Type.STRING, value));
-        array.remove(pos-1);
+      //  array.set(pos, new VarVal(null, VarVal.Type.STRING, value)); TODO: removed this, if it fucks up put it back in
+        ((VarVal)array.get(i-1)).value = value;
+        array.remove(pos);
         array.remove(pos);
         return array;
     }
