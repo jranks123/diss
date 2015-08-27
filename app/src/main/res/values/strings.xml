@@ -18,7 +18,7 @@
     <string name="Return"><![CDATA[<font color = #000066><b>return </b></font>]]></string>
 
     <string name="forLoop"><![CDATA[<font color = #000066><b>for</b></font>( <font color = #000066><b>int  </b></font>]]></string>
-    <string name="function"><![CDATA[<font color = #000066><b>public </b></font>]]></string>
+    <string name="function"><![CDATA[<font color = #000066><b>function </b></font>]]></string>
     <string name="ifString"><![CDATA[<font color = #000066><b>if</b></font>&#40; ]]></string>
     <string name="elseString"><![CDATA[<font color = #000066><b>else</b>&#123; ]]></string>
     <string name="nullReturn"><![CDATA[<b><font color="red">-Please Enter Return Value-</font><b>]]></string>

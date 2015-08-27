@@ -141,7 +141,7 @@ public class Main extends Activity {
     Integer numberOfNewLines;
     String tempString1;
     String s;
-
+    Boolean isTest;
 
     Integer lineJustPressed;
 
@@ -154,6 +154,14 @@ public class Main extends Activity {
         //tree = tree.addNode(tree, Node.Type.NONE, "right", null);
         tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
         tree = tree.moveUpTreeLimit(tree, "ROOT");
+        isTest = false;
+        if(isTest){
+            btnTest.setVisibility(View.VISIBLE);
+            btnLogTree.setVisibility(View.VISIBLE);
+        }else{
+            btnTest.setVisibility(View.GONE);
+            btnLogTree.setVisibility(View.GONE);
+        }
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -471,6 +479,8 @@ public class Main extends Activity {
             }else{
                 return false;
             }
+
+
 
         }while(true);
 
@@ -1060,7 +1070,12 @@ public class Main extends Activity {
         int pos = i;
       //  array.set(pos, new VarVal(array.get(pos).parent.parent, VarVal.Type.STRING, value));
       //  array.set(pos, new VarVal(null, VarVal.Type.STRING, value)); TODO: removed this, if it fucks up put it back in
-        ((VarVal)array.get(i-1)).value = value;
+        try{
+            ((VarVal)array.get(i-1)).value = value;
+
+        }catch (ClassCastException e){
+            array.set(i-1, new VarVal(null, VarVal.Type.STRING, value));
+        }
         array.remove(pos);
         array.remove(pos);
         return array;
@@ -1380,7 +1395,7 @@ public class Main extends Activity {
                 } else if (treeNode.isXbeforeY(treeNode, Node.Type.PRINT, Node.Type.SEQ)) {
                     String value = "void";
                     value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
-                    output.append(value + "<br>");
+                    output.append(value + "\n");
                 } else if (treeNode.isXbeforeY(treeNode, Node.Type.RETURN, Node.Type.SEQ)) {
                     Node startFuncNode = treeNode.returnStartFuncNode(treeNode);
                     startFuncNode.left = startFuncNode.setRunForAllChildren(startFuncNode.left, false);
@@ -2754,7 +2769,8 @@ public class Main extends Activity {
 
                 Boolean test = false;
                 if(test) {
-                    output.setText("");
+
+                   // output.setText("");
                     output.append("A:" + (endTimeR - startTimeR) + "\n");
                     output.append("C:" + (endTimeR - startTimeR) + "\n");
                 }
@@ -3167,31 +3183,31 @@ public class Main extends Activity {
             openCurlysIndent.clear();
             varRunTree = new ArrayList<VarTree>();
             varRunTree.add(new VarTree(null));
-            output.setText("");
+            //output.setText("");
 
 
             startTimeA = System.nanoTime();
-                tree = checkNewLineNotDeleted();
+            tree = checkNewLineNotDeleted();
             endTimeA = System.nanoTime();
-             output.append((endTimeA - startTimeA) + " ns\n");
+           //  output.append((endTimeA - startTimeA) + " ns\n");
 
 
             startTimeA = System.nanoTime();
-                printTree(tree);
+            printTree(tree);
             endTimeA = System.nanoTime();
-            output.append((endTimeA - startTimeA)+ " ns\n");
+          //  output.append((endTimeA - startTimeA)+ " ns\n");
 
 
             startTimeA = System.nanoTime();
                 setCursorToEndOfCurrentLine(move);
             endTimeA = System.nanoTime();
-            output.append((endTimeA - startTimeA)+ " ns\n");
+         //   output.append((endTimeA - startTimeA)+ " ns\n");
 
 
             startTimeA = System.nanoTime();
                 doButtonLogic();
             endTimeA = System.nanoTime();
-            output.append((endTimeA - startTimeA)+ " ns\n");
+          //  output.append((endTimeA - startTimeA)+ " ns\n");
 
 
 
@@ -3573,6 +3589,8 @@ public class Main extends Activity {
 //TODO: can't do print j(var) if it's in a function -- DONE
 //TODO: seem to have problem with parameters, when i was doing complicated programs it looked like an int was being given value of "true"...maybe try retrying if not right type
 
+
+//TODO: check that all operators output to screen (<= didnt)
 
 //Thurs
 
