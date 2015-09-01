@@ -863,8 +863,6 @@ public class Main extends Activity {
                     code.append(getString(R.string.forLoop));
                     if(((Loops) tree).limiter != null){
                         openCurlysIndent.add(true);
-                        //addToVariablesArray();
-                       // varTree.addNode(varTree);
                         varRunTree.get(varRunTree.size() - 1).addNode(varRunTree.get(varRunTree.size() - 1));
 
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
@@ -873,9 +871,6 @@ public class Main extends Activity {
                             String name = ((Loops) tree).limiter.toString();
                             Variable v = new Variable(null, Variable.Type.INT, name, null );
                         varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(v);
-                         //   variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(v);
-                        //    variables.add(v);
-                       // }
                     }
                     if(((Loops) tree).lowerLim != null){
                         s = "<i>" + ((Loops) tree).limiter.toString() + "<i>";
@@ -931,11 +926,7 @@ public class Main extends Activity {
             //code.setText(codeText.substring(0, codeText.length() - 3));
             code.append("}");
         }
-        else if(nodeType == Node.Type.ENDPROGRAM){
-            // openLoopsIndent.remove(
-            // Indent.size() - 1);
-            code.append("<br>");
-        }
+
         else if(nodeType == Node.Type.VAR){
             if (((Variable)tree).name != null){
                 Boolean isGlobal = ((Variable) tree).isGlobal;
@@ -998,6 +989,9 @@ public class Main extends Activity {
         }
         else if(nodeType == Node.Type.IF){
             code.append(getString(R.string.ifString));
+
+
+
         }
         else if(nodeType == Node.Type.ELSE){
             //String codeText = code.getText().toString();
