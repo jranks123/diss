@@ -559,6 +559,46 @@ public class Main extends Activity {
     }
 
 
+
+    public boolean checkVarExistsParentsUsed(VarTree currentScope, String name){
+        try {
+            do {
+                for (int i = 0; i < currentScope.variablesUsed.size(); i++) {
+                    if (currentScope.variablesUsed.get(i).name.equals(name)) {
+                        return true;
+                    }
+                }
+                if (currentScope.parent != null) {
+                    currentScope = currentScope.parent;
+                } else {
+                    return false;
+                }
+
+            } while (true);
+        }catch(NullPointerException noParentsYet){
+            return false;
+        }
+    }
+
+    public boolean checkVarExistsChildrenUsed(VarTree currentScope, String name){
+        try {
+            for (int i = 0; i < currentScope.variablesUsed.size(); i++) {
+                if (currentScope.variablesUsed.get(i).name.equals(name)) {
+                    return true;
+                }
+            }
+            for (int i = 0; i < currentScope.children.size(); i++) {
+                if (checkVarExistsChildrenUsed(currentScope.children.get(i), name)) {
+                    return true;
+                }
+            }
+            return false;
+        }catch(NullPointerException noParentsYet){
+            return false;
+        }
+    }
+
+
     public boolean checkVarExists(String name){
         fillVariablesArrayToCurrentNode();
         VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
@@ -1112,15 +1152,19 @@ public class Main extends Activity {
         int pos = i;
       //  array.set(pos, new VarVal(array.get(pos).parent.parent, VarVal.Type.STRING, value));
       //  array.set(pos, new VarVal(null, VarVal.Type.STRING, value)); TODO: removed this, if it fucks up put it back in
-        try{
+     /*   try{
             ((VarVal)array.get(i-1)).value = value;
 
         }catch (ClassCastException e){
             array.set(i-1, new VarVal(null, VarVal.Type.STRING, value));
         }
         array.remove(pos);
+        array.remove(pos);*/
+        array.set(pos, new VarVal(null, VarVal.Type.STRING, value));
+        array.remove(pos-1);
         array.remove(pos);
         return array;
+
     }
 
     public int multWithOverflowCheck(int val, int val2) {
@@ -2042,6 +2086,15 @@ public class Main extends Activity {
                 }
             }
         }
+        if(nodeType == Node.Type.VAR){
+            if(!tree.isXbeforeY(treeNode, Node.Type.DEC, Node.Type.EVAL)) {
+                if (addVar) {
+                    Variable var = new Variable(null, null, ((Variable) treeNode).name, null);
+                    VarTree currentVarScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
+                    currentVarScope.variablesUsed.add(var);
+                }
+            }
+        }
         if(treeNode.isCurrentNode){
             setCurrentScope();
         }
@@ -2078,10 +2131,10 @@ public class Main extends Activity {
         if(!curNodeFound || fillFrom){
             visitNodeVarNew(node, fillFrom, curNodeFound);
             if (node.left != null) {
-                curNodeFound = runFillVarNew(node.left, curNodeFound,  fillFrom,fillFull, fillTo);
+                curNodeFound = runFillVarNew(node.left, curNodeFound, fillFrom, fillFull, fillTo);
             }
             if (node.right != null && (!curNodeFound || fillFrom)) {
-                curNodeFound = runFillVarNew(node.right, curNodeFound,  fillFrom, fillFull, fillTo);
+                curNodeFound = runFillVarNew(node.right, curNodeFound, fillFrom, fillFull, fillTo);
             }
         }
         return curNodeFound;
@@ -2138,6 +2191,7 @@ public class Main extends Activity {
         Boolean fillFrom = true;
         runFillVarNew(tree, false, fillFrom, fillFull, fillTo);
     }
+
 
 
 
@@ -2733,10 +2787,10 @@ public class Main extends Activity {
                             for (int i = 0; i < vars.size(); i++) {
                                 fillVariablesArrayFromCurrentNode();
                                 currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-                                if(checkVarExistsParents(currentScope, vars.get(i))){
+                                if(checkVarExistsParentsUsed(currentScope, vars.get(i))){
                                     varUsed = true;
                                 }
-                                else if(checkVarExistsChildren(currentScope, vars.get(i))){
+                                else if(checkVarExistsChildrenUsed(currentScope, vars.get(i))){
                                     varUsed = true;
                                 }
 
@@ -2759,7 +2813,14 @@ public class Main extends Activity {
                     showElse();
 
 
+                }else{
+                    tree = tree.delete(tree, lineJustPressed);
+                    btnDelete.setVisibility(View.VISIBLE);
+                    btnUpLine.setVisibility(View.VISIBLE);
+                    btnDownLine.setVisibility(View.VISIBLE);
+                    showElse();
                 }
+
 
                 break;
 

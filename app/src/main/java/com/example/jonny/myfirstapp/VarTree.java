@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class VarTree extends Activity {
     ArrayList<VarTree> children;
     ArrayList<Variable> variables;
+    ArrayList<Variable> variablesUsed;
     VarTree parent;
     Boolean tempCurrentScope;
     Boolean isCurrentScope;
@@ -17,6 +18,7 @@ public class VarTree extends Activity {
     public VarTree(VarTree another, Boolean copy) {
         this.children = another.children; // you can access
         this.variables = another.variables;
+        this.variables = another.variablesUsed;
         this.parent = another.parent;
         this.tempCurrentScope = another.tempCurrentScope;
         this.isCurrentScope = another.isCurrentScope;
@@ -26,6 +28,7 @@ public class VarTree extends Activity {
         this.parent = parent;
         this.children = new ArrayList<VarTree>();
         this.variables = new ArrayList<Variable>();
+        this.variablesUsed = new ArrayList<Variable>();
         this.tempCurrentScope = true;
         this.isCurrentScope = false;
     }

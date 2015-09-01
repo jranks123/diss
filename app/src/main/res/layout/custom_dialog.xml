@@ -11,21 +11,6 @@
         android:layout_height="wrap_content"
         android:text="Please enter a valid value" />
 
-    <Button
-    android:id="@+id/YesButton"
-    android:layout_marginTop="15dp"
-    android:layout_weight="1"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="Yes" />
-
-    <Button
-        android:id="@+id/NoButton"
-        android:layout_marginTop="15dp"
-        android:layout_weight="1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="No" />
 
 
 
