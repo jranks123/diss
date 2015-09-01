@@ -23,7 +23,7 @@ import java.util.ArrayList;
 
 public class Main extends Activity {
 
-    VarTree varTree;
+   // VarTree varTree;
     ArrayList<VarTree> varRunTree;
     Node tree;
     Button btnTest;
@@ -516,39 +516,52 @@ public class Main extends Activity {
 
 
     public boolean checkVarExistsParents(VarTree currentScope, String name){
-        do {
-            for(int i = 0; i < currentScope.variables.size(); i++) {
+        try {
+            do {
+                for (int i = 0; i < currentScope.variables.size(); i++) {
+                    if (currentScope.variables.get(i).name.equals(name)) {
+                        return true;
+                    }
+                }
+                if (currentScope.parent != null) {
+                    currentScope = currentScope.parent;
+                } else {
+                    return false;
+                }
+
+            } while (true);
+        }catch(NullPointerException noParentsYet){
+            return false;
+        }
+    }
+
+    public boolean checkVarExistsChildren(VarTree currentScope, String name){
+        try {
+            for (int i = 0; i < currentScope.variables.size(); i++) {
                 if (currentScope.variables.get(i).name.equals(name)) {
                     return true;
                 }
             }
-            if(currentScope.parent != null) {
-                currentScope = currentScope.parent;
-            }else{
-                return false;
+            for (int i = 0; i < currentScope.children.size(); i++) {
+                if (checkVarExistsChildren(currentScope.children.get(i), name)) {
+                    return true;
+                }
             }
-
-        }while(true);
-    }
-
-    public boolean checkVarExistsChildren(VarTree currentScope, String name){
-        for(int i = 0; i < currentScope.variables.size(); i++) {
-            if (currentScope.variables.get(i).name.equals(name)) {
-                return true;
-            }
+            return false;
+        }catch(NullPointerException noParentsYet){
+            return false;
         }
-        for(int i = 0; i < currentScope.children.size(); i++){
-            if(checkVarExistsChildren(currentScope.children.get(i), name)){
-                return true;
-            }
-        }
-        return false;
     }
 
 
     public boolean checkVarExists(String name){
-        fillVariablesArrayFull();
-        VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findCurVarNode(varRunTree.get(varRunTree.size() - 1));
+        fillVariablesArrayToCurrentNode();
+        VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
+        if(checkVarExistsParents(currentScope, name)){
+            return true;
+        }
+        fillVariablesArrayFromCurrentNode();
+        currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
         if(checkVarExistsParents(currentScope, name)){
             return true;
         }
@@ -767,6 +780,7 @@ public class Main extends Activity {
                     type = v.varNodeType;
                     //if (!checkVarExists(v.name)) {
                             Variable var = new Variable(null, type, v.name, null);
+
                         varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1)).variables.add(var);
                            // variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
 
@@ -1814,6 +1828,32 @@ public class Main extends Activity {
 
 
 
+    public void addToVariablesArray(){
+        try {
+            variablesArray.get(functionDimensions.size()).add(new ArrayList<Variable>());
+        } catch (IndexOutOfBoundsException e){
+            variablesArray.add(new ArrayList<ArrayList<Variable>>());
+            variablesArray.get(functionDimensions.size()).add(new ArrayList<Variable>());
+        }
+    }
+
+    public void addFunctionDimension(){
+        ArrayList<Variable> globals = varRunTree.get(0).variables;
+        varRunTree.add(new VarTree(null));
+        //varRunTree.get(0).variables = globals;
+        varRunTree.get(varRunTree.size()-1).variables = globals;
+
+       /* functionDimensions.add(true);
+        variablesArray.add(new ArrayList<ArrayList<Variable>>());
+        ArrayList<Variable> globals = variablesArray.get(0).get(0);
+        variablesArray.get(functionDimensions.size()).add(globals);*/
+    }
+
+    public void removeFunctionDimension(){
+     /*   functionDimensions.remove(functionDimensions.size() - 1);
+        variablesArray.remove(variablesArray.size() - 1);*/
+        varRunTree.remove(varRunTree.size() - 1);
+    }
 
 
 
@@ -1842,7 +1882,11 @@ public class Main extends Activity {
     }
 
 
-    public void visitNodeVarNew(Node treeNode) {
+    public void visitNodeVarNew(Node treeNode, Boolean fillFrom, Boolean foundCurrent) {
+        Boolean addVar= false;
+        if((fillFrom && foundCurrent)|| !fillFrom){
+            addVar = true;
+        }
         Node.Type nodeType = treeNode.nodeType;
         if (nodeType == Node.Type.SMCLN) {
             Variable.Type type = null;
@@ -1855,22 +1899,31 @@ public class Main extends Activity {
                 }
                 type = v.varNodeType;
               //  if (!checkVarExists(v.name)) {
+
+               //     showInvalidAlert("A");
                     Variable var = new Variable(null, type, v.name, null);
                     VarTree currentVarScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-                    currentVarScope.variables.add(var);
-                   // variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
-               // }
+                    if(addVar) {
+                        currentVarScope.variables.add(var);
+                    }
+                    // variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(var);
+                    // }
+
             }
 
         } else if(nodeType == Node.Type.ENDPARAM){  //TODO: THIS IS BEING CALLED LIKE 5 TIMES WHEN IT SHOULD JUST BE CALLED ONCE
-            Variable v; //TODO: make this account for varvals and functioncalls
-            v = treeNode.returnDecVar(treeNode);
-            Variable.Type type = v.varNodeType;
-            Variable var = new Variable(null, type, v.name, null);
-            VarTree currentVarScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-            currentVarScope.variables.add(var);
-            Node functionNode = treeNode.returnFunctionNode(treeNode);
-            ((Function)functionNode).parameters.add(var);
+
+                Variable v; //TODO: make this account for varvals and functioncalls
+                v = treeNode.returnDecVar(treeNode);
+                Variable.Type type = v.varNodeType;
+                Variable var = new Variable(null, type, v.name, null);
+                VarTree currentVarScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
+                if(addVar) {
+                    currentVarScope.variables.add(var);
+                }
+                Node functionNode = treeNode.returnFunctionNode(treeNode);
+                ((Function) functionNode).parameters.add(var);
+
 
 
         }
@@ -1912,7 +1965,9 @@ public class Main extends Activity {
                             String name = ((Loops) treeNode).limiter.toString();
                             Variable v = new Variable(null, Variable.Type.INT, name, null);
                             VarTree currentVarScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-                            currentVarScope.variables.add(v);
+                            if(addVar) {
+                                currentVarScope.variables.add(v);
+                            }
                            // variablesArray.get(functionDimensions.size()).get(openCurlysIndent.size()).add(v);
                         //}
                     }
@@ -1976,49 +2031,23 @@ public class Main extends Activity {
 
 
 
-    public void addToVariablesArray(){
-        try {
-            variablesArray.get(functionDimensions.size()).add(new ArrayList<Variable>());
-        } catch (IndexOutOfBoundsException e){
-            variablesArray.add(new ArrayList<ArrayList<Variable>>());
-            variablesArray.get(functionDimensions.size()).add(new ArrayList<Variable>());
-        }
-    }
-
-    public void addFunctionDimension(){
-        ArrayList<Variable> globals = varRunTree.get(0).variables;
-        varRunTree.add(new VarTree(null));
-        //varRunTree.get(0).variables = globals;
-        varRunTree.get(varRunTree.size()-1).variables = globals;
-
-       /* functionDimensions.add(true);
-        variablesArray.add(new ArrayList<ArrayList<Variable>>());
-        ArrayList<Variable> globals = variablesArray.get(0).get(0);
-        variablesArray.get(functionDimensions.size()).add(globals);*/
-    }
-
-    public void removeFunctionDimension(){
-     /*   functionDimensions.remove(functionDimensions.size() - 1);
-        variablesArray.remove(variablesArray.size() - 1);*/
-        varRunTree.remove(varRunTree.size() - 1);
-    }
 
 
 
 
-    public Boolean runFillVarNew(Node node,  Boolean curNodeFound, Boolean fullFill, Boolean fillFrom){
-        if(!fullFill) {
+    public Boolean runFillVarNew(Node node,  Boolean curNodeFound,  Boolean fillFrom, Boolean fillFull, Boolean fillTo){
+        if(fillFrom || fillTo) {
             if (node.isCurrentNode == true) {
                 curNodeFound = true;
             }
         }
-        if(!curNodeFound) {
-            visitNodeVarNew(node);
+        if(!curNodeFound || fillFrom){
+            visitNodeVarNew(node, fillFrom, curNodeFound);
             if (node.left != null) {
-                curNodeFound = runFillVarNew(node.left, curNodeFound, fullFill, fillFrom);
+                curNodeFound = runFillVarNew(node.left, curNodeFound,  fillFrom,fillFull, fillTo);
             }
-            if (node.right != null && !curNodeFound) {
-                curNodeFound = runFillVarNew(node.right, curNodeFound, fullFill, fillFrom);
+            if (node.right != null && (!curNodeFound || fillFrom)) {
+                curNodeFound = runFillVarNew(node.right, curNodeFound,  fillFrom, fillFull, fillTo);
             }
         }
         return curNodeFound;
@@ -2047,7 +2076,10 @@ public class Main extends Activity {
         //varTree = new VarTree(null);
         openCurlysIndent.clear();
         tree = tree.clearFunctionParams(tree);
-        runFillVarNew(tree, false, false, false);
+        Boolean fillTo = true;
+        Boolean fillFull = false;
+        Boolean fillFrom = false;
+        runFillVarNew(tree, false, fillFrom, fillFull, fillTo);
     }
 
     public void fillVariablesArrayFull(){
@@ -2056,7 +2088,10 @@ public class Main extends Activity {
         varRunTree.add(new VarTree(null));
         openCurlysIndent.clear();
         tree = tree.clearFunctionParams(tree);
-        runFillVarNew(tree, false, true, false);
+        Boolean fillTo = false;
+        Boolean fillFull = true;
+        Boolean fillFrom = false;
+        runFillVarNew(tree, false, fillFrom, fillFull, fillTo);
     }
 
     public void fillVariablesArrayFromCurrentNode(){
@@ -2064,8 +2099,10 @@ public class Main extends Activity {
         varRunTree.add(new VarTree(null));
         openCurlysIndent.clear();
         tree = tree.clearFunctionParams(tree);
-        runFillVarNew(tree, false, true, true);
-
+        Boolean fillTo = false;
+        Boolean fillFull = false;
+        Boolean fillFrom = true;
+        runFillVarNew(tree, false, fillFrom, fillFull, fillTo);
     }
 
 
