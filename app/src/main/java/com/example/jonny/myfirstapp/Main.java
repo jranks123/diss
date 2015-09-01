@@ -159,7 +159,7 @@ public class Main extends Activity {
         //tree = tree.addNode(tree, Node.Type.NONE, "right", null);
         tree = tree.addNode(tree, Node.Type.NEWLINE, "right", null);
         tree = tree.moveUpTreeLimit(tree, "ROOT");
-        isTest = false;
+        isTest = true;
         if(isTest){
             btnTest.setVisibility(View.VISIBLE);
             btnLogTree.setVisibility(View.VISIBLE);
@@ -510,7 +510,7 @@ public class Main extends Activity {
     }
 
     public Boolean checkIfAnyFunctionsExist(){
-        fillFunctionsArray();
+        fillFunctionsArrayUpToCurrentNode();
         if(functionsArray.size() > 0){
             return true;
         }
@@ -576,6 +576,7 @@ public class Main extends Activity {
 
             } while (true);
         }catch(NullPointerException noParentsYet){
+
             return false;
         }
     }
@@ -599,7 +600,12 @@ public class Main extends Activity {
     }
 
 
+
+
     public boolean checkVarExists(String name){
+        if(tree.isInFunction(tree.findCurNode(tree))){
+            Boolean isFunc = true;
+        }
         fillVariablesArrayToCurrentNode();
         VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
         if(checkVarExistsParents(currentScope, name)){
@@ -613,9 +619,10 @@ public class Main extends Activity {
         if(checkVarExistsChildren(currentScope, name)){
             return true;
         }
+        int i = 0;
         return false;
     }
-
+    int i = 0;
 
 
 
@@ -746,7 +753,7 @@ public class Main extends Activity {
     }
 
 
-    public void yesNo(){
+    public void yesNo(ArrayList<String>vars){
         final Dialog dialog = new Dialog(this);
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -754,6 +761,7 @@ public class Main extends Activity {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
                         tree = tree.delete(tree, lineJustPressed);
+                        printTree(tree);
                         break;
 
                     case DialogInterface.BUTTON_NEGATIVE:
@@ -763,8 +771,9 @@ public class Main extends Activity {
             }
         };
 
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("This sequence contains variable declarations used later in this scope. Are you sure you want to delete it?").setPositiveButton("Yes", dialogClickListener)
+        builder.setMessage("The variable declared here is used later in this scope. Are you sure you want to delete it?").setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
 
     }
@@ -1113,7 +1122,9 @@ public class Main extends Activity {
                         String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
                         parameterStack.add(0, value);
                     }
-                    runCode(n);
+                    ((FunctionCall) node).parameters.remove(((FunctionCall) node).parameters.size()-1);
+
+                runCode(n);
                     String value = returnValueStack.get(returnValueStack.size() - 1);
                     returnValueStack.remove(returnValueStack.size() - 1);
                     removeFunctionDimension();
@@ -1561,6 +1572,8 @@ public class Main extends Activity {
                         String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
                         parameterStack.add(0, value);
                     }
+
+                   ((FunctionCall) funcCall).parameters.remove(((FunctionCall) funcCall).parameters.size()-1);
                     runCode(n);
                     if (((FunctionCall) funcCall).type != FunctionCall.Type.VOID) {
                         returnValueStack.remove(returnValueStack.size() - 1);
@@ -1595,8 +1608,7 @@ public class Main extends Activity {
                 }
 
                 Node functionCallNode = tree.returnFunctionCallNodeParam(treeNode);
-                (((FunctionCall) functionCallNode).parameters).add(paramArray);
-
+                    (((FunctionCall) functionCallNode).parameters).add(paramArray);
             }
         }
     }
@@ -2236,7 +2248,7 @@ public class Main extends Activity {
         funcButtons.clear();
         Node.Type nodeType = tree.findCurNode(tree).nodeType;
         LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
-        fillFunctionsArray();
+        fillFunctionsArrayUpToCurrentNode();
             for (int i = 0; i < functionsArray.size(); i++) {
                 if (funcType == null || functionsArray.get(i).funcType == funcType) {
                     final Button b = new Button(this);
@@ -2299,7 +2311,6 @@ public class Main extends Activity {
         inputManager.hideSoftInputFromWindow((null == getCurrentFocus()) ? null : getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-
     public void showVarButtons(Variable.Type varType){
         varButtons.clear();
         Node.Type nodeType = tree.findCurNode(tree).nodeType;
@@ -2311,7 +2322,7 @@ public class Main extends Activity {
         LinearLayout ll = (LinearLayout) findViewById(R.id.buttons);
         //fillVariablesArray();
         fillVariablesArrayToCurrentNode();
-        fillFunctionsArray();
+        fillFunctionsArrayUpToCurrentNode();
         VarTree currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
         doButtonSetUp(ll, varType, currentScope.variables);
         while(currentScope.parent != null){
@@ -2768,6 +2779,23 @@ public class Main extends Activity {
                 Node currentNd = tree.findCurNode(tree);
                 Node.Type currentNodeType = currentNd.nodeType;
                 Boolean canDelete = true;
+                ArrayList<String> vars = currentNd.searchDownTree(currentNd.left, Node.Type.DEC, new ArrayList<String>());
+                int varSize = vars.size();
+                VarTree currentScope;
+                Boolean varUsed = false;
+                if (varSize > 0) {
+                    varUsed = false;
+                    for (int i = 0; i < vars.size(); i++) {
+                        fillVariablesArrayFromCurrentNode();
+                        currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
+                        if (checkVarExistsParentsUsed(currentScope, vars.get(i))) {
+                            varUsed = true;
+                        } else if (checkVarExistsChildrenUsed(currentScope, vars.get(i))) {
+                            varUsed = true;
+                        }
+
+                    }
+                }
                 if (currentNodeType == Node.Type.SEQ) {
                     if (currentNd.left.nodeType == Node.Type.NEWLINE) {
                         if (((Newline) currentNd.left).newlineNodeType == Newline.Type.RETURN) {
@@ -2777,44 +2805,24 @@ public class Main extends Activity {
                             }
                         }
                     }
-                    if (canDelete) {
-                        //Check if deleting
-                       ArrayList<String> vars = currentNd.searchDownTree(currentNd.left, Node.Type.DEC, new ArrayList<String>());
-                        int varSize = vars.size();
-                        VarTree currentScope;
-                        if (varSize > 0) {
-                            Boolean varUsed = false;
-                            for (int i = 0; i < vars.size(); i++) {
-                                fillVariablesArrayFromCurrentNode();
-                                currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
-                                if(checkVarExistsParentsUsed(currentScope, vars.get(i))){
-                                    varUsed = true;
-                                }
-                                else if(checkVarExistsChildrenUsed(currentScope, vars.get(i))){
-                                    varUsed = true;
-                                }
+                }
 
-                            }
-                            if(varUsed) {
-                                yesNo();
-                                printTree(tree);
-                            }
+                if (canDelete) {
+                    //Check if deleting
 
-
-                        }else{
+                    if(varUsed) {
+                        yesNo(vars);
+                        printTree(tree);
+                    }else {
                             tree = tree.delete(tree, lineJustPressed);
+                            btnDelete.setVisibility(View.VISIBLE);
+                            btnUpLine.setVisibility(View.VISIBLE);
+                            btnDownLine.setVisibility(View.VISIBLE);
+                        showElse();
+                            printTree(tree);
                         }
 
-
-                    }
-                    btnDelete.setVisibility(View.VISIBLE);
-                    btnUpLine.setVisibility(View.VISIBLE);
-                    btnDownLine.setVisibility(View.VISIBLE);
-                    showElse();
-
-
                 }else{
-                    tree = tree.delete(tree, lineJustPressed);
                     btnDelete.setVisibility(View.VISIBLE);
                     btnUpLine.setVisibility(View.VISIBLE);
                     btnDownLine.setVisibility(View.VISIBLE);
@@ -2938,7 +2946,7 @@ public class Main extends Activity {
 
                 long endTimeR = System.nanoTime();
                 Log.d("Took " + (endTimeR - startTimeR), " ns");
-
+                parameterStack = new ArrayList<String>();
                 errorStack = new ArrayList<String>();
                 output.setText("");
                 varRunTree = new ArrayList<VarTree>();
@@ -2959,7 +2967,7 @@ public class Main extends Activity {
                 }
                 //  clearVar();
                 if(errorStack.size() > 0 ){
-                    output.setText(" ");
+                //    output.setText(" ");
                     for(int i = 0; i < errorStack.size(); i++){
                         output.append(errorStack.get(i));
                     }
@@ -3079,7 +3087,14 @@ public class Main extends Activity {
               //  Log.d("DEBUG", "PRESS ;");
                 currentNode = tree.findCurNode(tree);
                 if(tree.isXbeforeY(currentNode, Node.Type.RETURN, Node.Type.SEQ)) {
-                    tree = tree.addNode(tree, Node.Type.SMCLN, "right", "RETURN");
+                 //   tree = tree.addNode(tree, Node.Type.SMCLN, "right", "RETURN");
+                    while(currentNode.right != null){
+                        currentNode.isCurrentNode = false;
+                        currentNode.right.isCurrentNode = true;
+                        currentNode.root.currentNode = currentNode.right;
+                        currentNode = currentNode.right;
+                    }
+                    tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                 }else if(currentNode.nodeType == Node.Type.FUNCCALL) {
                     while(currentNode.right != null){
                         currentNode.isCurrentNode = false;
@@ -3090,6 +3105,12 @@ public class Main extends Activity {
                     tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                 }else{
 
+                    while(currentNode.right != null){
+                        currentNode.isCurrentNode = false;
+                        currentNode.right.isCurrentNode = true;
+                        currentNode.root.currentNode = currentNode.right;
+                        currentNode = currentNode.right;
+                    }
                     tree = tree.addNode(tree, Node.Type.SMCLN, "right", null);
                 }
                 tree = tree.moveUpTreeLimit(tree, "SEQ");
@@ -3629,7 +3650,7 @@ public class Main extends Activity {
         else if (currentNodeType == Node.Type.FUNCTION) {
             if(!isOutsideAllBrackets()){
                 if(!checkIfAnyFunctionsExist()){
-                    showInvalidAlert("No functions to call, functions must be delcared outside any open curly brackets");
+                    showInvalidAlert("No functions to call, functions must be delcared outside any open curly brackets and above currnet line");
                     tree = tree.moveUpTreeLimit(tree, "SEQ");
                     Node node = tree.findCurNode(tree);
                     node.left = null;

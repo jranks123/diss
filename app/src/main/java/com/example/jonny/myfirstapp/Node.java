@@ -997,10 +997,12 @@ public class Node extends Activity {
     }
 
     public ArrayList<String> searchDownTree(Node tree, Node.Type type, ArrayList<String> vars){
+        if(tree == null){
+            return vars;
+        }
         if(tree.nodeType == type){
-            if(tree.parent.parent.nodeType != Node.Type.SEQ) {
                 vars.add(((Variable) tree.left).name);
-            }
+
         }
         if(tree.left != null){
             vars = searchDownTree(tree.left, type, vars);
