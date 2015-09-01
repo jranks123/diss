@@ -996,6 +996,19 @@ public class Node extends Activity {
 
     }
 
+    public ArrayList<String> searchDownTree(Node tree, Node.Type type, ArrayList<String> vars){
+        if(tree.nodeType == type){
+            vars.add(((Variable)tree.left).name);
+        }
+        if(tree.left != null){
+            vars = searchDownTree(tree.left, type, vars);
+        }
+        if(tree.right != null){
+            vars = searchDownTree(tree.right, type, vars);
+        }
+        return vars;
+    }
+
 
 
     public Node removeChildren(Node tree, String direction){

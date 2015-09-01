@@ -2,14 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
-    <!--Alerts-->
-    <Button
-        android:id="@+id/alertInvalidValue"
-        android:layout_marginTop="15dp"
-        android:layout_weight="1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Please enter a valid value" />
 
     <Button
     android:id="@+id/YesButton"

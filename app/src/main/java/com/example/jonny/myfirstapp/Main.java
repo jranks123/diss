@@ -4,8 +4,10 @@ package com.example.jonny.myfirstapp;
  * Created by Jonny on 19/03/2015.
  */
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Layout;
@@ -62,6 +64,9 @@ public class Main extends Activity {
     Button btnForPlus;
     Button btnForMinus;
     Button btnForEndLoop;
+
+    Boolean yes;
+    Boolean no;
 
     Button btnOperator;
     Button btnOperatorAdd;
@@ -699,6 +704,35 @@ public class Main extends Activity {
             });
             dialog.show();
     }
+
+
+    public void yesNo(){
+        final Dialog dialog = new Dialog(this);
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case DialogInterface.BUTTON_POSITIVE:
+                        tree = tree.delete(tree, lineJustPressed);
+                        break;
+
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        //No button clicked
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("This sequence contains variable declarations used later in this scope. Are you sure you want to delete it?").setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+
+    }
+
+
+
+
+
 
 
 
@@ -1673,9 +1707,9 @@ public class Main extends Activity {
 
                 }
             } catch (StackOverflowError e) {
-                errorStack.add("A recursive function caused an error as it looped forever");
+                errorStack.add("A recursive function caused an error as it looped foreverr");
             } catch (ArrayIndexOutOfBoundsException e) {
-                errorStack.add("A recursive function caused an error as it looped forever");
+                errorStack.add("A recursive function caused an error as it looped foreverr");
             }
         }
     }
@@ -2689,14 +2723,44 @@ public class Main extends Activity {
                             }
                         }
                     }
+                    if (canDelete) {
+                        //Check if deleting
+                       ArrayList<String> vars = currentNd.searchDownTree(currentNd.left, Node.Type.DEC, new ArrayList<String>());
+                        int varSize = vars.size();
+                        VarTree currentScope;
+                        if (varSize > 0) {
+                            Boolean varUsed = false;
+                            for (int i = 0; i < vars.size(); i++) {
+                                fillVariablesArrayFromCurrentNode();
+                                currentScope = varRunTree.get(varRunTree.size() - 1).findTempCurVarNode(varRunTree.get(varRunTree.size() - 1));
+                                if(checkVarExistsParents(currentScope, vars.get(i))){
+                                    varUsed = true;
+                                }
+                                else if(checkVarExistsChildren(currentScope, vars.get(i))){
+                                    varUsed = true;
+                                }
+
+                            }
+                            if(varUsed) {
+                                yesNo();
+                                printTree(tree);
+                            }
+
+
+                        }else{
+                            tree = tree.delete(tree, lineJustPressed);
+                        }
+
+
+                    }
+                    btnDelete.setVisibility(View.VISIBLE);
+                    btnUpLine.setVisibility(View.VISIBLE);
+                    btnDownLine.setVisibility(View.VISIBLE);
+                    showElse();
+
+
                 }
-                if (canDelete) {
-                    tree = tree.delete(tree, lineJustPressed);
-                }
-                btnDelete.setVisibility(View.VISIBLE);
-                btnUpLine.setVisibility(View.VISIBLE);
-                btnDownLine.setVisibility(View.VISIBLE);
-                showElse();
+
                 break;
 
             case R.id.btnSetEvalTypeInt:
