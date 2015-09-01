@@ -760,11 +760,19 @@
     </LinearLayout>
     </HorizontalScrollView>
 
-        <LinearLayout
-            android:orientation="horizontal"
+
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.33"
+            android:fillViewport="true"
+            >
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:id="@+id/Runbutton"
             android:background="#5882FA"
             android:gravity="center" >
@@ -832,6 +840,7 @@
 
 
         </LinearLayout>
-       </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
 
 </LinearLayout>

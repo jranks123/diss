@@ -1075,6 +1075,19 @@ public class Main extends Activity {
         return array;
     }
 
+    public int multWithOverflowCheck(int val, int val2) {
+        long result = ((long) val) * val2;
+        Integer lineNumber = tree.getLineNumberOfCurrentNode(tree.findCurNode(tree));
+        if (result > Integer.MAX_VALUE) {
+           errorStack.add("Integer overflow occured on line number " + lineNumber);
+        } else if (result < Integer.MIN_VALUE) {
+            errorStack.add("Integer underflow occured on line number " + lineNumber);
+        }
+
+        return (int) result;
+    }
+
+
 
     public ArrayList<Node> evalDivAndMul(ArrayList<Node> array){
         Node node;
@@ -1090,7 +1103,8 @@ public class Main extends Activity {
                     value = String.valueOf((Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))) % Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)))));
                     removeOpFromArrayList(array, i, value);
                 } else if (((Operator) node).opNodeType == Operator.Type.MULTI) {
-                    value = String.valueOf((Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))) * Integer.parseInt(getValueOfExpressionNode(array.get(i + 1)))));
+                    Integer b = multWithOverflowCheck(Integer.parseInt(getValueOfExpressionNode(array.get(i - 1))),   Integer.parseInt(getValueOfExpressionNode(array.get(i + 1))));
+                    value = String.valueOf(b);
                     removeOpFromArrayList(array, i, value);
                 }else{
                     i++;
@@ -1102,6 +1116,8 @@ public class Main extends Activity {
 
         return array;
     }
+
+
 
     public ArrayList<Node> evalAddAndSub(ArrayList<Node> array){
         Node node;
@@ -1330,7 +1346,8 @@ public class Main extends Activity {
         try {
             return getValueOfExpressionNode(evaluateArray(array).get(0));
         }catch(ArithmeticException e){
-            errorStack.add("Error: tried to divide by 0");
+            Integer line = tree.getLineNumberOfCurrentNode(tree.findCurNode(tree));
+            errorStack.add("Error: tried to divide by 0 on line " + line);
             return "";
         }
     }
@@ -1989,7 +2006,7 @@ public class Main extends Activity {
 
 
 
-    public Boolean runFillVarNew(Node node,  Boolean curNodeFound, Boolean fullFill){
+    public Boolean runFillVarNew(Node node,  Boolean curNodeFound, Boolean fullFill, Boolean fillFrom){
         if(!fullFill) {
             if (node.isCurrentNode == true) {
                 curNodeFound = true;
@@ -1998,10 +2015,10 @@ public class Main extends Activity {
         if(!curNodeFound) {
             visitNodeVarNew(node);
             if (node.left != null) {
-                curNodeFound = runFillVarNew(node.left, curNodeFound, fullFill);
+                curNodeFound = runFillVarNew(node.left, curNodeFound, fullFill, fillFrom);
             }
             if (node.right != null && !curNodeFound) {
-                curNodeFound = runFillVarNew(node.right, curNodeFound, fullFill);
+                curNodeFound = runFillVarNew(node.right, curNodeFound, fullFill, fillFrom);
             }
         }
         return curNodeFound;
@@ -2030,7 +2047,7 @@ public class Main extends Activity {
         //varTree = new VarTree(null);
         openCurlysIndent.clear();
         tree = tree.clearFunctionParams(tree);
-        runFillVarNew(tree, false, false);
+        runFillVarNew(tree, false, false, false);
     }
 
     public void fillVariablesArrayFull(){
@@ -2039,8 +2056,18 @@ public class Main extends Activity {
         varRunTree.add(new VarTree(null));
         openCurlysIndent.clear();
         tree = tree.clearFunctionParams(tree);
-        runFillVarNew(tree, false, true);
+        runFillVarNew(tree, false, true, false);
     }
+
+    public void fillVariablesArrayFromCurrentNode(){
+        varRunTree = new ArrayList<VarTree>();
+        varRunTree.add(new VarTree(null));
+        openCurlysIndent.clear();
+        tree = tree.clearFunctionParams(tree);
+        runFillVarNew(tree, false, true, true);
+
+    }
+
 
 
 
@@ -3272,6 +3299,7 @@ public class Main extends Activity {
                 btnNewVarString.setVisibility(View.VISIBLE);
                 btnNewVarBool.setVisibility(View.VISIBLE);
             } else {
+                edtEnterString.setText("");
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnEnterVarName.setVisibility(View.VISIBLE);
             }
@@ -3297,7 +3325,7 @@ public class Main extends Activity {
                 }else {
                     //For declaring a new variable
                     btnEquals.setVisibility(View.VISIBLE);
-                    showSemicolonButton();
+                 //   showSemicolonButton();
                 }
             }
         } else if (currentNodeType == Node.Type.PRINT) {
@@ -3306,6 +3334,7 @@ public class Main extends Activity {
         } else if (currentNodeType == Node.Type.VARVAL) {
             Node varVal = currentNode;
             if (((VarVal) varVal).value == null) {
+                edtEnterString.setText("");
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnEnterVarValue.setVisibility(View.VISIBLE);
                 //for Booleans
@@ -3323,15 +3352,18 @@ public class Main extends Activity {
 
         } else if (currentNodeType == Node.Type.FORLOOP) {
             if (((Loops) currentNode).limiter == null) {
+                edtEnterString.setText("");
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnForNewVarEnter.setVisibility(View.VISIBLE);
             } else if (((Loops) currentNode).lowerLim == null) {
+                edtEnterString.setText("");
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnForNewVarValueEnter.setVisibility(View.VISIBLE);
             } else if (((Loops) currentNode).operator == null) {
                 btnForLess.setVisibility(View.VISIBLE);
                 btnForGreater.setVisibility(View.VISIBLE);
             } else if (((Loops) currentNode).upperLim == null) {
+                edtEnterString.setText("");
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnForNewVarValueUpperEnter.setVisibility(View.VISIBLE);
             } else if (((Loops) currentNode).plusOrMinus == null) {
@@ -3459,6 +3491,7 @@ public class Main extends Activity {
                 btnFuncVoid.setVisibility(View.VISIBLE);
 
             }else if(((Function)currentNode).name == null){
+                edtEnterString.setText("");
                 edtEnterString.setVisibility(View.VISIBLE);
                 btnEnterFuncName.setVisibility(View.VISIBLE);
             }else if(((Function)currentNode).paramsFinished == false){
