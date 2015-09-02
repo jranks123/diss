@@ -785,9 +785,6 @@ public class Main extends Activity {
 
 
 
-
-
-
     public void indent(Integer handicap){
        // int loop = openLoopsIndent.size() + openIfsIndent.size();
         int loop = openCurlysIndent.size();
