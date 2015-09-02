@@ -785,6 +785,9 @@ public class Main extends Activity {
 
 
 
+
+
+
     public void indent(Integer handicap){
        // int loop = openLoopsIndent.size() + openIfsIndent.size();
         int loop = openCurlysIndent.size();
@@ -1468,8 +1471,8 @@ public class Main extends Activity {
 
 
 
-    public void visitNodeRun(Node treeNode){
-        if(errorStack.size() == 0) {
+    public void visitNodeRun(Node treeNode) {
+        if (errorStack.size() == 0) {
             //  try {
             if (treeNode.nodeType == Node.Type.SMCLN) {
                 if (treeNode.isXbeforeY(treeNode, Node.Type.DEC, Node.Type.SEQ)) {
@@ -1488,7 +1491,7 @@ public class Main extends Activity {
                         String value = evaluate(treeNode.returnEvalNode(treeNode), Node.Type.SMCLN);
                         //updateVariableValue(value, name, type);
                         updateVariableValueNew(value, name);
-                     //   Log.d("Value is ", value);
+                        //   Log.d("Value is ", value);
                     }
                 } else if (treeNode.isXbeforeY(treeNode, Node.Type.ASSIGN, Node.Type.SEQ)) {
                     Variable v = treeNode.returnAssignVar(treeNode);
@@ -1536,7 +1539,7 @@ public class Main extends Activity {
                 } else if (value.equals("false")) {
                     setConditionValue(treeNode, "false");
                 }
-              //  Log.d("STATEMENT IS", value);
+                //  Log.d("STATEMENT IS", value);
             } else if (treeNode.nodeType == Node.Type.ELSE) {
                 openCurlysIndent.add(true);
                 // addToVariablesArray();
@@ -1573,7 +1576,7 @@ public class Main extends Activity {
                         parameterStack.add(0, value);
                     }
 
-                   ((FunctionCall) funcCall).parameters.remove(((FunctionCall) funcCall).parameters.size()-1);
+                    ((FunctionCall) funcCall).parameters.remove(((FunctionCall) funcCall).parameters.size() - 1);
                     runCode(n);
                     if (((FunctionCall) funcCall).type != FunctionCall.Type.VOID) {
                         returnValueStack.remove(returnValueStack.size() - 1);
@@ -1608,10 +1611,11 @@ public class Main extends Activity {
                 }
 
                 Node functionCallNode = tree.returnFunctionCallNodeParam(treeNode);
-                    (((FunctionCall) functionCallNode).parameters).add(paramArray);
+                (((FunctionCall) functionCallNode).parameters).add(paramArray);
             }
         }
     }
+
 
 
 
@@ -1670,7 +1674,7 @@ public class Main extends Activity {
 
     public void runCode(Node tree){
         if(errorStack.size() == 0) {
-            try {
+           try {
                 visitNodeRun(tree);
                 if (tree.left != null) {
                     if (tree.left.run) {
@@ -1762,7 +1766,8 @@ public class Main extends Activity {
                     }
 
                 }
-            } catch (StackOverflowError e) {
+           } catch (StackOverflowError e) {
+
                 errorStack.add("A recursive function caused an error as it looped foreverr");
             } catch (ArrayIndexOutOfBoundsException e) {
                 errorStack.add("A recursive function caused an error as it looped foreverr");
@@ -2809,6 +2814,7 @@ public class Main extends Activity {
 
                 if (canDelete) {
                     //Check if deleting
+
 
                     if(varUsed) {
                         yesNo(vars);

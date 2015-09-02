@@ -1014,6 +1014,25 @@ public class Node extends Activity {
     }
 
 
+    public ArrayList<String> searchDownTreeFunc(Node tree, Node.Type type, ArrayList<String> func){
+        if(tree == null){
+            return func;
+        }
+        if(tree.nodeType == type){
+            if(((Function)tree).isDec) {
+                func.add(((Function) tree).name);
+            }
+
+        }
+        if(tree.left != null){
+            func = searchDownTree(tree.left, type, func);
+        }
+        if(tree.right != null){
+            func = searchDownTree(tree.right, type, func);
+        }
+        return func;
+    }
+
 
     public Node removeChildren(Node tree, String direction){
         Node node = findCurNode(tree);
