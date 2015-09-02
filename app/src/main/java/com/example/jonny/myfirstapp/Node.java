@@ -1,7 +1,6 @@
 package com.example.jonny.myfirstapp;
 
 import android.app.Activity;
-import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -624,6 +623,24 @@ public class Node extends Activity {
 
 
 
+    public Boolean searchTreeFunctionCall(Node tree, String name, Boolean foundFunc){
+        if(tree.nodeType== Type.FUNCCALL){
+            if(((FunctionCall)tree).functionName.equals(name)) {
+                foundFunc = true;
+                return foundFunc;
+            }
+        }
+
+        if(tree.left != null){
+            foundFunc = searchTreeFunctionCall(tree.left, name, foundFunc);
+        }
+        if(tree.right != null){
+            foundFunc = searchTreeFunctionCall(tree.right, name, foundFunc);
+        }
+        return foundFunc;
+    }
+
+
     public Node changeCurrentNode(Node tree, Integer lineNumber){
         tree = clearCurrentNode(tree);
       //  tree.findCurNode(tree).isCurrentNode = false;
@@ -1014,23 +1031,56 @@ public class Node extends Activity {
     }
 
 
-    public ArrayList<String> searchDownTreeFunc(Node tree, Node.Type type, ArrayList<String> func){
+   /* public String searchTreeFuncCall(Node tree, Node.Type type, String func){
         if(tree == null){
             return func;
         }
         if(tree.nodeType == type){
+            return ((FunctionCall)tree).functionName;
+
+        }
+        if(tree.left != null){
+            func = searchTreeFuncCall(tree.left, type, func);
+        }
+        if(tree.right != null){
+            func = searchTreeFuncCall(tree.right, type, func);
+        }
+        return func;
+    }*/
+
+    public String searchDownTreeFunction(Node tree, String funcName){
+        if(tree == null){
+            return funcName;
+        }
+        if(tree.nodeType == Type.FUNCTION){
             if(((Function)tree).isDec) {
-                func.add(((Function) tree).name);
+                funcName = ((Function) tree).name;
             }
 
         }
         if(tree.left != null){
-            func = searchDownTree(tree.left, type, func);
+            funcName = searchDownTreeFunction(tree.left, funcName);
         }
         if(tree.right != null){
-            func = searchDownTree(tree.right, type, func);
+            funcName = searchDownTreeFunction(tree.right, funcName);
         }
-        return func;
+        return funcName;
+    }
+
+    public String searchUpTreeFunc(Node tree, String funcName){
+        if(tree.nodeType == Type.SEQ){
+            return funcName;
+        }
+        if(tree.nodeType == Type.FUNCTION){
+            if(((Function)tree).isDec) {
+                funcName = ((Function) tree).name;
+            }
+
+        }
+        if(tree.parent.nodeType != Type.SEQ){
+            funcName = searchUpTreeFunc(tree.parent, funcName);
+        }
+        return funcName;
     }
 
 

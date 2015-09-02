@@ -754,13 +754,14 @@ public class Main extends Activity {
 
 
     public void yesNo(ArrayList<String>vars){
+        final Integer lineNumber = tree.getLineNumberOfCurrentNode(tree);
         final Dialog dialog = new Dialog(this);
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
-                        tree = tree.delete(tree, lineJustPressed);
+                        tree = tree.delete(tree, lineNumber);
                         printTree(tree);
                         break;
 
@@ -1768,7 +1769,7 @@ public class Main extends Activity {
                 }
            } catch (StackOverflowError e) {
 
-                errorStack.add("A recursive function caused an error as it looped foreverr");
+                errorStack.add("A recursive function caused an error as it looped forever");
             } catch (ArrayIndexOutOfBoundsException e) {
                 errorStack.add("A recursive function caused an error as it looped foreverr");
             }
@@ -2781,6 +2782,7 @@ public class Main extends Activity {
 
             case R.id.btnDelete:
              //   Log.d("DEBUG", "PRESS PRINT");
+                Integer lineNumber = tree.getLineNumberOfCurrentNode(tree);
                 Node currentNd = tree.findCurNode(tree);
                 Node.Type currentNodeType = currentNd.nodeType;
                 Boolean canDelete = true;
@@ -2814,13 +2816,22 @@ public class Main extends Activity {
 
                 if (canDelete) {
                     //Check if deleting
-
+               /*     String fName = tree.searchDownTreeFunction(currentNd, null);
+                    if(fName == null){
+                        fName = tree.searchUpTreeFunc(currentNd, null);
+                    }
+                    if(fName != null) {
+                        if (tree.searchTreeFunctionCall(tree, fName, false) == true) ;
+                        {
+                            output.setText("BINGO");
+                        }
+                    }*/
 
                     if(varUsed) {
                         yesNo(vars);
                         printTree(tree);
                     }else {
-                            tree = tree.delete(tree, lineJustPressed);
+                            tree = tree.delete(tree, lineNumber);
                             btnDelete.setVisibility(View.VISIBLE);
                             btnUpLine.setVisibility(View.VISIBLE);
                             btnDownLine.setVisibility(View.VISIBLE);
