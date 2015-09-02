@@ -1122,7 +1122,9 @@ public class Main extends Activity {
                         String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
                         parameterStack.add(0, value);
                     }
-                    ((FunctionCall) node).parameters.remove(((FunctionCall) node).parameters.size()-1);
+                    if(((FunctionCall) node).parameters.size() > 0) {
+                        ((FunctionCall) node).parameters.remove(((FunctionCall) node).parameters.size() - 1);
+                    }
 
                 runCode(n);
                     String value = returnValueStack.get(returnValueStack.size() - 1);
@@ -1572,8 +1574,9 @@ public class Main extends Activity {
                         String value = getValueOfExpressionNode(evaluateArray(paramArray).get(0));
                         parameterStack.add(0, value);
                     }
-
-                    ((FunctionCall) funcCall).parameters.remove(((FunctionCall) funcCall).parameters.size() - 1);
+                    if(((FunctionCall) funcCall).parameters.size() > 0) {
+                        ((FunctionCall) funcCall).parameters.remove(((FunctionCall) funcCall).parameters.size() - 1);
+                    }
                     runCode(n);
                     if (((FunctionCall) funcCall).type != FunctionCall.Type.VOID) {
                         returnValueStack.remove(returnValueStack.size() - 1);
